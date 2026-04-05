@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soft Pink Bouquet — Gentle Luxury for the Moments That Matter Showcase</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent 28%),
+    linear-gradient(135deg, #0d1117 0%, #171c24 100%);
+  color: #f5f7fa;
+}
+.wrap {
+  max-width: 1450px;
+  margin: 0 auto;
+  padding: 34px 24px;
+}
+.board {
+  border-radius: 30px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.035);
+  box-shadow: 0 26px 80px rgba(0,0,0,0.34);
+}
+.hero {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 24px;
+  padding: 34px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background:
+    linear-gradient(120deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)),
+    linear-gradient(90deg, rgba(239, 207, 211, 0.06), transparent 45%);
+}
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+h1 {
+  margin: 0 0 14px 0;
+  font-size: 54px;
+  line-height: 1.03;
+  max-width: 760px;
+}
+.positioning {
+  font-size: 21px;
+  line-height: 1.55;
+  color: #d9e1e8;
+  max-width: 760px;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0 18px;
+}
+.tag {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.09);
+  font-size: 13px;
+}
+.hero-cta {
+  margin-top: 18px;
+  display: inline-block;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #f2f4f7;
+  color: #12161b;
+  font-weight: 800;
+  font-size: 15px;
+}
+.meta {
+  margin-top: 18px;
+  max-width: 760px;
+  color: #ccd5de;
+  line-height: 1.65;
+}
+.visual {
+  position: relative;
+  min-height: 420px;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  background:
+    radial-gradient(circle at 25% 20%, #EFCFD355, transparent 25%),
+    radial-gradient(circle at 72% 28%, #D8A7B155, transparent 22%),
+    radial-gradient(circle at 55% 72%, #A8B7A155, transparent 20%),
+    linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+}
+.circle {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(1px);
+}
+.c1 { width: 180px; height: 180px; left: 52px; top: 72px; background: #EFCFD3; opacity: .88; }
+.c2 { width: 110px; height: 110px; left: 210px; top: 116px; background: #D8A7B1; opacity: .9; }
+.c3 { width: 150px; height: 150px; left: 138px; top: 220px; background: #F7F1EA; opacity: .85; }
+.c4 { width: 120px; height: 120px; left: 290px; top: 195px; background: #FFF8F2; opacity: .92; }
+.c5 { width: 95px; height: 95px; left: 244px; top: 55px; background: #A8B7A1; opacity: .75; }
+.card-float {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  width: 280px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(14,17,22,0.76);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(8px);
+}
+.card-float h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+.card-float p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #d9e1e8;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 24px;
+}
+.card {
+  border-radius: 20px;
+  padding: 22px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+.big {
+  font-size: 18px;
+  line-height: 1.68;
+  color: #e8edf2;
+}
+.small {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #d0d8e0;
+  white-space: pre-wrap;
+}
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.swatch {
+  width: 110px;
+}
+.swatch-color {
+  height: 54px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  margin-bottom: 8px;
+}
+.swatch-label {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #d8e0e8;
+}
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.8px;
+  line-height: 1.7;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.03);
+  white-space: pre-wrap;
+  color: #dde4eb;
+}
+.footer {
+  padding: 18px 24px 26px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  color: #aeb8c2;
+  font-size: 13px;
+}
+@media (max-width: 1100px) {
+  .hero { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr; }
+  h1 { font-size: 40px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="board">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">OpenClaw Showcase Campaign Board</div>
+        <h1>Soft Pink Bouquet — Gentle Luxury for the Moments That Matter</h1>
+        <div class="positioning">A soft, elegant bouquet that feels thoughtful, warm, and beautifully gift-ready.</div>
+        <div class="tags"><span class="tag">Taipei</span><span class="tag">Birthday</span><span class="tag">Giftable</span></div>
+        <div class="hero-cta">Order the Soft Pink Bouquet for your next birthday, anniversary, or thoughtful surprise.</div>
+        <div class="meta"><strong>Audience:</strong> People in Taipei buying flowers for birthdays, anniversaries, and meaningful everyday gifting who want something refined, warm, and premium without entering ultra-luxury pricing.<br><br><strong>Key message:</strong> Soft Pink Bouquet makes gifting feel effortless: elegant enough to impress, warm enough to feel personal, and priced as an accessible premium choice.</div>
+      </div>
+      <div class="visual">
+        <div class="circle c1"></div>
+        <div class="circle c2"></div>
+        <div class="circle c3"></div>
+        <div class="circle c4"></div>
+        <div class="circle c5"></div>
+        <div class="card-float">
+          <h3>Campaign Mood</h3>
+          <p>Use a clean, airy composition with soft natural light, premium wrapping, and a warm lifestyle feel. Show the bouquet as a polished gift object rather than just a product shot. Prioritize blush pink blooms, creamy neutrals, subtle texture, a...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Instagram Draft</h2>
+        <div class="small">Soft, elegant, and made to be gifted. The Soft Pink Bouquet is designed for birthdays, anniversaries, and those moments when you want to send something warm and beautiful. A gentle premium bouquet with a timeless feel, now available in Taipei.</div>
+      </div>
+
+      <div class="card">
+        <h2>Facebook Draft</h2>
+        <div class="small">Looking for a bouquet that feels elegant, warm, and easy to gift? The Soft Pink Bouquet is a refined mid-range premium arrangement made for birthdays, anniversaries, and thoughtful surprises. Beautifully soft in tone and designed to leave a lasting impression.</div>
+      </div>
+
+      <div class="card">
+        <h2>Color Palette</h2>
+        <div class="swatches"><div class="swatch"><div class="swatch-color" style="background:#EFCFD3"></div><div class="swatch-label"><strong>Blush pink</strong><br>#EFCFD3</div></div><div class="swatch"><div class="swatch-color" style="background:#D8A7B1"></div><div class="swatch-label"><strong>Dusty rose</strong><br>#D8A7B1</div></div><div class="swatch"><div class="swatch-color" style="background:#F7F1EA"></div><div class="swatch-label"><strong>Cream</strong><br>#F7F1EA</div></div><div class="swatch"><div class="swatch-color" style="background:#FFF8F2"></div><div class="swatch-label"><strong>Warm ivory</strong><br>#FFF8F2</div></div><div class="swatch"><div class="swatch-color" style="background:#A8B7A1"></div><div class="swatch-label"><strong>Sage green</strong><br>#A8B7A1</div></div><div class="swatch"><div class="swatch-color" style="background:#B8A59A"></div><div class="swatch-label"><strong>Soft taupe</strong><br>#B8A59A</div></div><div class="swatch"><div class="swatch-color" style="background:#4A4542"></div><div class="swatch-label"><strong>Charcoal accent</strong><br>#4A4542</div></div></div>
+      </div>
+
+      <div class="card">
+        <h2>Image Prompt</h2>
+        <div class="mono">Create a premium floral campaign image for a product called ‘Soft Pink Bouquet.’ Show a hand-tied bouquet of soft pink flowers with creamy neutral accents, elegant wrapping, and a warm giftable presentation. The mood should feel soft, elegant, warm, and thoughtful. Styling should look mid-range premium, not ultra-luxury. Use natural light, airy composition, subtle shadows, blush and cream tones, and refined detail shots of petals and wrapping. Set the scene in a modern Taipei lifestyle context suitable for birthday, anniversary, or thoughtful gift-giving. Include negative space for text overlay and keep the overall look clean, feminine, and polished.</div>
+      </div>
+    </div>
+
+    <div class="footer">Soft Pink Bouquet is positioned as an accessible premium gift bouquet for Taipei customers who want something elegant, warm, and easy to give. The campaign should emphasize emotional gifting, visual softness, and polished presentation rather than complexity or extravagance.</div>
+  </div>
+</div>
+</body>
+</html>

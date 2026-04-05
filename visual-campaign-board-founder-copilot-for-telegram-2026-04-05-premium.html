@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Founder Copilot for Telegram — Turn Chat Into Execution · OpenClaw Campaign Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #FAF8F4;
+    --white: #FFFFFF;
+    --ink: #1A1814;
+    --ink-muted: #6B6760;
+    --ink-faint: #B8B5B0;
+    --border: rgba(26, 24, 20, 0.10);
+    --border-hover: rgba(26, 24, 20, 0.22);
+    --accent: #D4537E;
+    --accent-light: #FBEAF0;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --shadow-card: 0 1px 3px rgba(26,24,20,0.06), 0 4px 16px rgba(26,24,20,0.04);
+    --shadow-hover: 0 2px 8px rgba(26,24,20,0.09), 0 8px 28px rgba(26,24,20,0.07);
+    --transition: 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background-color: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 48px 24px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-wrapper {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .meta-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .meta-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .meta-date {
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-weight: 300;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.5s ease 0.07s forwards;
+  }
+
+  .hero-content {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    padding: 44px 48px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+    transition: box-shadow var(--transition);
+  }
+
+  .hero-content:hover { box-shadow: var(--shadow-hover); }
+
+  .campaign-category {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+
+  .campaign-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(36px, 4.5vw, 58px);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .campaign-title em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--accent);
+  }
+
+  .campaign-tagline {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--ink-muted);
+    line-height: 1.6;
+    max-width: 520px;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--ink-muted);
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 5px 14px;
+    transition: border-color var(--transition), color var(--transition);
+  }
+
+  .tag:hover { border-color: var(--border-hover); color: var(--ink); }
+
+  .cta-box {
+    background: var(--ink);
+    border-radius: var(--radius-md);
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+  }
+
+  .cta-box:hover { background: #2d2b27; transform: translateY(-1px); }
+  .cta-box:active { transform: translateY(0); }
+
+  .cta-text {
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.9);
+    line-height: 1.5;
+  }
+
+  .cta-arrow {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+    color: white;
+  }
+
+  .palette-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .palette-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    padding: 28px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow var(--transition);
+    flex: 1;
+  }
+
+  .palette-card:hover { box-shadow: var(--shadow-hover); }
+
+  .card-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 20px;
+  }
+
+  .palette-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .palette-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background var(--transition);
+    position: relative;
+  }
+
+  .palette-row:hover { background: var(--cream); }
+
+  .palette-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .palette-meta { flex: 1; }
+
+  .palette-color-name {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink);
+  }
+
+  .palette-hex-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+
+  .copy-hint {
+    font-size: 10px;
+    color: var(--ink-faint);
+    opacity: 0;
+    transition: opacity var(--transition);
+    white-space: nowrap;
+  }
+
+  .palette-row:hover .copy-hint { opacity: 1; }
+
+  .copied-toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background: var(--ink);
+    color: white;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 100px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s ease;
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .copied-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .middle-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.5s ease 0.14s forwards;
+  }
+
+  .info-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    padding: 32px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow var(--transition);
+  }
+
+  .info-card:hover { box-shadow: var(--shadow-hover); }
+
+  .info-card.mood {
+    background: var(--ink);
+    border-color: transparent;
+    grid-column: span 1;
+  }
+
+  .info-card.mood .card-label { color: rgba(255,255,255,0.35); }
+
+  .mood-text {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 19px;
+    font-weight: 300;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.88);
+    font-style: italic;
+  }
+
+  .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .bullet-list li {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.55;
+    color: var(--ink-muted);
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .bullet-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 5px;
+    height: 1px;
+    background: var(--ink-faint);
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 14px;
+    line-height: 1.3;
+  }
+
+  .key-message-text {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 20px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.65;
+    color: var(--ink-muted);
+    border-left: 2px solid var(--accent);
+    padding-left: 16px;
+    margin-top: 4px;
+  }
+
+  .drafts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.5s ease 0.21s forwards;
+  }
+
+  .draft-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    padding: 32px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow var(--transition);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .draft-card:hover { box-shadow: var(--shadow-hover); }
+
+  .draft-platform {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .platform-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .platform-icon.ig { background: linear-gradient(135deg, #FCEABB 0%, #F8B500 25%, #F7538A 65%, #AE53F7 100%); }
+  .platform-icon.fb { background: #1877F2; }
+
+  .platform-name {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .draft-text {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.75;
+    color: var(--ink-muted);
+    flex: 1;
+  }
+
+  .draft-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-ghost {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--ink-muted);
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: inherit;
+  }
+
+  .btn-ghost:hover {
+    background: var(--white);
+    border-color: var(--border-hover);
+    color: var(--ink);
+  }
+
+  .prompt-row {
+    opacity: 0;
+    animation: fadeUp 0.5s ease 0.28s forwards;
+  }
+
+  .prompt-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    padding: 32px 36px;
+    box-shadow: var(--shadow-card);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: start;
+    transition: box-shadow var(--transition);
+  }
+
+  .prompt-card:hover { box-shadow: var(--shadow-hover); }
+
+  .prompt-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--ink-muted);
+    background: var(--cream);
+    border-radius: var(--radius-md);
+    padding: 20px 22px;
+    border: 1px solid var(--border);
+    margin-top: 4px;
+    cursor: pointer;
+    transition: border-color var(--transition);
+  }
+
+  .prompt-text:hover { border-color: var(--border-hover); }
+
+  .copy-prompt-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--ink-muted);
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: inherit;
+    white-space: nowrap;
+    align-self: start;
+    margin-top: 36px;
+  }
+
+  .copy-prompt-btn:hover { background: var(--ink); color: white; border-color: var(--ink); }
+
+  .board-footer {
+    margin-top: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    opacity: 0;
+    animation: fadeUp 0.5s ease 0.35s forwards;
+  }
+
+  .footer-summary {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--ink-faint);
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  .footer-logo {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .palette-panel { flex-direction: row; }
+    .palette-card { flex: 1; }
+    .middle-row { grid-template-columns: 1fr 1fr; }
+    .drafts-row { grid-template-columns: 1fr; }
+    .prompt-card { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 24px 16px 60px; }
+    .hero-content { padding: 28px 24px; }
+    .middle-row { grid-template-columns: 1fr; }
+    .palette-panel { flex-direction: column; }
+    .board-footer { flex-direction: column; align-items: flex-start; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="copied-toast" id="toast">Copied to clipboard</div>
+
+<div class="page-wrapper">
+
+  <div class="meta-bar">
+    <span class="meta-label">Campaign Board · Openclaw Showcase</span>
+    <span class="meta-date">Generated April 2026</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-content">
+      <div>
+        <p class="campaign-category">Campaign · Visual · Board</p>
+        <h1 class="campaign-title">Founder Copilot for Telegram —<br><em>Turn Chat Into Execution</em></h1>
+      </div>
+      <p class="campaign-tagline">A sharp, operator-grade Telegram assistant that turns messy founder thinking into clear plans, priorities, specs, and drafts.</p>
+      <div class="tag-row">
+        <span class="tag">Mid-range premium</span>
+      </div>
+      <div class="cta-box" onclick="copyText('Put your next messy idea into chat and get a usable output in minutes.')">
+        <span class="cta-text">Put your next messy idea into chat and get a usable output in minutes.</span>
+        <span class="cta-arrow">↗</span>
+      </div>
+    </div>
+
+    <div class="palette-panel">
+      <div class="palette-card" style="flex: none;">
+        <p class="card-label">Color Palette</p>
+        <div class="palette-list">
+          <div class="palette-row" onclick="copyHex('#182430', 'Midnight navy')">
+            <div class="palette-dot" style="background:#182430;"></div>
+            <div class="palette-meta">
+              <div class="palette-color-name">Midnight navy</div>
+              <div class="palette-hex-code">#182430</div>
+            </div>
+            <span class="copy-hint">Copy ↗</span>
+          </div>
+          <div class="palette-row" onclick="copyHex('#2A3138', 'Graphite')">
+            <div class="palette-dot" style="background:#2A3138;"></div>
+            <div class="palette-meta">
+              <div class="palette-color-name">Graphite</div>
+              <div class="palette-hex-code">#2A3138</div>
+            </div>
+            <span class="copy-hint">Copy ↗</span>
+          </div>
+          <div class="palette-row" onclick="copyHex('#4F6B86', 'Steel blue')">
+            <div class="palette-dot" style="background:#4F6B86;"></div>
+            <div class="palette-meta">
+              <div class="palette-color-name">Steel blue</div>
+              <div class="palette-hex-code">#4F6B86</div>
+            </div>
+            <span class="copy-hint">Copy ↗</span>
+          </div>
+          <div class="palette-row" onclick="copyHex('#E9EEF2', 'Ice gray')">
+            <div class="palette-dot" style="background:#E9EEF2;"></div>
+            <div class="palette-meta">
+              <div class="palette-color-name">Ice gray</div>
+              <div class="palette-hex-code">#E9EEF2</div>
+            </div>
+            <span class="copy-hint">Copy ↗</span>
+          </div>
+          <div class="palette-row" onclick="copyHex('#F8FAFC', 'Soft white')">
+            <div class="palette-dot" style="background:#F8FAFC;"></div>
+            <div class="palette-meta">
+              <div class="palette-color-name">Soft white</div>
+              <div class="palette-hex-code">#F8FAFC</div>
+            </div>
+            <span class="copy-hint">Copy ↗</span>
+          </div>
+          <div class="palette-row" onclick="copyHex('#2F8F9D', 'Signal teal')">
+            <div class="palette-dot" style="background:#2F8F9D;"></div>
+            <div class="palette-meta">
+              <div class="palette-color-name">Signal teal</div>
+              <div class="palette-hex-code">#2F8F9D</div>
+            </div>
+            <span class="copy-hint">Copy ↗</span>
+          </div>
+          <div class="palette-row" onclick="copyHex('#D7C7B6', 'Warm sand')">
+            <div class="palette-dot" style="background:#D7C7B6;"></div>
+            <div class="palette-meta">
+              <div class="palette-color-name">Warm sand</div>
+              <div class="palette-hex-code">#D7C7B6</div>
+            </div>
+            <span class="copy-hint">Copy ↗</span>
+          </div>
+          <div class="palette-row" onclick="copyHex('#2AABEE', 'Electric accent blue')">
+            <div class="palette-dot" style="background:#2AABEE;"></div>
+            <div class="palette-meta">
+              <div class="palette-color-name">Electric accent blue</div>
+              <div class="palette-hex-code">#2AABEE</div>
+            </div>
+            <span class="copy-hint">Copy ↗</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="middle-row">
+    <div class="info-card">
+      <p class="card-label">Target Audience</p>
+      <h3 class="section-title">Who We're Talking To</h3>
+      <ul class="bullet-list">
+        <li>Solo founders</li>
+        <li>Early-stage operators</li>
+        <li>Builders who naturally think in chat</li>
+        <li>Want a faster way to turn vague ideas into structured execution without adding process overhead</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <p class="card-label">Key Message</p>
+      <h3 class="section-title">What We're Saying</h3>
+      <p class="key-message-text">Founder Copilot for Telegram helps founders move from scattered thoughts to concrete action by routing rough requests into the right workflow, producing usable outputs fast, and keeping daily execution focused.</p>
+    </div>
+
+    <div class="info-card mood">
+      <p class="card-label">Campaign Mood</p>
+      <p class="mood-text">Use a premium productized-operator aesthetic: dark-on-light or deep neutral interface tones, crisp typography, structured message cards, and a clean Telegram-style chat layout paired with polished output panels. Show the assistant as a serious execution tool,...</p>
+    </div>
+  </div>
+
+  <div class="drafts-row">
+    <div class="draft-card">
+      <div class="draft-platform">
+        <div class="platform-icon ig"></div>
+        <span class="platform-name">Instagram</span>
+      </div>
+      <p class="draft-text">Ideas are easy. Operational clarity is harder. Founder Copilot for Telegram turns rough thoughts into plans, specs, priorities, and drafts — right inside chat. Fast, practical, and built for founders who need output, not more tools.</p>
+      <div class="draft-actions">
+        <button class="btn-ghost" onclick="copyText('Ideas are easy. Operational clarity is harder. Founder Copilot for Telegram turns rough thoughts into plans, specs, priorities, and drafts — right inside chat. Fast, practical, and built for founders who need output, not more tools.')">Copy caption</button>
+        <button class="btn-ghost">Edit draft</button>
+      </div>
+    </div>
+    <div class="draft-card">
+      <div class="draft-platform">
+        <div class="platform-icon fb">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </div>
+        <span class="platform-name">Facebook</span>
+      </div>
+      <p class="draft-text">Founder Copilot for Telegram is an OpenClaw-powered assistant built for solo founders and early-stage operators who think in chat. It helps turn vague requests into the right workflow, produces plans, product specs, priorities, and drafts, and runs a daily founder review to keep execution moving. Premium productivity, but actually useful.</p>
+      <div class="draft-actions">
+        <button class="btn-ghost" onclick="copyText('Founder Copilot for Telegram is an OpenClaw-powered assistant built for solo founders and early-stage operators who think in chat. It helps turn vague requests into the right workflow, produces plans, product specs, priorities, and drafts, and runs a daily founder review to keep execution moving. Premium productivity, but actually useful.')">Copy caption</button>
+        <button class="btn-ghost">Edit draft</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-row">
+    <div class="prompt-card">
+      <div>
+        <p class="card-label">Image Prompt</p>
+        <p class="prompt-text" onclick="copyText(this.textContent)">Create a premium campaign image for a digital product called ‘Founder Copilot for Telegram.’ Show a polished Telegram-style chat interface where messy founder messages are transformed into structured outputs like plans, priorities, specs, and drafts. Include a second panel or overlay showing a clean daily founder review or execution summary. The mood should feel sharp, practical, premium, fast, and operator-grade. Use crisp typography, modern SaaS/productivity design, restrained colors, elegant spacing, and subtle UI hierarchy. Avoid generic chatbot visuals or playful consumer app aesthetics. The product should feel like a serious execution tool for founders and early-stage operators who think in chat. Include negative space for headline text and keep the composition clean and demo-ready.</p>
+      </div>
+      <button class="copy-prompt-btn" onclick="copyText(document.querySelector('.prompt-text').textContent)">
+        Copy prompt ↗
+      </button>
+    </div>
+  </div>
+
+  <div class="board-footer">
+    <p class="footer-summary">Founder Copilot for Telegram is positioned as a premium execution assistant for founders who operate through chat and need speed, clarity, and structured output. The campaign should emphasize transformation from messy founder thinking to operator-grade execution, with a visual language that feels fast, sharp, and trustworthy.</p>
+    <span class="footer-logo">Openclaw ✦</span>
+  </div>
+
+</div>
+
+<script>
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  function copyHex(hex, name) {
+    navigator.clipboard.writeText(hex).then(() => {
+      showToast(name + ' — ' + hex + ' copied');
+    }).catch(() => showToast('Copy: ' + hex));
+  }
+
+  function copyText(text) {
+    const clean = text.trim();
+    navigator.clipboard.writeText(clean).then(() => {
+      showToast('Copied to clipboard');
+    }).catch(() => showToast('Select and copy manually'));
+  }
+</script>
+</body>
+</html>
