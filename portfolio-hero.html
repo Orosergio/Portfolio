@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw — Live System Demo</title>
+  <meta name="description" content="Watch the AI pipeline live: Telegram prompt → OpenClaw routing → rendered HTML board. Interactive demo with real output." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:     #090913;
+      --s1:     #12121f;
+      --s2:     #1a1a2e;
+      --border: rgba(255,255,255,0.10);
+      --bhi:    rgba(255,255,255,0.18);
+      --ink:    #e8e7f3;
+      --sub:    #a09dbf;
+      --dim:    #5a5878;
+      --mint:   #4df0c0;
+      --violet: #7b6cff;
+      --amber:  #fbbf24;
+      --mono:   'Space Mono', monospace;
+      --sans:   'Space Grotesk', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--bg); color: var(--ink); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    /* cursor glow */
+    #cg { position: fixed; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(77,240,192,0.05) 0%, transparent 65%); pointer-events: none; transform: translate(-50%,-50%); z-index: 0; transition: left .08s, top .08s; }
+
+    /* ── NAV ── */
+    .nav { position: sticky; top: 0; z-index: 100; background: rgba(9,9,19,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+    .nav-i { max-width: 1360px; margin: 0 auto; padding: 0 40px; height: 60px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-family: var(--mono); font-size: 13px; color: var(--mint); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .logo .d { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 8px var(--mint); animation: pd 2.5s ease-in-out infinite; }
+    @keyframes pd { 0%,100% { box-shadow: 0 0 6px var(--mint); } 50% { box-shadow: 0 0 18px var(--mint), 0 0 32px rgba(77,240,192,.3); } }
+    .nav-r { display: flex; align-items: center; gap: 24px; }
+    .clk { font-family: var(--mono); font-size: 11px; color: var(--dim); letter-spacing: .1em; }
+    .nav-back { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; color: var(--sub); text-transform: uppercase; text-decoration: none; transition: border-color .2s, color .2s; }
+    .nav-back:hover { border-color: var(--mint); color: var(--mint); }
+
+    /* ── WRAP ── */
+    .w { max-width: 1360px; margin: 0 auto; padding: 0 40px; position: relative; z-index: 2; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 92vh;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 32px;
+      align-items: start;
+      padding: 56px 0 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: radial-gradient(ellipse 60% 80% at 20% 40%, black 20%, transparent 75%);
+      -webkit-mask-image: radial-gradient(ellipse 60% 80% at 20% 40%, black 20%, transparent 75%);
+      pointer-events: none;
+    }
+
+    .orb { position: absolute; border-radius: 50%; filter: blur(75px); pointer-events: none; }
+    .o1 { width: 480px; height: 480px; background: radial-gradient(circle, rgba(77,240,192,.09) 0%, transparent 70%); top: -100px; left: -80px; animation: df 14s ease-in-out infinite; }
+    .o2 { width: 360px; height: 360px; background: radial-gradient(circle, rgba(123,108,255,.08) 0%, transparent 70%); top: 40%; right: 30%; animation: df 18s ease-in-out infinite reverse; }
+    @keyframes df { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-20px) scale(1.07)} 66%{transform:translate(-15px,15px) scale(.96)} }
+
+    /* LEFT PANEL */
+    .hero-left { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 20px; padding-top: 8px; }
+
+    .eyebrow { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 11px; color: var(--mint); letter-spacing: .16em; text-transform: uppercase; margin-bottom: 4px; }
+    .eline { width: 28px; height: 1px; background: linear-gradient(90deg, var(--mint), transparent); }
+
+    h1 { font-size: clamp(32px,3.2vw,48px); font-weight: 700; line-height: 1.1; letter-spacing: -.025em; margin-bottom: 14px; }
+    .g1 { background: linear-gradient(130deg, var(--mint) 0%, var(--violet) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .hero-sub { font-size: 15px; line-height: 1.75; color: var(--sub); margin-bottom: 8px; }
+    .hero-sub strong { color: var(--ink); font-weight: 500; }
+
+    /* chip row */
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; padding: 5px 11px; border: 1px solid var(--border); border-radius: 4px; color: var(--sub); background: rgba(255,255,255,.025); transition: border-color .2s, color .2s; cursor: default; }
+    .chip:hover { border-color: rgba(77,240,192,.35); color: var(--mint); }
+
+    /* mini stats */
+    .mini-stats { display: grid; grid-template-columns: repeat(3,1fr); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .ms { padding: 18px 16px; border-right: 1px solid var(--border); position: relative; }
+    .ms:last-child { border-right: none; }
+    .ms-num { font-family: var(--mono); font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 6px; text-shadow: 0 0 30px rgba(77,240,192,.2); }
+    .ms-num .a { color: var(--mint); }
+    .ms-label { font-size: 11px; color: var(--sub); line-height: 1.5; }
+
+    /* execution steps */
+    .steps-label { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-bottom: 10px; }
+    .steps { display: flex; flex-direction: column; gap: 6px; }
+    .step { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 10px; transition: border-color .2s; }
+    .step:hover { border-color: var(--bhi); }
+    .step-ico { font-family: var(--mono); font-size: 10px; color: var(--mint); letter-spacing: .06em; flex-shrink: 0; padding-top: 1px; }
+    .step-body strong { display: block; font-size: 13px; font-weight: 600; margin-bottom: 3px; color: var(--ink); }
+    .step-body span { font-size: 12px; color: var(--sub); line-height: 1.5; }
+
+    /* ── BROWSER PREVIEW (right) ── */
+    .hero-right { position: relative; z-index: 1; }
+    .browser-shell {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(77,240,192,.05);
+    }
+
+    .browser-bar {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 16px;
+      background: var(--s2);
+      border-bottom: 1px solid var(--border);
+    }
+    .bdots { display: flex; gap: 6px; }
+    .bdot { width: 10px; height: 10px; border-radius: 50%; }
+    .bdot:nth-child(1) { background: #ff5f57; }
+    .bdot:nth-child(2) { background: #ffbd2e; }
+    .bdot:nth-child(3) { background: #28c840; }
+    .burl { font-family: var(--mono); font-size: 11px; color: var(--sub); padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,.04); border: 1px solid var(--border); flex: 1; }
+
+    .browser-tabs { display: flex; gap: 8px; padding: 12px 16px 0; }
+    .btab { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .04em; padding: 8px 14px; border-radius: 6px 6px 0 0; border: 1px solid var(--border); border-bottom: none; background: rgba(255,255,255,.03); color: var(--sub); cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
+    .btab.active { background: var(--s1); color: var(--ink); border-color: var(--bhi); }
+    .btab:hover:not(.active) { background: rgba(255,255,255,.06); color: var(--ink); }
+
+    .browser-frame { padding: 0; background: #fff; }
+    iframe { width: 100%; height: 680px; border: none; display: block; }
+
+    .browser-status { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: var(--s2); border-top: 1px solid var(--border); }
+    .bstatus { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: .08em; display: flex; align-items: center; gap: 8px; }
+    .bstatus-dot { width: 6px; height: 6px; border-radius: 50%; background: #28c840; box-shadow: 0 0 6px #28c840; animation: pd 2s ease-in-out infinite; }
+
+    /* ── MARQUEE ── */
+    .mq-outer { overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 13px 0; }
+    .mq-track { display: flex; width: max-content; animation: mq 28s linear infinite; }
+    .mq-track:hover { animation-play-state: paused; }
+    @keyframes mq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .mi { display: inline-flex; align-items: center; gap: 22px; padding: 0 28px; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
+    .mi::before { content: '✦'; color: var(--mint); font-size: 8px; }
+
+    /* ── SECTION LABEL ── */
+    .sl { display: flex; align-items: center; gap: 16px; padding: 72px 0 32px; font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: .16em; text-transform: uppercase; }
+    .sl::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── TELEGRAM DEMO ── */
+    .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-bottom: 80px; }
+
+    .tg-card { background: var(--s1); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .tg-head { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--s2); }
+    .tg-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--mint), var(--violet)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #080810; font-size: 14px; flex-shrink: 0; }
+    .tg-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .tg-sub { font-family: var(--mono); font-size: 10px; color: var(--mint); letter-spacing: .08em; }
+
+    .chat { display: flex; flex-direction: column; gap: 10px; padding: 16px; }
+    .bubble { max-width: 90%; padding: 12px 14px; border-radius: 14px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+    .user { align-self: flex-end; background: var(--violet); color: #fff; border-bottom-right-radius: 4px; }
+    .bot { align-self: flex-start; background: rgba(255,255,255,.07); color: var(--ink); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+    .bot .tag-ok { font-family: var(--mono); font-size: 10px; color: var(--mint); display: block; margin-bottom: 6px; letter-spacing: .06em; }
+    .bot .path { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-top: 6px; display: block; }
+
+    /* proof strip */
+    .proof-grid { display: flex; flex-direction: column; gap: 12px; }
+    .proof-card { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; transition: border-color .2s, transform .2s; }
+    .proof-card:hover { border-color: var(--bhi); transform: translateX(4px); }
+    .proof-k { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mint); margin-bottom: 6px; }
+    .proof-v { font-size: 13px; color: var(--sub); line-height: 1.6; }
+
+    /* ── FOOTER ── */
+    .footer { padding: 28px 0 72px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+    .fl { font-size: 13px; color: var(--dim); line-height: 1.6; max-width: 500px; }
+    .fr { font-family: var(--mono); font-size: 11px; color: var(--dim); letter-spacing: .08em; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .fd { width: 5px; height: 5px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 6px var(--mint); }
+
+    /* ── REVEAL ── */
+    .r { opacity: 0; transform: translateY(20px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+    .r.in { opacity: 1; transform: none; }
+    .d1{transition-delay:.08s} .d2{transition-delay:.18s} .d3{transition-delay:.28s} .d4{transition-delay:.38s}
+
+    @media(max-width:1100px) { .hero { grid-template-columns: 1fr; min-height: auto; } .hero-right { order: -1; } iframe { height: 520px; } .demo-grid { grid-template-columns: 1fr; } }
+    @media(max-width:700px) { .w { padding: 0 20px; } h1 { font-size: clamp(28px,8vw,40px); } .mini-stats { grid-template-columns: 1fr; } .nav-r .clk { display: none; } iframe { height: 420px; } }
+  </style>
+</head>
+<body>
+
+<div id="cg"></div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-i">
+    <a class="logo" href="index.html"><span class="d"></span>openclaw.showcase</a>
+    <div class="nav-r">
+      <span class="clk" id="clk"></span>
+      <a class="nav-back" href="index.html">← Back to index</a>
+    </div>
+  </div>
+</div>
+
+<div class="w">
+  <!-- HERO: 2-col layout -->
+  <section class="hero" id="top">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+
+    <!-- LEFT: narrative + stats + steps -->
+    <div class="hero-left">
+      <div>
+        <div class="eyebrow r d1"><span class="eline"></span>Live System Demo</div>
+        <h1 class="r d2">The pipeline that turns a <span class="g1">Telegram message</span> into a deployed HTML board.</h1>
+        <p class="hero-sub r d3"><strong>Watch it live.</strong> Pick a board on the right — each one was generated from a single structured Telegram prompt routed through <strong>OpenClaw</strong> on a self-hosted <strong>Linux VPS</strong>.</p>
+      </div>
+
+      <div class="chips r d3">
+        <span class="chip">Python</span>
+        <span class="chip">Telegram Bot API</span>
+        <span class="chip">OpenClaw</span>
+        <span class="chip">Linux VPS</span>
+        <span class="chip">HTML + CSS</span>
+        <span class="chip">Bash Scripting</span>
+        <span class="chip">AI / LLM Routing</span>
+      </div>
+
+      <div class="mini-stats r d4">
+        <div class="ms">
+          <div class="ms-num">3<span class="a">.</span></div>
+          <div class="ms-label">Boards from one pipeline</div>
+        </div>
+        <div class="ms">
+          <div class="ms-num">1<span class="a">.</span></div>
+          <div class="ms-label">Telegram workflow, reused</div>
+        </div>
+        <div class="ms">
+          <div class="ms-num">∞<span class="a">.</span></div>
+          <div class="ms-label">Potential variations</div>
+        </div>
+      </div>
+
+      <div class="r d4">
+        <div class="steps-label">Execution loop</div>
+        <div class="steps">
+          <div class="step">
+            <span class="step-ico">01</span>
+            <div class="step-body">
+              <strong>Telegram prompt</strong>
+              <span>Structured operator message sent via Telegram bot.</span>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-ico">02</span>
+            <div class="step-body">
+              <strong>OpenClaw routes</strong>
+              <span>AI parses, enriches, and generates structured content on VPS.</span>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-ico">03</span>
+            <div class="step-body">
+              <strong>Python renders</strong>
+              <span>Custom renderer converts markdown + JSON artifacts to HTML.</span>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-ico">04</span>
+            <div class="step-body">
+              <strong>Board deployed</strong>
+              <span>Visual artifact hosted live — ready to share or present.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: live browser preview -->
+    <div class="hero-right r d2">
+      <div class="browser-shell">
+        <div class="browser-bar">
+          <div class="bdots">
+            <div class="bdot"></div>
+            <div class="bdot"></div>
+            <div class="bdot"></div>
+          </div>
+          <div class="burl" id="burl">orosergio.github.io/Portfolio/visual-campaign-board-soft-pink-bouquet-2026-04-03-premium.html</div>
+        </div>
+        <div class="browser-tabs">
+          <button class="btab active" onclick="switchBoard(this,'visual-campaign-board-soft-pink-bouquet-2026-04-03-premium.html','Soft Pink Bouquet')">Soft Pink Bouquet</button>
+          <button class="btab" onclick="switchBoard(this,'visual-campaign-board-pattern-recognition-journaling-app-2026-04-05-premium.html','Journaling App')">Journaling App</button>
+          <button class="btab" onclick="switchBoard(this,'visual-campaign-board-founder-copilot-for-telegram-2026-04-05-premium.html','Founder Copilot')">Founder Copilot</button>
+        </div>
+        <div class="browser-frame">
+          <iframe id="preview" src="visual-campaign-board-soft-pink-bouquet-2026-04-03-premium.html" title="Board preview" loading="lazy"></iframe>
+        </div>
+        <div class="browser-status">
+          <div class="bstatus"><span class="bstatus-dot"></span>Live artifact · rendered by pipeline</div>
+          <div class="bstatus" id="bboard-label">Soft Pink Bouquet</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- MARQUEE -->
+<div class="mq-outer">
+  <div class="mq-track" aria-hidden="true">
+    <span class="mi">Python</span><span class="mi">Telegram Bot API</span><span class="mi">OpenClaw</span>
+    <span class="mi">Linux VPS</span><span class="mi">HTML Rendering</span><span class="mi">AI Routing</span>
+    <span class="mi">REST APIs</span><span class="mi">Bash / Shell</span><span class="mi">Visual Artifacts</span>
+    <span class="mi">Operator Prompts</span><span class="mi">Self-Hosted</span><span class="mi">Product Thinking</span>
+    <span class="mi">Python</span><span class="mi">Telegram Bot API</span><span class="mi">OpenClaw</span>
+    <span class="mi">Linux VPS</span><span class="mi">HTML Rendering</span><span class="mi">AI Routing</span>
+    <span class="mi">REST APIs</span><span class="mi">Bash / Shell</span><span class="mi">Visual Artifacts</span>
+    <span class="mi">Operator Prompts</span><span class="mi">Self-Hosted</span><span class="mi">Product Thinking</span>
+  </div>
+</div>
+
+<div class="w">
+
+  <div class="sl r">How It Was Built</div>
+
+  <!-- TELEGRAM + PROOF -->
+  <div class="demo-grid">
+
+    <!-- Telegram chat simulation -->
+    <div class="tg-card r d1">
+      <div class="tg-head">
+        <div class="tg-avatar">O</div>
+        <div>
+          <div class="tg-name">openclaw_enrique_bot</div>
+          <div class="tg-sub">● Telegram workflow entry point</div>
+        </div>
+      </div>
+      <div class="chat">
+        <div class="bubble user">Execute Visual Campaign — Soft Pink Bouquet
+Target: Taipei flower gifting, birthdays & anniversaries
+Price point: mid-range premium
+Output: full campaign board HTML</div>
+        <div class="bubble bot">
+          <span class="tag-ok">✓ Campaign board queued</span>
+          Generating: positioning, audience brief, color palette, key message, social drafts, and AI image prompt.
+
+Rendering to HTML → saving artifact.
+          <span class="path">→ /artifacts/visual-campaign-board-soft-pink-bouquet.html</span>
+        </div>
+        <div class="bubble user">Now do a product board for a pattern recognition journaling app — same pipeline, recruiter-ready output.</div>
+        <div class="bubble bot">
+          <span class="tag-ok">✓ Routing to product board renderer</span>
+          Artifact generated: positioning, target audience, design direction, MVP framing, social copy, visual prompt.
+          <span class="path">→ visual-campaign-board-pattern-recognition-journaling-app.html ✦</span>
+        </div>
+        <div class="bubble user">Last one: build a founder copilot operator board for OpenClaw itself.</div>
+        <div class="bubble bot">
+          <span class="tag-ok">✓ Operator board rendered</span>
+          Execution story, routing narrative, founder tools positioning, and image prompt saved.
+          <span class="path">→ visual-campaign-board-founder-copilot-for-telegram.html ✦</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proof strip -->
+    <div class="proof-grid r d2">
+      <div class="proof-card">
+        <div class="proof-k">Input</div>
+        <div class="proof-v">One Telegram message with a product brief and context. No form, no UI, no setup — just chat.</div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-k">AI Processing</div>
+        <div class="proof-v">OpenClaw parses the prompt, applies routing logic, and enriches content into structured positioning data on a self-hosted Linux VPS.</div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-k">Rendering</div>
+        <div class="proof-v">Custom Python scripts convert markdown + JSON artifacts into a fully styled, production-ready HTML board.</div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-k">Reusability</div>
+        <div class="proof-v">Same pipeline. Different prompt. Flower campaign → journaling app → founder copilot. Unlimited outputs.</div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-k">Infrastructure</div>
+        <div class="proof-v">Self-hosted Hetzner VPS running OpenClaw, Python renderers, and a preview server. Zero third-party services.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <p class="fl">This page is itself proof — a Telegram bot, AI routing layer, VPS, and Python renderers working together to produce fully rendered, hosted visual artifacts from a single chat message.</p>
+    <div class="fr"><span class="fd"></span>OpenClaw · System Demo</div>
+  </footer>
+
+</div>
+
+<script>
+  // cursor glow
+  const cg = document.getElementById('cg');
+  document.addEventListener('mousemove', e => { cg.style.left = e.clientX+'px'; cg.style.top = e.clientY+'px'; });
+
+  // clock
+  const clk = document.getElementById('clk');
+  const tick = () => clk.textContent = new Date().toLocaleTimeString('en-US',{hour12:false});
+  tick(); setInterval(tick, 1000);
+
+  // board switching
+  const BASE = 'orosergio.github.io/Portfolio/';
+  function switchBoard(btn, file, label) {
+    document.querySelectorAll('.btab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('preview').src = file;
+    document.getElementById('burl').textContent = BASE + file;
+    document.getElementById('bboard-label').textContent = label;
+  }
+
+  // scroll reveal
+  const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);} }), {threshold:.08});
+  document.querySelectorAll('.r').forEach(el => io.observe(el));
+  setTimeout(() => document.querySelectorAll('.hero .r').forEach(el => el.classList.add('in')), 60);
+</script>
+</body>
+</html>

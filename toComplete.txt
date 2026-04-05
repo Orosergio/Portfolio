@@ -1,0 +1,447 @@
+cat>/home/opsadmin/openclaw-preview/portfolio-hero.html <<'EOF'
+
+< !DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>OpenClaw Portfolio Hero</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"><style>* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #0f1319;
+    --panel: #151b23;
+    --panel-2: #1b2330;
+    --panel-3: #fbf8f3;
+    --ink: #f4f7fb;
+    --muted: #b3bcc8;
+    --soft: #8e99a8;
+    --accent: #e96898;
+    --accent-2: #7ed2cf;
+    --border: rgba(255, 255, 255, 0.08);
+    --shadow: 0 18px 55px rgba(0, 0, 0, 0.35);
+    --radius-xl: 28px;
+    --radius-lg: 22px;
+    --radius-md: 16px;
+    --radius-sm: 12px;
+}
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(233, 104, 152, 0.10), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(126, 210, 207, 0.10), transparent 26%),
+        linear-gradient(135deg, #0c1117 0%, #111722 100%);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 36px 24px 60px;
+    -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+    max-width: 1420px;
+    margin: 0 auto;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+    color: var(--soft);
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.hero {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: 24px;
+    align-items: stretch;
+}
+
+.left {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+}
+
+.intro {
+    padding: 34px 32px 30px;
+}
+
+.eyebrow {
+    color: var(--soft);
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(44px, 5.8vw, 78px);
+    line-height: 0.98;
+    font-weight: 600;
+    margin-bottom: 18px;
+    max-width: 720px;
+}
+
+h1 em {
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 500;
+}
+
+.sub {
+    font-size: 18px;
+    line-height: 1.75;
+    color: var(--muted);
+    max-width: 640px;
+    margin-bottom: 18px;
+}
+
+.chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.chip {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: rgba(255, 255, 255, 0.04);
+    color: #d8dee8;
+    font-size: 13px;
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 6px;
+}
+
+.metric {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 16px;
+}
+
+.metric .num {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.metric .label {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.workflow {
+    padding: 24px;
+}
+
+.workflow-title {
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-bottom: 14px;
+}
+
+.flow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.flow-step {
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px 14px;
+    min-height: 110px;
+}
+
+.flow-step strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.flow-step span {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.telegram-card {
+    padding: 22px;
+    background: linear-gradient(180deg, rgba(24, 34, 48, 0.92), rgba(17, 23, 34, 0.96));
+}
+
+.telegram-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #ffb4c7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #1b1117;
+    font-size: 16px;
+}
+
+.telegram-name {
+    font-weight: 700;
+}
+
+.telegram-sub {
+    font-size: 12px;
+    color: var(--soft);
+    margin-top: 2px;
+}
+
+.chat {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bubble {
+    max-width: 88%;
+    padding: 14px 16px;
+    border-radius: 18px;
+    line-height: 1.65;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+.user {
+    align-self: flex-end;
+    background: #3b82f6;
+    color: white;
+    border-bottom-right-radius: 6px;
+}
+
+.bot {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.08);
+    color: #edf2f8;
+    border-bottom-left-radius: 6px;
+}
+
+.right {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.browser {
+    overflow: hidden;
+}
+
+.browser-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.browser-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dots {
+    display: flex;
+    gap: 7px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.20);
+}
+
+.url {
+    font-size: 13px;
+    color: var(--muted);
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 16px 16px 0 16px;
+}
+
+.tab {
+    border: none;
+    cursor: pointer;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #dce4ee;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tab.active {
+    background: #fff;
+    color: #12161d;
+}
+
+.frame-wrap {
+    padding: 16px;
+}
+
+.frame-shell {
+    border-radius: 22px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+}
+
+iframe {
+    width: 100%;
+    height: 760px;
+    border: none;
+    background: #fff;
+}
+
+.proof-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+.proof-card {
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+}
+
+.proof-card .k {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--soft);
+    margin-bottom: 10px;
+}
+
+.proof-card .v {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #dce4ee;
+}
+
+.footer-note {
+    margin-top: 18px;
+    color: var(--soft);
+    font-size: 13px;
+    line-height: 1.7;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+@media (max-width: 1180px) {
+    .hero {
+        grid-template-columns: 1fr;
+    }
+
+    .metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .flow {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .proof-strip {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    iframe {
+        height: 680px;
+    }
+}
+
+@media (max-width: 720px) {
+    body {
+        padding: 20px 14px 40px;
+    }
+
+    .intro {
+        padding: 24px 20px;
+    }
+
+    .workflow,
+    .telegram-card {
+        padding: 18px;
+    }
+
+    .flow {
+        grid-template-columns: 1fr;
+    }
+
+    .proof-strip {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-note {
+        flex-direction: column;
+    }
+
+    iframe {
+        height: 560px;
+    }
+}
+
+</style></head><body><div class="wrap"><div class="topbar"><span>OpenClaw Portfolio Hero</span><span>Telegram → OpenClaw → Reusable Artifacts</span></div><section class="hero"><div class="left"><div class="card intro"><div class="eyebrow">Chat in · structured execution out</div><h1>I wanted AI that does more than chat,
+so I built a <em>Telegram-first workflow system</em>on OpenClaw+a VPS.</h1><p class="sub">Instead of just generating answers,
+this setup turns structured Telegram prompts into saved artifacts: campaign boards,
+product framing,
+operator positioning,
+and reusable visual outputs. </p><div class="chip-row"><span class="chip">Telegram interface</span><span class="chip">OpenClaw orchestration</span><span class="chip">Hetzner VPS</span><span class="chip">JSON+MD+HTML outputs</span><span class="chip">Portfolio-ready artifacts</span></div><div class="metrics"><div class="metric"><div class="num">3</div><div class="label">Premium boards built from the same rendering pipeline.</div></div><div class="metric"><div class="num">1</div><div class="label">Telegram workflow reused across product,
+operator,
+and marketing contexts.</div></div><div class="metric"><div class="num">VPS</div><div class="label">Self-hosted environment with OpenClaw,
+preview server,
+and reusable renderer scripts.</div></div></div></div><div class="card workflow"><div class="workflow-title">Execution loop</div><div class="flow"><div class="flow-step"><strong>1. Telegram request</strong><span>User sends a structured prompt for a board,
+product,
+or campaign idea.</span></div><div class="flow-step"><strong>2. OpenClaw output</strong><span>OpenClaw generates structured content and saves markdown+JSON artifacts.</span></div><div class="flow-step"><strong>3. HTML render</strong><span>Custom Python renderers turn those artifacts into visual pages.</span></div><div class="flow-step"><strong>4. Showcase preview</strong><span>The system exposes portfolio-ready outputs through a local preview hub.</span></div></div></div><div class="card telegram-card"><div class="telegram-top"><div class="avatar">O</div><div><div class="telegram-name">Openclaw_enrique_bot</div><div class="telegram-sub">Telegram workflow entry point</div></div></div><div class="chat"><div class="bubble user">Execute Visual
