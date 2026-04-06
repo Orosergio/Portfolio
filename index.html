@@ -763,6 +763,94 @@
       line-height: 1.6;
     }
 
+    /* ── ARTIFACT TRAIL ── */
+    .trail {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      padding-bottom: 80px;
+      position: relative;
+    }
+
+    .trail::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(77, 240, 192, .3), rgba(77, 240, 192, .5), rgba(77, 240, 192, .3), transparent);
+    }
+
+    .trail-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0 12px;
+      position: relative;
+    }
+
+    .trail-dot {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--s1);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+      transition: border-color .3s, box-shadow .3s;
+    }
+
+    .trail-step:hover .trail-dot {
+      border-color: var(--mint);
+      box-shadow: 0 0 20px rgba(77, 240, 192, .2);
+    }
+
+    .trail-n {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--mint);
+      letter-spacing: .12em;
+      margin-bottom: 8px;
+    }
+
+    .trail-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+      line-height: 1.35;
+    }
+
+    .trail-sub {
+      font-size: 11px;
+      color: var(--sub);
+      line-height: 1.55;
+    }
+
+    @media(max-width:900px) {
+      .trail {
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+
+      .trail::before {
+        display: none;
+      }
+    }
+
+    @media(max-width:500px) {
+      .trail {
+        grid-template-columns: 1fr;
+      }
+    }
+
     /* ── FOOTER ── */
     .footer {
       padding: 28px 0 72px;
@@ -893,12 +981,13 @@
 
       <div class="hero-left">
         <div class="eyebrow r d1"><span class="eline"></span>AI Workflow Engineer</div>
-        <h1 class="r d2">I built an AI system that turns <span class="g1">Telegram messages</span> into production-ready
+        <h1 class="r d2">I built an AI system that turns <span class="g1">Telegram messages</span> into portfolio-ready
           visual boards.</h1>
         <p class="hero-sub r d3">
-          <strong>One pipeline. Unlimited outputs.</strong> A Telegram bot routes operator prompts through
-          <strong>OpenClaw</strong> on a self-hosted <strong>Linux VPS</strong>, rendering premium
-          HTML artifacts automatically — no manual design, no copy-paste.
+          <strong>One pipeline. Unlimited outputs.</strong> A Telegram bot routes
+          operator prompts through <strong>OpenClaw</strong> on a self-hosted <strong>Linux VPS</strong>
+          — saving <strong>JSON and Markdown artifacts</strong>, then rendering them
+          into polished HTML boards automatically.
         </p>
         <div class="cta-row r d4">
           <a class="btn-p" href="#demo">View Boards ↓</a>
@@ -974,13 +1063,13 @@
       </div>
       <div class="browser-tabs">
         <button class="btab active"
-          onclick="switchBoard(this,'https://orosergio.github.io/Portfolio/visual-campaign-board-soft-pink-bouquet-2026-04-03-premium.html','Soft Pink Bouquet')">Soft
+          onclick="switchBoard(this,'visual-campaign-board-soft-pink-bouquet-2026-04-03-premium.html','Soft Pink Bouquet')">Soft
           Pink Bouquet</button>
         <button class="btab"
-          onclick="switchBoard(this,'https://orosergio.github.io/Portfolio/visual-campaign-board-pattern-recognition-journaling-app-2026-04-05-premium.html','Journaling App')">Journaling
+          onclick="switchBoard(this,'visual-campaign-board-pattern-recognition-journaling-app-2026-04-05-premium.html','Journaling App')">Journaling
           App</button>
         <button class="btab"
-          onclick="switchBoard(this,'https://orosergio.github.io/Portfolio/visual-campaign-board-founder-copilot-for-telegram-2026-04-05-premium.html','Founder Copilot')">Founder
+          onclick="switchBoard(this,'visual-campaign-board-founder-copilot-for-telegram-2026-04-05-premium.html','Founder Copilot')">Founder
           Copilot</button>
       </div>
       <div class="browser-frame">
@@ -1058,11 +1147,46 @@
         </div>
         <div class="proof-card">
           <div class="proof-k">Infrastructure</div>
-          <div class="proof-v">Self-hosted Hetzner VPS running OpenClaw, Python renderers, and a preview server. Zero
-            third-party services.</div>
+          <div class="proof-v">Self-hosted Hetzner VPS running OpenClaw, Python renderers, and a preview server.
+            self-hosted orchestration with external API integrations.</div>
         </div>
       </div>
 
+    </div>
+
+    <!-- ARTIFACT TRAIL -->
+    <div class="sl r">Artifact Trail</div>
+    <div class="trail">
+      <div class="trail-step r d1">
+        <div class="trail-dot">📱</div>
+        <div class="trail-n">01</div>
+        <div class="trail-title">Request via Telegram</div>
+        <div class="trail-sub">Structured operator prompt sent to the bot — no UI, no form.</div>
+      </div>
+      <div class="trail-step r d2">
+        <div class="trail-dot">⚡</div>
+        <div class="trail-n">02</div>
+        <div class="trail-title">OpenClaw routes & enriches</div>
+        <div class="trail-sub">AI parses the prompt, applies routing logic, generates structured content.</div>
+      </div>
+      <div class="trail-step r d3">
+        <div class="trail-dot">💾</div>
+        <div class="trail-n">03</div>
+        <div class="trail-title">JSON + Markdown saved on VPS</div>
+        <div class="trail-sub">Artifacts persisted on the self-hosted Linux server — reusable, auditable.</div>
+      </div>
+      <div class="trail-step r d4">
+        <div class="trail-dot">🐍</div>
+        <div class="trail-n">04</div>
+        <div class="trail-title">Python renderer generates HTML</div>
+        <div class="trail-sub">Custom script converts the JSON artifact into a fully styled visual board.</div>
+      </div>
+      <div class="trail-step r d5">
+        <div class="trail-dot">🌐</div>
+        <div class="trail-n">05</div>
+        <div class="trail-title">GitHub Pages serves it live</div>
+        <div class="trail-sub">Public preview URL — no backend, no third-party hosting, zero cost.</div>
+      </div>
     </div>
 
     <footer class="footer">
