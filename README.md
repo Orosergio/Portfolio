@@ -96,7 +96,7 @@ portfolio/
 
 **Yavhé Sergio Orozco**  
 Software Developer · Taipei, Taiwan  
-[GitHub](https://github.com/Orosergio) · [LinkedIn](#)
+[GitHub](https://github.com/Orosergio) · [LinkedIn](https://www.linkedin.com/in/orosergioo)
 
 ---
 

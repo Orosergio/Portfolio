@@ -92,13 +92,15 @@ body{overflow-x:hidden}
 .sh-desc{font-size:15px;color:var(--ink-2);line-height:1.6;max-width:340px}
 
 /* projects */
-.proj-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.proj-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
 .proj{background:var(--paper);padding:36px;position:relative;text-decoration:none;color:inherit;transition:background .2s;display:flex;flex-direction:column;min-height:420px}
+.proj{grid-column:span 4}
+.proj.wide{grid-column:span 6}
 .proj:hover{background:var(--paper-2)}
 .proj-meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;margin-bottom:32px}
 .proj-meta .live{color:var(--acc);display:flex;align-items:center;gap:6px}
 .proj-meta .live::before{content:'';width:6px;height:6px;background:var(--acc);border-radius:50%;animation:blink 1.4s ease-in-out infinite}
-.proj-title{font-size:44px;font-weight:700;letter-spacing:-.04em;line-height:.9;margin-bottom:20px}
+.proj-title{font-size:clamp(34px,3.3vw,44px);font-weight:700;letter-spacing:-.04em;line-height:.9;margin-bottom:20px}
 .proj-title .sup{font-size:14px;vertical-align:top;color:var(--acc);font-weight:500;letter-spacing:0}
 .proj-desc{font-size:14px;line-height:1.6;color:var(--ink-2);margin-bottom:24px;max-width:400px}
 .proj-specs{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;font-family:var(--mono);font-size:11px;padding-top:20px;border-top:1px solid var(--line)}
@@ -171,11 +173,12 @@ iframe{width:100%;height:680px;border:none;display:block}
 /* reveal */
 .r{opacity:0;transform:translateY(16px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
 .r.in{opacity:1;transform:none}
-.d1{transition-delay:.06s}.d2{transition-delay:.14s}.d3{transition-delay:.22s}.d4{transition-delay:.30s}
+.d1{transition-delay:.06s}.d2{transition-delay:.14s}.d3{transition-delay:.22s}.d4{transition-delay:.30s}.d5{transition-delay:.38s}
 
 @media(max-width:1020px){
   .hero,.sh,.nav,.live-head{grid-template-columns:1fr;gap:24px}
   .proj-grid,.pipe-grid,.footer-grid,.live-foot{grid-template-columns:1fr}
+  .proj,.proj.wide{grid-column:1}
   .pipe-cell,.footer-grid div,.live-foot div{border-right:none;border-bottom:1px solid var(--line)}
 }
 </style>
@@ -201,7 +204,7 @@ iframe{width:100%;height:680px;border:none;display:block}
   <div class="nav-cta">
     <a href="#work">Work</a>
     <a href="#process">Process</a>
-    <a href="/cdn-cgi/l/email-protection#157a677a667067727c7a7a557278747c793b767a78">Contact</a>
+    <a href="mailto:orosergioo@gmail.com">Contact</a>
   </div>
 </nav>
 
@@ -224,7 +227,7 @@ iframe{width:100%;height:680px;border:none;display:block}
     </p>
     <div class="hero-specs r d4">
       <div class="spec"><div class="spec-k">Focus</div><div class="spec-v">AI <b>/</b> Infra</div></div>
-      <div class="spec"><div class="spec-k">Shipped</div><div class="spec-v">2 <b>/</b> live systems</div></div>
+      <div class="spec"><div class="spec-k">Selected</div><div class="spec-v">5 <b>/</b> systems</div></div>
       <div class="spec"><div class="spec-k">Server</div><div class="spec-v">Hetzner <b>/</b> SG</div></div>
       <div class="spec"><div class="spec-k">Available</div><div class="spec-v">Summer <b>'26</b></div></div>
     </div>
@@ -244,47 +247,71 @@ iframe{width:100%;height:680px;border:none;display:block}
 <section class="section" id="work">
   <div class="sh">
     <div class="sh-num">§<b>01</b> / Work</div>
-    <div class="sh-title">Selected<br/>projects.</div>
-    <div class="sh-desc">Three systems, all live. A consumer product, an admin tool for a real landlord, and the infrastructure that generates products.</div>
+    <div class="sh-title">Selected<br/>systems.</div>
+    <div class="sh-desc">Five high-signal builds across AI products, reinforcement learning, agent infrastructure, real-time apps, and embedded firmware.</div>
   </div>
 
   <div class="proj-grid">
-    <a class="proj r d1" href="https://pattern-journal.vercel.app" target="_blank">
+    <a class="proj r d1" href="https://pattern-journal.vercel.app" target="_blank" rel="noopener noreferrer">
       <div class="proj-meta"><span>001 · PRODUCT</span><span class="live">LIVE</span></div>
       <div class="proj-title">Pattern<br/>Journal<span class="sup">↗</span></div>
-      <div class="proj-desc">AI journaling that detects emotional patterns, tracks sentiment, and generates weekly insights. Next.js + Supabase + Gemma 3 4B.</div>
+      <div class="proj-desc">AI journaling product that analyzes entries, detects emotional patterns, charts sentiment, and generates weekly insight reports.</div>
       <div class="proj-specs">
         <div><span>Role</span><span>Solo eng</span></div>
         <div><span>Stack</span><span>Next.js / TS</span></div>
-        <div><span>Model</span><span>Gemma 3 4B</span></div>
+        <div><span>AI</span><span>Gemini 2.5</span></div>
         <div><span>Year</span><span>2025–26</span></div>
       </div>
       <div class="proj-arrow">↗</div>
     </a>
-    <a class="proj r d2" href="#live">
-      <div class="proj-meta"><span>002 · SYSTEM</span><span class="live">LIVE</span></div>
-      <div class="proj-title">Open<br/>Claw<span class="sup">↓</span></div>
-      <div class="proj-desc">Telegram-native AI pipeline on a self-hosted Linux VPS. One message in, a production HTML artifact out. systemd-managed, GitHub Pages-served.</div>
+    <a class="proj r d2" href="https://github.com/Orosergio/RegimeAwareGBWM" target="_blank" rel="noopener noreferrer">
+      <div class="proj-meta"><span>002 · AI / FINANCE</span><span class="live">REPO</span></div>
+      <div class="proj-title">AI Wealth<br/>Lab<span class="sup">↗</span></div>
+      <div class="proj-desc">Regime-aware goal-based wealth simulator using reinforcement learning, HMM regime detection, backtests, and transparent policy evaluation.</div>
       <div class="proj-specs">
         <div><span>Role</span><span>Solo eng</span></div>
-        <div><span>Stack</span><span>Python / TG</span></div>
+        <div><span>Stack</span><span>Python / RL</span></div>
+        <div><span>Models</span><span>G-Learner / PPO</span></div>
+        <div><span>Year</span><span>2026</span></div>
+      </div>
+      <div class="proj-arrow">↗</div>
+    </a>
+    <a class="proj r d3" href="#live">
+      <div class="proj-meta"><span>003 · AI INFRA</span><span class="live">LIVE</span></div>
+      <div class="proj-title">OpenClaw<br/>Mission<span class="sup">↓</span></div>
+      <div class="proj-desc">Telegram-native AI workflow on a hardened Linux VPS, plus a Mission Control dashboard for tasks, memory, approvals, and generated artifacts.</div>
+      <div class="proj-specs">
+        <div><span>Role</span><span>Solo eng</span></div>
+        <div><span>Stack</span><span>Python / Next</span></div>
         <div><span>Host</span><span>Hetzner SG</span></div>
         <div><span>Year</span><span>2026</span></div>
       </div>
       <div class="proj-arrow">↓</div>
     </a>
-    <a class="proj r d3" href="https://oro-real-state.vercel.app/" target="_blank">
-      <div class="proj-meta"><span>003 · PRODUCT</span><span class="live">SHIPPED</span></div>
-      <div class="proj-title">Oro<br/>RealState<span class="sup">↗</span></div>
-      <div class="proj-desc">Desktop-first rental management dashboard for a landlord. Properties → floors → units, tenants, leases, payments, receipts, maintenance. Replaces paper with structured data.</div>
+    <a class="proj wide r d4" href="https://github.com/Orosergio/KinielaFulbrings" target="_blank" rel="noopener noreferrer">
+      <div class="proj-meta"><span>004 · FULL-STACK</span><span class="live">REPO</span></div>
+      <div class="proj-title">Kiniela<br/>Mundial<span class="sup">↗</span></div>
+      <div class="proj-desc">Private World Cup pool app with auth, groups, predictions, live score sync, server-side rules, database migrations, health checks, and CI monitoring.</div>
       <div class="proj-specs">
         <div><span>Role</span><span>Solo eng</span></div>
-        <div><span>Stack</span><span>Next.js / TS</span></div>
-        <div><span>Data</span><span>Supabase</span></div>
+        <div><span>Stack</span><span>React / Netlify</span></div>
+        <div><span>Data</span><span>Neon Postgres</span></div>
         <div><span>Year</span><span>2026</span></div>
       </div>
       <div class="proj-arrow">↗</div>
     </a>
+    <article class="proj wide r d5">
+      <div class="proj-meta"><span>005 · EMBEDDED</span><span class="live">PRIVATE</span></div>
+      <div class="proj-title">Finger<br/>Mouse<span class="sup">◎</span></div>
+      <div class="proj-desc">BLE HID firmware for a custom nRF52840 wearable mouse with optical tracking, force sensors, capacitive touch, haptics, battery management, and DFU.</div>
+      <div class="proj-specs">
+        <div><span>Role</span><span>Firmware eng</span></div>
+        <div><span>Stack</span><span>Zephyr / C</span></div>
+        <div><span>Hardware</span><span>nRF52840</span></div>
+        <div><span>Status</span><span>Case study</span></div>
+      </div>
+      <div class="proj-arrow">◎</div>
+    </article>
   </div>
 </section>
 
@@ -376,15 +403,15 @@ iframe{width:100%;height:680px;border:none;display:block}
     <div class="footer-grid">
       <div>
         <div class="k">Email</div>
-        <div class="v"><a href="/cdn-cgi/l/email-protection#8ae5f8e5f9eff8ede3e5e5caede7ebe3e6a4e9e5e7"><span class="__cf_email__" data-cfemail="b8d7cad7cbddcadfd1d7d7f8dfd5d9d1d496dbd7d5">[email&#160;protected]</span></a></div>
+        <div class="v"><a href="mailto:orosergioo@gmail.com">orosergioo@gmail.com</a></div>
       </div>
       <div>
         <div class="k">GitHub</div>
-        <div class="v"><a href="https://github.com/Orosergio">@Orosergio</a></div>
+        <div class="v"><a href="https://github.com/Orosergio" target="_blank" rel="noopener noreferrer">@Orosergio</a></div>
       </div>
       <div>
         <div class="k">LinkedIn</div>
-        <div class="v"><a href="https://www.linkedin.com/in/orosergioo">/orosergioo</a></div>
+        <div class="v"><a href="https://www.linkedin.com/in/orosergioo" target="_blank" rel="noopener noreferrer">/orosergioo</a></div>
       </div>
       <div>
         <div class="k">Location</div>
@@ -399,7 +426,7 @@ iframe{width:100%;height:680px;border:none;display:block}
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js" defer></script><script>
+<script>
 const clk=document.getElementById('clk');
 const tick=()=>clk.textContent=new Date().toLocaleTimeString('en-US',{hour12:false,timeZone:'Asia/Taipei'});
 tick();setInterval(tick,1000);
