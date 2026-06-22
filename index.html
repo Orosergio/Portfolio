@@ -74,15 +74,24 @@ body{overflow-x:hidden}
 .spec-v{font-size:14px;color:var(--ink);font-weight:500}
 .spec-v b{color:var(--acc)}
 
-/* portrait col */
+/* system map */
 .hero-r{position:relative}
-.portrait-wrap{aspect-ratio:3/4;background:var(--paper-2);border:1px solid var(--line);position:relative;overflow:hidden;background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(10,10,8,.04) 6px 12px)}
-.portrait-wrap::before{content:'[ PORTRAIT ]';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.15em}
+.portrait-wrap{aspect-ratio:3/4;background:var(--paper-2);border:1px solid var(--line);position:relative;overflow:hidden;padding:54px 28px 58px;background-image:linear-gradient(to right,rgba(10,10,8,.05) 1px,transparent 1px),linear-gradient(to bottom,rgba(10,10,8,.05) 1px,transparent 1px);background-size:24px 24px}
 .portrait-corner{position:absolute;top:12px;left:12px;font-family:var(--mono);font-size:9px;color:var(--mute);letter-spacing:.1em}
 .portrait-corner.tr{top:12px;right:12px;left:auto;text-align:right}
 .portrait-corner.bl{top:auto;bottom:12px}
 .portrait-corner.br{top:auto;bottom:12px;right:12px;left:auto;text-align:right}
-.portrait-tag{position:absolute;left:-1px;bottom:-36px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:10px;padding:8px 12px;letter-spacing:.1em;text-transform:uppercase}
+.portrait-tag{position:absolute;left:-1px;bottom:-1px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:10px;padding:8px 12px;letter-spacing:.1em;text-transform:uppercase}
+.map-stack{height:100%;display:grid;grid-template-rows:1fr auto 1fr;gap:18px}
+.map-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.map-node{border:1px solid var(--ink);background:var(--paper);padding:16px;display:flex;flex-direction:column;justify-content:space-between;min-height:112px}
+.map-node.core{background:var(--ink);color:var(--paper)}
+.map-k{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:18px}
+.map-node.core .map-k{color:rgba(250,250,247,.58)}
+.map-v{font-size:20px;font-weight:700;line-height:.95;letter-spacing:-.03em}
+.map-line{height:1px;background:var(--ink);position:relative;margin:2px 20px}
+.map-line::before,.map-line::after{content:'';position:absolute;top:50%;width:8px;height:8px;border:1px solid var(--ink);background:var(--paper);transform:translateY(-50%) rotate(45deg)}
+.map-line::before{left:-18px}.map-line::after{right:-18px}
 
 /* section heading */
 .sh{display:grid;grid-template-columns:2fr 6fr 4fr;gap:40px;margin-bottom:40px;align-items:baseline}
@@ -103,6 +112,8 @@ body{overflow-x:hidden}
 .proj-title{font-size:clamp(34px,3.3vw,44px);font-weight:700;letter-spacing:-.04em;line-height:.9;margin-bottom:20px}
 .proj-title .sup{font-size:14px;vertical-align:top;color:var(--acc);font-weight:500;letter-spacing:0}
 .proj-desc{font-size:14px;line-height:1.6;color:var(--ink-2);margin-bottom:24px;max-width:400px}
+.proj-proof{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:0 0 24px}
+.proj-proof span{background:var(--paper-2);font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);padding:10px 8px;line-height:1.35;min-height:48px;display:flex;align-items:center}
 .proj-specs{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;font-family:var(--mono);font-size:11px;padding-top:20px;border-top:1px solid var(--line)}
 .proj-specs div{display:flex;justify-content:space-between}
 .proj-specs span:first-child{color:var(--mute);text-transform:uppercase;letter-spacing:.08em;font-size:9px;padding-top:2px}
@@ -112,6 +123,17 @@ body{overflow-x:hidden}
 .proj:hover .proj-arrow{background:var(--ink);color:var(--paper);transform:translate(2px,-2px)}
 
 /* pipeline — as technical diagram */
+/* screenshots */
+.screen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.screen-case{background:var(--paper);padding:28px;min-height:460px;display:flex;flex-direction:column}
+.screen-meta{font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:space-between;gap:16px;margin-bottom:20px}
+.screen-title{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:.95;margin-bottom:10px}
+.screen-desc{font-size:13px;line-height:1.6;color:var(--ink-2);max-width:420px;margin-bottom:22px}
+.screen-main{aspect-ratio:16/10;border:1px solid var(--line);background:var(--paper-2);overflow:hidden;margin-top:auto}
+.screen-main img,.screen-thumbs img{width:100%;height:100%;object-fit:cover;object-position:top left;display:block}
+.screen-thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.screen-thumbs img{aspect-ratio:16/10;border:1px solid var(--line);background:var(--paper-2)}
+
 .pipe{padding:80px 0}
 .pipe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--ink);position:relative}
 .pipe-cell{padding:28px 20px 24px;border-right:1px solid var(--line);position:relative;background:var(--paper);min-height:240px;display:flex;flex-direction:column}
@@ -154,6 +176,15 @@ iframe{width:100%;height:680px;border:none;display:block}
 .live-foot div:last-child{border-right:none}
 .live-foot b{color:var(--ink);font-weight:500}
 
+/* other builds */
+.other-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.other{background:var(--paper);padding:28px;text-decoration:none;color:inherit;min-height:240px;display:flex;flex-direction:column;transition:background .2s}
+.other:hover{background:var(--paper-2)}
+.other-meta{font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px;display:flex;justify-content:space-between;gap:16px}
+.other-title{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:.95;margin-bottom:14px}
+.other-desc{font-size:13px;line-height:1.6;color:var(--ink-2);margin-bottom:20px}
+.other-foot{margin-top:auto;font-family:var(--mono);font-size:10px;color:var(--ink);letter-spacing:.06em;text-transform:uppercase;border-top:1px solid var(--line);padding-top:14px}
+
 /* footer */
 .footer{padding:80px 0 40px;border-top:2px solid var(--ink)}
 .footer-big{font-size:clamp(48px,7vw,112px);font-weight:700;letter-spacing:-.045em;line-height:.88;margin-bottom:60px;max-width:1200px}
@@ -177,7 +208,7 @@ iframe{width:100%;height:680px;border:none;display:block}
 
 @media(max-width:1020px){
   .hero,.sh,.nav,.live-head{grid-template-columns:1fr;gap:24px}
-  .proj-grid,.pipe-grid,.footer-grid,.live-foot{grid-template-columns:1fr}
+  .proj-grid,.screen-grid,.pipe-grid,.footer-grid,.live-foot,.other-grid{grid-template-columns:1fr}
   .proj,.proj.wide{grid-column:1}
   .pipe-cell,.footer-grid div,.live-foot div{border-right:none;border-bottom:1px solid var(--line)}
 }
@@ -203,6 +234,7 @@ iframe{width:100%;height:680px;border:none;display:block}
   </div>
   <div class="nav-cta">
     <a href="#work">Work</a>
+    <a href="#proof">Proof</a>
     <a href="#process">Process</a>
     <a href="mailto:orosergioo@gmail.com">Contact</a>
   </div>
@@ -234,11 +266,34 @@ iframe{width:100%;height:680px;border:none;display:block}
   </div>
   <div class="hero-r r d3">
     <div class="portrait-wrap">
-      <div class="portrait-corner">SUBJ / 001</div>
-      <div class="portrait-corner tr">3:4</div>
+      <div class="portrait-corner">SYSTEM / 001</div>
+      <div class="portrait-corner tr">AI INFRA</div>
       <div class="portrait-corner bl">TAIPEI</div>
       <div class="portrait-corner br">2026.04</div>
-      <div class="portrait-tag">S. OROZCO — FIELD PHOTO</div>
+      <div class="map-stack">
+        <div class="map-row">
+          <div class="map-node">
+            <div class="map-k">Product</div>
+            <div class="map-v">AI<br/>apps</div>
+          </div>
+          <div class="map-node">
+            <div class="map-k">Models</div>
+            <div class="map-v">LLM<br/>RL</div>
+          </div>
+        </div>
+        <div class="map-line"></div>
+        <div class="map-row">
+          <div class="map-node core">
+            <div class="map-k">Operator</div>
+            <div class="map-v">Open<br/>Claw</div>
+          </div>
+          <div class="map-node">
+            <div class="map-k">Runtime</div>
+            <div class="map-v">Linux<br/>VPS</div>
+          </div>
+        </div>
+      </div>
+      <div class="portrait-tag">S. OROZCO — SYSTEM MAP</div>
     </div>
   </div>
 </section>
@@ -256,6 +311,7 @@ iframe{width:100%;height:680px;border:none;display:block}
       <div class="proj-meta"><span>001 · PRODUCT</span><span class="live">LIVE</span></div>
       <div class="proj-title">Pattern<br/>Journal<span class="sup">↗</span></div>
       <div class="proj-desc">AI journaling product that analyzes entries, detects emotional patterns, charts sentiment, and generates weekly insight reports.</div>
+      <div class="proj-proof"><span>OAuth + RLS</span><span>AI analysis</span><span>Charts + reports</span></div>
       <div class="proj-specs">
         <div><span>Role</span><span>Solo eng</span></div>
         <div><span>Stack</span><span>Next.js / TS</span></div>
@@ -268,6 +324,7 @@ iframe{width:100%;height:680px;border:none;display:block}
       <div class="proj-meta"><span>002 · AI / FINANCE</span><span class="live">REPO</span></div>
       <div class="proj-title">AI Wealth<br/>Lab<span class="sup">↗</span></div>
       <div class="proj-desc">Regime-aware goal-based wealth simulator using reinforcement learning, HMM regime detection, backtests, and transparent policy evaluation.</div>
+      <div class="proj-proof"><span>RL agents</span><span>HMM regimes</span><span>No-lookahead tests</span></div>
       <div class="proj-specs">
         <div><span>Role</span><span>Solo eng</span></div>
         <div><span>Stack</span><span>Python / RL</span></div>
@@ -280,6 +337,7 @@ iframe{width:100%;height:680px;border:none;display:block}
       <div class="proj-meta"><span>003 · AI INFRA</span><span class="live">LIVE</span></div>
       <div class="proj-title">OpenClaw<br/>Mission<span class="sup">↓</span></div>
       <div class="proj-desc">Telegram-native AI workflow on a hardened Linux VPS, plus a Mission Control dashboard for tasks, memory, approvals, and generated artifacts.</div>
+      <div class="proj-proof"><span>Telegram bot</span><span>systemd VPS</span><span>HTML artifacts</span></div>
       <div class="proj-specs">
         <div><span>Role</span><span>Solo eng</span></div>
         <div><span>Stack</span><span>Python / Next</span></div>
@@ -292,6 +350,7 @@ iframe{width:100%;height:680px;border:none;display:block}
       <div class="proj-meta"><span>004 · FULL-STACK</span><span class="live">REPO</span></div>
       <div class="proj-title">Kiniela<br/>Mundial<span class="sup">↗</span></div>
       <div class="proj-desc">Private World Cup pool app with auth, groups, predictions, live score sync, server-side rules, database migrations, health checks, and CI monitoring.</div>
+      <div class="proj-proof"><span>Auth + groups</span><span>Live score sync</span><span>DB triggers</span></div>
       <div class="proj-specs">
         <div><span>Role</span><span>Solo eng</span></div>
         <div><span>Stack</span><span>React / Netlify</span></div>
@@ -304,6 +363,7 @@ iframe{width:100%;height:680px;border:none;display:block}
       <div class="proj-meta"><span>005 · EMBEDDED</span><span class="live">PRIVATE</span></div>
       <div class="proj-title">Finger<br/>Mouse<span class="sup">◎</span></div>
       <div class="proj-desc">BLE HID firmware for a custom nRF52840 wearable mouse with optical tracking, force sensors, capacitive touch, haptics, battery management, and DFU.</div>
+      <div class="proj-proof"><span>BLE HID</span><span>Sensor drivers</span><span>MCUboot DFU</span></div>
       <div class="proj-specs">
         <div><span>Role</span><span>Firmware eng</span></div>
         <div><span>Stack</span><span>Zephyr / C</span></div>
@@ -315,10 +375,63 @@ iframe{width:100%;height:680px;border:none;display:block}
   </div>
 </section>
 
+<!-- PROOF -->
+<section class="section" id="proof">
+  <div class="sh">
+    <div class="sh-num">§<b>02</b> / Proof</div>
+    <div class="sh-title">Screens<br/>from builds.</div>
+    <div class="sh-desc">Real product surfaces from the live apps and project repositories, not mockups.</div>
+  </div>
+
+  <div class="screen-grid">
+    <article class="screen-case r d1">
+      <div class="screen-meta"><span>Pattern Journal</span><span>AI product</span></div>
+      <div class="screen-title">Write, analyze, reflect.</div>
+      <div class="screen-desc">Journaling flow, dashboard signals, history filters, and weekly AI insight reports from the public repo screenshots.</div>
+      <div class="screen-main">
+        <img src="assets/screenshots/pattern-journal-dashboard.png" alt="Pattern Journal dashboard screenshot" loading="lazy">
+      </div>
+      <div class="screen-thumbs">
+        <img src="assets/screenshots/pattern-journal-write.png" alt="Pattern Journal write and AI analysis screenshot" loading="lazy">
+        <img src="assets/screenshots/pattern-journal-history.png" alt="Pattern Journal history screenshot" loading="lazy">
+        <img src="assets/screenshots/pattern-journal-insights.png" alt="Pattern Journal weekly insights screenshot" loading="lazy">
+      </div>
+    </article>
+
+    <article class="screen-case r d2">
+      <div class="screen-meta"><span>Kiniela Mundial</span><span>Full-stack</span></div>
+      <div class="screen-title">Predictions, groups, scores.</div>
+      <div class="screen-desc">A private World Cup pool with saved picks, live match state, group leaderboard, and scoring rules visible to members.</div>
+      <div class="screen-main">
+        <img src="assets/screenshots/kiniela-home.png" alt="Kiniela Mundial home dashboard screenshot" loading="lazy">
+      </div>
+      <div class="screen-thumbs">
+        <img src="assets/screenshots/kiniela-predictions.png" alt="Kiniela predictions screen screenshot" loading="lazy">
+        <img src="assets/screenshots/kiniela-group.png" alt="Kiniela group table screenshot" loading="lazy">
+        <img src="assets/screenshots/kiniela-home.png" alt="Kiniela live match overview screenshot" loading="lazy">
+      </div>
+    </article>
+
+    <article class="screen-case r d3">
+      <div class="screen-meta"><span>Oro RealState</span><span>Ops dashboard</span></div>
+      <div class="screen-title">Rental operations.</div>
+      <div class="screen-desc">Property management screens for inventory, lease deadlines, payments, reminders, and maintenance workflow tracking.</div>
+      <div class="screen-main">
+        <img src="assets/screenshots/oro-realstate-panel.png" alt="Oro RealState dashboard screenshot" loading="lazy">
+      </div>
+      <div class="screen-thumbs">
+        <img src="assets/screenshots/oro-realstate-properties.png" alt="Oro RealState properties screenshot" loading="lazy">
+        <img src="assets/screenshots/oro-realstate-payments.png" alt="Oro RealState payments screenshot" loading="lazy">
+        <img src="assets/screenshots/oro-realstate-reminders.png" alt="Oro RealState reminders screenshot" loading="lazy">
+      </div>
+    </article>
+  </div>
+</section>
+
 <!-- PIPELINE -->
 <section class="section" id="process">
   <div class="sh">
-    <div class="sh-num">§<b>02</b> / Process</div>
+    <div class="sh-num">§<b>03</b> / Process</div>
     <div class="sh-title">The<br/>pipeline.</div>
     <div class="sh-desc">One Telegram message enters here. A production HTML board exits. Everything in between runs on a server I harden and maintain myself.</div>
   </div>
@@ -364,9 +477,9 @@ iframe{width:100%;height:680px;border:none;display:block}
 <!-- LIVE -->
 <section class="section" id="live">
   <div class="live-head">
-    <div class="live-label">§<b style="color:var(--acc)">03</b> / Live</div>
+    <div class="live-label">§<b style="color:var(--acc)">04</b> / Live</div>
     <div class="live-title">Three briefs.<br/>One pipeline.</div>
-    <div class="live-desc">Every board below was generated by the system in §02. Switch between artifacts to see what the same pipeline produces from different prompts.</div>
+    <div class="live-desc">Every board below was generated by the system in §03. Switch between artifacts to see what the same pipeline produces from different prompts.</div>
   </div>
 
   <div class="tabs">
@@ -388,6 +501,36 @@ iframe{width:100%;height:680px;border:none;display:block}
     <div><span>INPUT</span><b>1 TG message</b></div>
     <div><span>RUNTIME</span><b>~40s</b></div>
     <div><span>OUTPUT</span><b>1 HTML board</b></div>
+  </div>
+</section>
+
+<!-- OTHER BUILDS -->
+<section class="section" id="other">
+  <div class="sh">
+    <div class="sh-num">§<b>05</b> / Archive</div>
+    <div class="sh-title">Other<br/>builds.</div>
+    <div class="sh-desc">Smaller or earlier systems worth mentioning without competing with the five headline projects.</div>
+  </div>
+
+  <div class="other-grid">
+    <a class="other r d1" href="https://oro-real-state.vercel.app/" target="_blank" rel="noopener noreferrer">
+      <div class="other-meta"><span>REAL ESTATE</span><span>LIVE</span></div>
+      <div class="other-title">Oro RealState</div>
+      <div class="other-desc">Rental management dashboard for properties, floors, units, tenants, leases, payments, receipts, and maintenance.</div>
+      <div class="other-foot">Next.js / Supabase / PDF / Resend</div>
+    </a>
+    <article class="other r d2">
+      <div class="other-meta"><span>MOBILE</span><span>PRIVATE</span></div>
+      <div class="other-title">Milingua</div>
+      <div class="other-desc">Mobile-first real-time translation product foundation for frontline service conversations, transcripts, glossary quality, and pilot analytics.</div>
+      <div class="other-foot">Flutter / Supabase / PostHog</div>
+    </article>
+    <article class="other r d3">
+      <div class="other-meta"><span>RECOVERY</span><span>ARCHIVE</span></div>
+      <div class="other-title">Inmob Recovery</div>
+      <div class="other-desc">Recovered university rental platform with auth, sessions, property listings, reservations, uploads, and MariaDB setup scripts.</div>
+      <div class="other-foot">Node / Express / EJS / MariaDB</div>
+    </article>
   </div>
 </section>
 
@@ -421,7 +564,7 @@ iframe{width:100%;height:680px;border:none;display:block}
     <div class="colophon">
       <span>© 2026 Sergio Orozco</span>
       <span>Set in Inter Tight &amp; JetBrains Mono</span>
-      <span>Ed. 02 / Swiss</span>
+      <span>Ed. 03 / Systems</span>
     </div>
   </div>
 </footer>
