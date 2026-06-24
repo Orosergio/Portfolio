@@ -1,103 +1,64 @@
-# OpenClaw Visual Workflow System
+# Sergio Orozco — Portfolio City 🏙️
 
-**Telegram → AI → Structured JSON → Rendered Visual Board**
+An interactive **isometric 3D city** portfolio with a Tokyo / Taiwan night-market soul: a **Shibuya scramble crossing**, **Tokyo Tower**, a lantern-lit **night market** with a torii gate, and parks. Drive a little cart around the warm low-poly diorama; every glowing tower is a project. Pull up close and a tooltip appears — press **T** to pop a preview card you can click through to the repo or the live app. Toggle **day ↔ night** and follow yourself on a **GTA-style mini-map**.
 
-A self-hosted AI workflow system that converts natural-language Telegram messages into structured, reusable visual artifacts — deployed on a hardened Linux VPS.
-
----
-
-## 繁體中文
-
-這是一個自架的 AI 工作流系統，透過 Telegram 傳送自然語言指令，  
-系統自動生成結構化 JSON，再渲染成可重複使用的視覺化輸出（HTML campaign boards）。  
-部署於 Hetzner VPS（Ubuntu 24.04），具備 SSH 強化、UFW 防火牆與 systemd 服務管理。
+**Live:** https://orosergio.github.io/Portfolio/ · **Classic text version:** [`classic.html`](./classic.html)
 
 ---
 
-## What this system does
+## Controls
 
-1. User sends a product or campaign brief via Telegram
-2. OpenClaw routes the request through an AI workflow (OpenAI Codex)
-3. The agent outputs structured JSON — campaign title, positioning, audience, key message, CTA, color palette, image prompt
-4. A Python renderer converts the JSON into a premium HTML visual board
-5. The board is saved as a reusable artifact and served locally via HTTP
+| | Desktop | Mobile |
+|---|---|---|
+| Drive | Arrow keys / WASD | On-screen joystick |
+| Open a project preview | **T** | Action button |
+| Switch driver (Mara / Leo) | Top-right button | Top-right button |
+| Toggle day / night | Top-right ☀ / 🌙 button | Top-right ☀ / 🌙 button |
 
-No manual formatting. No copy-paste. One input, one complete visual output.
+## How it's built
 
----
+- **Three.js** (vanilla, no framework), bundled with **Vite**.
+- Everything is **procedural primitives** — boxes, cylinders, cones — so the whole city re-themes from one [`src/world/palette.js`](./src/world/palette.js) and ships tiny (no 3D model assets).
+- Isometric-feel **perspective camera** with critically-damped follow; **hemisphere + key** lighting for the warm flat-shaded look.
+- Repeated props (trees, lamps, filler buildings) use **InstancedMesh** — the whole city renders in a few dozen draw calls.
+- Arcade **kinematic cart** (no physics engine): speed-scaled steering, soft city bounds, AABB building collision.
+- Projects live in one registry — [`src/projects/projects.data.js`](./src/projects/projects.data.js) — that drives both the buildings and the HUD cards.
+- Fully **responsive** (keyboard + touch) with a graceful **no-WebGL fallback** to the classic page.
 
-## Live demos
+## Featured projects (the buildings)
 
-| Board | Type | Link |
-|-------|------|-------|
-| Soft Pink Bouquet | Campaign Board | [View](https://orosergio.github.io/Portfolio/visual-campaign-board-soft-pink-bouquet-2026-04-03-premium.html) |
-| Pattern Recognition Journaling App | Product Board | [View](https://orosergio.github.io/Portfolio/visual-campaign-board-pattern-recognition-journaling-app-2026-04-05-premium.html) |
-| Founder Copilot for Telegram | Operator Board | [View](https://orosergio.github.io/Portfolio/visual-campaign-board-founder-copilot-for-telegram-2026-04-05-premium.html) |
+| Project | What it is | Link |
+|---|---|---|
+| Pattern Journal | AI journaling — emotional-pattern detection, sentiment charts, weekly reports | [Live](https://pattern-journal.vercel.app) |
+| AI Wealth Lab | Regime-aware RL goal-based wealth simulator (HMM regimes, backtests) | [Repo](https://github.com/Orosergio/RegimeAwareGBWM) |
+| OpenClaw Mission | Telegram-native AI workflow on a hardened Linux VPS → rendered HTML boards | [Live board](./visual-campaign-board-founder-copilot-for-telegram-2026-04-05-premium.html) |
+| Kiniela Mundial | Private World Cup pool — auth, groups, predictions, live score sync | [Repo](https://github.com/Orosergio/KinielaFulbrings) |
+| Finger Mouse | BLE HID firmware for an nRF52840 wearable mouse | Private case study |
+| Oro RealState | Rental operations dashboard — properties, leases, payments, reminders | [Live](https://oro-real-state.vercel.app/) |
+| Milingua | Mobile-first real-time translation for frontline service | Private build |
+| Inmob Recovery | Recovered university rental platform (Node / Express / MariaDB) | Archive |
 
-→ **[See full portfolio index](./index.html)**
+## Run locally
 
----
-
-## Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Infrastructure | Hetzner Cloud VPS · Ubuntu 24.04 · Singapore region |
-| Security | UFW firewall · SSH key-only auth · sshlogin group allowlist · root password locked |
-| Service management | systemd daemon · auto-restart on reboot |
-| AI orchestration | OpenClaw · OpenAI Codex (OAuth) |
-| Channel | Telegram Bot API (`@Openclaw_enrique_bot`) |
-| Rendering | Python 3 · HTTP server · custom HTML/CSS renderer |
-| Hosting | GitHub Pages |
-| Version control | Git · GitHub |
-
----
-
-## Architecture
-
-```
-Telegram message
-      ↓
-OpenClaw gateway (127.0.0.1:18789, systemd-managed)
-      ↓
-AI workflow (OpenAI Codex via OAuth)
-      ↓
-Structured JSON artifact (saved to /workspace/content/)
-      ↓
-Python renderer → premium HTML board
-      ↓
-GitHub Pages (public) / local HTTP server (preview)
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # → dist/
+npm run preview  # serve the production build
 ```
 
----
+## Deploy
 
-## What I learned building this
+One `dist/` serves both hosts (relative `base: './'`):
 
-- Deploying and hardening a Linux VPS from scratch (SSH keys, UFW, sshlogin groups, prohibit-password root)
-- Managing background services with systemd (auto-start, status checks, log tailing)
-- Designing AI workflows that produce structured, reusable outputs — not just chat responses
-- Bridging a headless VPS OAuth flow by manually handling the callback redirect
-- Building a rendering pipeline that separates data (JSON) from presentation (HTML/CSS)
+- **GitHub Pages** — pushed to `main`, built and published by [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml). Set Pages source to *GitHub Actions*.
+- **Netlify** — `netlify.toml` (`npm run build` → publish `dist`).
 
----
-
-## Repo structure
-
-```
-portfolio/
-├── index.html                          ← Portfolio landing page
-├── visual-campaign-board-*.html        ← Generated visual boards
-└── README.md
-```
+The legacy `visual-campaign-board-*.html` boards and `portfolio-hero.html` are copied through verbatim, so their public URLs keep working.
 
 ---
 
 ## Author
 
-**Yavhé Sergio Orozco**  
-Software Developer · Taipei, Taiwan  
-[GitHub](https://github.com/Orosergio) · [LinkedIn](https://www.linkedin.com/in/orosergioo)
-
----
-
-*Boards are generated artifacts — not hand-coded. The system that produced them is the project.*
+**Yavhé Sergio Orozco** — Full-stack AI Engineer · Taipei, Taiwan
+[GitHub](https://github.com/Orosergio) · [LinkedIn](https://www.linkedin.com/in/orosergioo) · orosergioo@gmail.com
