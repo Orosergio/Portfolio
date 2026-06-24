@@ -1,0 +1,103 @@
+/* ── Overlay shell, HUD bar, tooltip, touch controls, intro ─────────────── */
+:root{
+  --ink:#2a1c10; --ink-soft:#6b4a28; --cream:#fbf1df; --cream-2:#f5e6cd;
+  --line:rgba(90,52,19,.16); --accent:#f26b2a; --blue:#5aa0cf;
+  --mono:'JetBrains Mono',ui-monospace,monospace; --sans:'Inter Tight',system-ui,sans-serif;
+  --shadow:0 18px 50px rgba(90,40,10,.28);
+}
+
+#overlay{position:fixed; inset:0; z-index:40; pointer-events:none; font-family:var(--sans)}
+#overlay *{box-sizing:border-box}
+
+/* top bar */
+.hud-bar{position:absolute; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between;
+  padding:max(14px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 14px max(16px,env(safe-area-inset-left));
+  gap:12px; pointer-events:none;}
+.hud-brand{pointer-events:auto; display:flex; align-items:center; gap:9px; font-weight:800; letter-spacing:-.02em;
+  color:#4a2c10; font-size:16px; background:rgba(251,241,223,.78); backdrop-filter:blur(8px);
+  padding:9px 14px; border-radius:99px; box-shadow:var(--shadow)}
+.hud-brand i{font-style:normal; font-weight:500; color:var(--ink-soft); font-size:13px}
+.hud-mark{width:14px; height:14px; border-radius:4px; background:var(--accent); transform:rotate(45deg)}
+.hud-actions{pointer-events:auto; display:flex; gap:8px}
+.hud-btn{font-family:var(--mono); font-size:12px; font-weight:500; color:#4a2c10; text-decoration:none;
+  background:rgba(251,241,223,.82); backdrop-filter:blur(8px); border:none; cursor:pointer;
+  padding:9px 13px; border-radius:99px; box-shadow:var(--shadow); display:flex; align-items:center; gap:7px;
+  transition:transform .15s ease, background .15s ease}
+.hud-btn:hover{transform:translateY(-1px); background:#fff7ea}
+.hud-btn:focus-visible, .intro-start:focus-visible, .intro-classic:focus-visible, .act-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.hud-btn .dot{width:8px; height:8px; border-radius:50%; background:var(--accent)}
+#btnDriver .dot{background:var(--blue)}
+
+/* proximity tooltip */
+.hud-tip{position:absolute; transform:translate(-50%,-135%); pointer-events:none;
+  display:flex; align-items:center; gap:8px; white-space:nowrap;
+  background:#34230f; color:#ffe9c9; font-size:13px; font-weight:500; letter-spacing:.01em;
+  padding:8px 13px; border-radius:99px; box-shadow:0 10px 26px rgba(40,20,5,.4);
+  animation:tipPop .18s ease both}
+.hud-tip kbd{font-family:var(--mono); font-weight:700; background:var(--accent); color:#fff;
+  border-radius:6px; padding:2px 7px; font-size:12px; box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.hud-tip::after{content:''; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%);
+  border:6px solid transparent; border-top-color:#34230f}
+@keyframes tipPop{from{opacity:0; transform:translate(-50%,-120%)} to{opacity:1; transform:translate(-50%,-135%)}}
+
+/* card anchor */
+.hud-card-anchor{position:absolute; transform:translate(-50%,-108%); pointer-events:none}
+
+/* ── Touch controls ─────────────────────────────────────────────────────── */
+.touch{position:fixed; inset:0; z-index:45; pointer-events:none}
+.joy{position:absolute; left:max(22px,env(safe-area-inset-left)); bottom:max(28px,env(safe-area-inset-bottom));
+  width:120px; height:120px; border-radius:50%; pointer-events:auto; touch-action:none;
+  background:radial-gradient(circle at 50% 50%, rgba(251,241,223,.55), rgba(251,241,223,.28));
+  border:1.5px solid rgba(251,241,223,.7); box-shadow:var(--shadow); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center}
+.joy-knob{width:54px; height:54px; border-radius:50%; background:var(--accent);
+  box-shadow:0 6px 16px rgba(226,90,30,.5); transition:transform .04s linear}
+.act-btn{position:absolute; right:max(24px,env(safe-area-inset-right)); bottom:max(40px,env(safe-area-inset-bottom));
+  width:84px; height:84px; border-radius:50%; pointer-events:auto; cursor:pointer; border:none;
+  background:#34230f; color:#ffe9c9; font-family:var(--mono); font-weight:700; font-size:24px;
+  box-shadow:0 12px 28px rgba(40,20,5,.45)}
+.act-btn:active{transform:scale(.94)}
+@media (pointer:fine){ .touch{display:none} }
+
+/* ── Mini-map (GTA-style) ───────────────────────────────────────────────── */
+.minimap{position:fixed; left:max(16px,env(safe-area-inset-left)); bottom:max(16px,env(safe-area-inset-bottom));
+  width:150px; height:150px; border-radius:16px; overflow:hidden; pointer-events:none;
+  border:2px solid rgba(251,241,223,.75); box-shadow:var(--shadow)}
+.minimap canvas{display:block; width:100%; height:100%}
+/* on touch devices the joystick owns the bottom-left, so move the map under the brand */
+@media (pointer:coarse){
+  .minimap{width:104px; height:104px; top:62px; left:max(12px,env(safe-area-inset-left)); bottom:auto}
+}
+#dnIcon{font-size:14px; line-height:1}
+
+/* ── Intro overlay ──────────────────────────────────────────────────────── */
+.intro{position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:20px;
+  background:radial-gradient(circle at 50% 35%, rgba(255,210,150,.34), rgba(120,60,20,.42));
+  backdrop-filter:blur(3px); transition:opacity .45s ease; pointer-events:auto}
+.intro.hide{opacity:0; pointer-events:none}
+.intro-card{width:min(440px,92vw); background:var(--cream); border-radius:22px; padding:28px 26px 22px;
+  box-shadow:0 30px 80px rgba(60,30,8,.4); text-align:left}
+.intro-kicker{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:10px}
+.intro-card h2{font-size:25px; line-height:1.1; letter-spacing:-.02em; color:#3a2410; margin-bottom:10px}
+.intro-card p{font-size:14px; line-height:1.6; color:var(--ink-soft); margin-bottom:18px}
+.intro-rows{display:flex; flex-direction:column; gap:10px; margin-bottom:22px}
+.intro-row{display:flex; align-items:center; gap:13px}
+.intro-row .ic{flex:0 0 auto; min-width:52px; height:38px; padding:0 10px; border-radius:10px; background:var(--cream-2);
+  display:flex; align-items:center; justify-content:center; font-weight:700; color:#5a3413; font-size:14px}
+.intro-row .ic.key{font-family:var(--mono); background:var(--accent); color:#fff}
+.intro-row b{display:block; font-size:14px; color:#3a2410}
+.intro-row small{color:var(--ink-soft); font-size:12px}
+.intro-start{width:100%; border:none; cursor:pointer; background:#34230f; color:#ffe9c9; font-family:var(--sans);
+  font-weight:700; font-size:15px; padding:14px; border-radius:13px; transition:transform .15s ease, background .15s}
+.intro-start:hover{transform:translateY(-1px); background:#46301a}
+.intro-classic{display:block; text-align:center; margin-top:14px; font-size:12.5px; color:var(--ink-soft); text-decoration:none}
+.intro-classic:hover{color:var(--accent)}
+
+@media (max-width:520px){
+  .hud-brand i{display:none}
+  #btnClassic{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .hud-tip, .ld-mark{animation:none !important}
+  *{transition-duration:.001ms !important}
+}

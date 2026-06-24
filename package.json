@@ -1,0 +1,19 @@
+{
+  "name": "isometric-city-portfolio",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Sergio Orozco — interactive isometric city portfolio",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173"
+  },
+  "dependencies": {
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "vite-plugin-static-copy": "^1.0.6"
+  }
+}
