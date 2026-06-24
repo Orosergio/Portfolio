@@ -12,9 +12,10 @@ export class Engine {
 
     this.renderer = new THREE.WebGLRenderer({
       antialias: this.tier !== 'low',
-      alpha: true, // transparent canvas over the CSS sky gradient
+      alpha: false, // opaque — the 3D sky dome owns the background now
       powerPreference: 'high-performance',
     })
+    this.renderer.setClearColor(palette.day.skyBottom, 1)
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.tier === 'low' ? 1.5 : 2))
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
@@ -25,9 +26,10 @@ export class Engine {
     mount.appendChild(this.renderer.domElement)
 
     this.scene = new THREE.Scene()
-    this.scene.fog = new THREE.FogExp2(palette.fog, 0.0085)
+    this.scene.fog = new THREE.FogExp2(palette.day.fog, palette.day.fogD)
     this.clock = new THREE.Clock()
     this.cameraRef = null
+    this.onResize = null // main wires post-composer resize here
 
     this._onResize = this._onResize.bind(this)
     window.addEventListener('resize', this._onResize)
@@ -49,6 +51,7 @@ export class Engine {
         this.cameraRef.aspect = w / h
         this.cameraRef.updateProjectionMatrix()
       }
+      this.onResize?.(w, h)
     })
   }
 

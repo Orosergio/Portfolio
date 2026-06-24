@@ -12,6 +12,12 @@ export class CartController {
     this.speed = 0
     this.steerVis = 0
     this.radius = 1.05       // tuned for the smaller cart
+    // juice state
+    this.t = 0
+    this.accelEst = 0
+    this.bankVis = 0
+    this.pitchVis = 0
+    this.bank = 0            // lateral signal exposed to the camera
 
     // tuning (compact map → calmer top speed, more agile steering)
     this.maxSpeed = 13
@@ -27,6 +33,7 @@ export class CartController {
   update(dt, input) {
     const throttle = clamp(input.throttle, -1, 1)
     const steer = clamp(input.steer, -1, 1)
+    const prevSpeed = this.speed
 
     // longitudinal accel (reverse is weaker)
     if (throttle > 0) this.speed += this.accel * throttle * dt
@@ -60,6 +67,7 @@ export class CartController {
 
     this._collide()
 
+    this.accelEst = dt > 1e-4 ? (this.speed - prevSpeed) / dt : 0
     this.steerVis = damp(this.steerVis, steer * 0.5, 10, dt)
     this._apply(dt)
   }
@@ -80,6 +88,7 @@ export class CartController {
   }
 
   _apply(dt) {
+    this.t += dt
     this.cart.position.set(this.pos.x, 0, this.pos.y)
     this.cart.rotation.y = this.heading
     const ud = this.cart.userData
@@ -88,6 +97,20 @@ export class CartController {
       for (const w of ud.wheels) w.rotation.x += roll
     }
     if (ud.steer) ud.steer.rotation.y = -this.steerVis
+
+    // ── chassis juice: lean into turns, squat on accel, dip on brake, idle bob ──
+    const speedFactor = clamp(Math.abs(this.speed) / this.maxSpeed, 0, 1)
+    const dir = this.speed >= 0 ? 1 : -1
+    this.bank = this.steerVis * speedFactor * dir
+    const bankTarget = this.bank * 0.5                                  // roll the body outward
+    const pitchTarget = clamp(-this.accelEst * 0.006, -0.07, 0.07)      // squat/dip
+    this.bankVis = damp(this.bankVis, bankTarget, 9, dt)
+    this.pitchVis = damp(this.pitchVis, pitchTarget, 7, dt)
+    if (ud.body) {
+      ud.body.rotation.z = this.bankVis
+      ud.body.rotation.x = this.pitchVis
+      ud.body.position.y = Math.sin(this.t * 23) * 0.012 * speedFactor  // engine idle/road bob
+    }
   }
 
   get position() { return this.cart.position }

@@ -24,16 +24,33 @@ export const palette = {
   glass:       '#2b4a63',   // building window glass (glows at night)
   metal:       '#b7bec7',   // AC units, tanks, railings
   metalDark:   '#6b7178',
-  vending:     ['#e23b4e', '#2f9fb0', '#f0b03e', '#5fbf8a', '#5d8bff'],
+  vending:     ['#e23b4e', '#2f9fb0', '#f0b03e', '#5fbf8a'], // dropped candy-blue
   bike:        ['#e8557f', '#34b3c4', '#f2a93c'],
-  signNeon:    ['#ff3d8b', '#25e0d0', '#ffb347', '#ff5252', '#b76bff'],
+  signNeon:    ['#ff3d8b', '#25e0d0', '#ffb347', '#ff5252'], // 4 only — no violet/blue
   cone:        '#f06a2a',
   planter:     '#8a5a3a',
 
-  // shop / non-project buildings — vibrant, never grey
-  shopColors:  ['#f2784b', '#34b3c4', '#f0b03e', '#e8557f', '#5a8fe0', '#8e6fd0', '#5fbf8a', '#ef6f6f'],
+  // ── PALETTE DISCIPLINE ────────────────────────────────────────────────
+  // Body colours come ONLY from the 5 DOMINANT muted tones below or the 8
+  // project accents. High chroma is reserved for ≤11 surfaces per scene.
+  // Neon appears only on emissive (nightE) elements — never a wall colour.
+  //
+  // (a) DOMINANT — warm-muted majority (~70% of buildings). sat ≤0.35.
+  domSandCream:  '#e6c79b',  // D1 — machiya plaster, MOST common
+  domMutedBlue:  '#8fa6b4',  // D2 — clean blue, desaturated (cool relief)
+  domTerracotta: '#cf9272',  // D3 — warm Taiwan brick
+  domSage:       '#a7b09a',  // D4 — occasional green-grey
+  domTaupe:      '#b9aa97',  // D5 — podiums, neutral connector
+  // (b) FILLER ACCENTS — lower chroma than projects (max 3 placed citywide)
+  accFillTeal:   '#4ea3a0',
+  accFillPink:   '#d96f93',
+  accFillWarm:   '#e0925a',
+
+  // shop / filler buildings now route through the dominant set (no candy)
+  shopColors:  ['#e6c79b', '#8fa6b4', '#cf9272', '#a7b09a', '#b9aa97'],
   roofWarm:    '#c9603a',
-  roofTeal:    '#2f8a99',
+  roofTeal:    '#3e8f88',   // muted from #2f8a99
+  roofClay:    '#b5654a',
   doorway:     '#3a2a44',
   window:      '#fdfae8',
 
@@ -59,25 +76,25 @@ export const palette = {
   towerWhite:  '#f4ede0',
   towerLight:  '#ffd27a',  // tower night lights
   torii:       '#d6402b',
-  stallColors: ['#e8557f', '#f0b03e', '#34b3c4', '#f2784b', '#8e6fd0', '#5fbf8a'],
-  awning:      ['#e23b4e', '#f2a93c', '#2f9fb0', '#e8557f'],
+  stallColors: ['#e8557f', '#f0b03e', '#34b3c4', '#f2784b', '#5fbf8a'], // dropped violet
+  awning:      ['#e23b4e', '#f2a93c', '#e8557f'], // warm-biased (dropped cool teal)
   lantern:     '#ff5a4d',  // red paper lantern
   lanternWarm: '#ffb347',
   lampPost:    '#33373f',
   lampGlow:    '#ffd98a',
 
-  // neon (night accents)
-  neon:        ['#ff3d8b', '#25e0d0', '#ffb347', '#ff5252', '#5d8bff', '#b76bff'],
+  // neon (night accents) — tight 4-colour set; violet/blue removed (read "candy")
+  neon:        ['#ff3d8b', '#25e0d0', '#ffb347', '#ff5252'],
 
   marker:      '#f26b2a',
 
   // ── Day theme ──
   day: {
-    skyTop: '#ffe3bd', skyBottom: '#e98a3f',
-    hemiSky: '#ffd9a8', hemiGround: '#e08a3c', hemiI: 0.92,
-    sun: '#fff1da', sunI: 1.1,
-    ambI: 0.32,
-    fog: '#f4b878', fogD: 0.0075,
+    skyTop: '#ffe3bd', skyBottom: '#ef9a4e',
+    hemiSky: '#fff0d8', hemiGround: '#e8a35e', hemiI: 0.96,
+    sun: '#fff4e2', sunI: 1.18,
+    ambI: 0.34,
+    fog: '#f7ddb6', fogD: 0.0028,  // light — let building colours breathe (was a sepia veil)
     exposure: 1.12,
     emissive: 0.04, // tiny self-glow so neon still reads in daylight
     lampGlow: 0.0,
@@ -85,12 +102,12 @@ export const palette = {
 
   // ── Night theme ──
   night: {
-    skyTop: '#241a3c', skyBottom: '#532f4a',  // deep indigo → warm plum horizon
-    hemiSky: '#3b3b72', hemiGround: '#2a2030', hemiI: 0.42,
-    sun: '#7e86c4', sunI: 0.28,               // cool moonlight
+    skyTop: '#1c1636', skyBottom: '#3a2950',  // deep indigo → cool plum horizon
+    hemiSky: '#37407e', hemiGround: '#241d34', hemiI: 0.46,
+    sun: '#7e86c4', sunI: 0.3,                // cool moonlight
     ambI: 0.2,
-    fog: '#241a34', fogD: 0.014,
-    exposure: 1.2,
+    fog: '#1d1830', fogD: 0.0085,
+    exposure: 1.12,
     emissive: 1.0,  // full neon / lit windows / lanterns
     lampGlow: 1.0,
   },

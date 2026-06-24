@@ -20,7 +20,7 @@ export const projects = [
     glyph: 'PJ',
     screenshot: SHOTS + 'pattern-journal-dashboard.png',
     thumbs: [SHOTS + 'pattern-journal-write.png', SHOTS + 'pattern-journal-history.png', SHOTS + 'pattern-journal-insights.png'],
-    pos: [-7, -7], height: 9.5,
+    pos: [-8, -9], height: 8.5, footprint: [5.5, 5.0], archetype: 'curtain',
   },
   {
     id: 'ai-wealth-lab',
@@ -35,7 +35,7 @@ export const projects = [
     glyph: 'WL',
     screenshot: null,
     thumbs: [],
-    pos: [8, -15], height: 9,
+    pos: [-8, -18], height: 6.0, footprint: [6.0, 4.5], archetype: 'curtain',
   },
   {
     id: 'openclaw',
@@ -50,7 +50,7 @@ export const projects = [
     glyph: 'OC',
     screenshot: null,
     thumbs: [],
-    pos: [7, 7], height: 10.5,
+    pos: [9, 9], height: 9.0, footprint: [5.0, 5.0], archetype: 'capsule',
   },
   {
     id: 'kiniela',
@@ -65,7 +65,7 @@ export const projects = [
     glyph: 'KM',
     screenshot: SHOTS + 'kiniela-home.png',
     thumbs: [SHOTS + 'kiniela-predictions.png', SHOTS + 'kiniela-group.png'],
-    pos: [7, -7], height: 8.5,
+    pos: [9, -9], height: 7.0, footprint: [5.5, 5.0], archetype: 'pagoda',
   },
   {
     id: 'finger-mouse',
@@ -80,7 +80,7 @@ export const projects = [
     glyph: 'FM',
     screenshot: null,
     thumbs: [],
-    pos: [15, 8], height: 7,
+    pos: [16, -12], height: 5.5, footprint: [5.0, 4.5], archetype: 'machiya',
   },
   {
     id: 'oro-realstate',
@@ -95,7 +95,7 @@ export const projects = [
     glyph: 'OR',
     screenshot: SHOTS + 'oro-realstate-panel.png',
     thumbs: [SHOTS + 'oro-realstate-properties.png', SHOTS + 'oro-realstate-payments.png', SHOTS + 'oro-realstate-reminders.png'],
-    pos: [-7, 7], height: 8.5,
+    pos: [-8, 9], height: 7.0, footprint: [5.5, 5.0], archetype: 'market',
   },
   {
     id: 'milingua',
@@ -110,7 +110,7 @@ export const projects = [
     glyph: 'ML',
     screenshot: null,
     thumbs: [],
-    pos: [-16, -8], height: 7.5,
+    pos: [-19, 1], height: 5.5, footprint: [5.0, 4.5], archetype: 'machiya',
   },
   {
     id: 'inmob',
@@ -125,6 +125,6 @@ export const projects = [
     glyph: 'IR',
     screenshot: null,
     thumbs: [],
-    pos: [-15, 9], height: 6.5,
+    pos: [-18, 12], height: 4.5, footprint: [5.0, 4.0], archetype: 'machiya',
   },
 ]

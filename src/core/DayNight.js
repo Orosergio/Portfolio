@@ -44,6 +44,14 @@ export class DayNight {
     return this.mode
   }
 
+  // Snap instantly to a state (no tween) — used for deterministic screenshots.
+  setTo(t) {
+    this.nightT = this.target = t
+    this.mode = t > 0.5 ? 'night' : 'day'
+    this.onLabel?.(this.mode)
+    this._apply(t)
+  }
+
   update(dt) {
     if (this.nightT === this.target) return
     const step = dt / this.dur
@@ -69,7 +77,9 @@ export class DayNight {
     this.renderer.toneMappingExposure = L(d.exposure, n.exposure)
     for (const m of this.nightables) m.emissiveIntensity = L(m.userData.dayE, m.userData.nightE)
     const top = this._hex(this.col.skyTop, t).getStyle()
-    const bot = this._hex(this.col.skyBottom, t).getStyle()
+    const botC = this._hex(this.col.skyBottom, t)
+    this.renderer.setClearColor(botC) // backstop so the bg matches even where the dome clips
+    const bot = botC.getStyle()
     this.body.style.background = `linear-gradient(180deg, ${top} 0%, ${bot} 100%)`
   }
 }

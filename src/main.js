@@ -6,7 +6,9 @@ import { Engine } from './core/Engine.js'
 import { IsoCamera } from './core/Camera.js'
 import { addLighting } from './core/Lighting.js'
 import { DayNight } from './core/DayNight.js'
+import { Post } from './core/Post.js'
 import { buildWorld } from './world/World.js'
+import { makeSky } from './world/factory/sky.js'
 import { makeCart } from './vehicle/Cart.js'
 import { CartController } from './vehicle/CartController.js'
 import { DriverSwitcher } from './character/Driver.js'
@@ -21,6 +23,13 @@ import { createTouchControls } from './input/TouchControls.js'
 boot()
 
 async function boot() {
+  // QA/screenshot affordance: ?shot pins a static overview cam + hides UI.
+  const params = new URLSearchParams(location.search)
+  const shot = params.has('shot')
+  // accessibility: freeze ambient motion (traffic/peds/clouds/fountain/beacons)
+  // for users who ask for reduced motion — driving stays user-controlled.
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
   if (!Engine.isWebGLAvailable()) {
     document.getElementById('loader')?.remove()
     const nw = document.getElementById('nowebgl'); if (nw) nw.hidden = false
@@ -39,6 +48,15 @@ async function boot() {
   engine.scene.add(world.group)
   const lights = addLighting(engine.scene, { shadowSize: engine.shadowSize, half: world.half })
 
+  // 3D sky dome (background) + post-processing pipeline (bloom + AO + grade)
+  const sky = makeSky()
+  engine.scene.add(sky.group)
+  camera.cam.layers.enable(1) // the follow camera also sees the layer-1 sky dome
+  // High tier gets the full composer (bloom + AO + grade). Low/mobile skips it
+  // entirely — no HalfFloat target, no bloom mip chain — and renders direct.
+  const post = engine.tier === 'low' ? null : new Post({ renderer: engine.renderer, scene: engine.scene, camera: camera.cam, tier: engine.tier })
+  if (post) engine.onResize = (w, h) => post.setSize(w, h)
+
   // cart + driver (scaled down so it never blocks the view)
   const cart = makeCart()
   cart.scale.setScalar(0.72)
@@ -48,11 +66,20 @@ async function boot() {
     bounds: world.bounds, obstacles: world.obstacles, spawn: world.spawn,
   })
   camera.snapTo(cart.position)
+  const shotMode = shot ? (params.get('shot') || '') : ''
+  const shotPlay = shotMode.includes('play') // keep the real follow-cam for gameplay-framing shots
+  if (shot) {
+    const overview = document.getElementById('overlay')
+    if (overview) overview.style.display = 'none'
+    if (shotPlay) { /* follow cam stays active */ }
+    else if (shotMode.includes('hero')) { camera.cam.position.set(17, 17, 27); camera.cam.lookAt(0, 4, -7) }
+    else { camera.cam.position.set(56, 64, 56); camera.cam.lookAt(0, 3, 0) }
+  }
 
   // UI overlay
   const overlay = document.getElementById('overlay')
   const seen = (() => { try { return localStorage.getItem('city.seen') === '1' } catch { return false } })()
-  const intro = new Intro(overlay, { open: !seen })
+  const intro = new Intro(overlay, { open: !seen && !shot })
   let dayNight
   const hud = new Hud(overlay, {
     onSwitchDriver: () => hud.setDriverLabel(driver.toggle().label),
@@ -65,6 +92,7 @@ async function boot() {
     body: document.body, onLabel: (m) => hud.setDayNight(m),
   })
   hud.setDayNight('day')
+  if (shot && shotMode.includes('night')) dayNight.setTo(1) // snap (virtual-time tween won't complete)
   const minimap = new Minimap(overlay, world.minimap)
   const proximity = new ProximitySystem(world.projectBuildings)
 
@@ -93,9 +121,11 @@ async function boot() {
 
     const drive = intro.visible ? { throttle: 0, steer: 0 } : input
     controller.update(dt, drive)
-    camera.update(dt, cart.position, controller.heading, controller.speed)
-    world.animate(t)
+    if (!shot || shotPlay) camera.update(dt, cart.position, controller.heading, controller.speed, controller.bank)
+    world.animate(reduced ? 6.0 : t, dayNight.nightT) // frozen phase when reduced-motion
     dayNight.update(dt)
+    sky.setNight(dayNight.nightT); sky.animate(t)
+    if (post) post.setNight(dayNight.nightT)
 
     const active = proximity.update(cart.position)
     hud.setActive(active ? active.project : null)
@@ -108,7 +138,8 @@ async function boot() {
     }
 
     minimap.update({ x: cart.position.x, z: cart.position.z, heading: controller.heading })
-    engine.render(camera.cam)
+    if (post) post.render() // EffectComposer: scene → AO → bloom → grade/vignette → tone-map
+    else engine.render(camera.cam) // low tier: direct render (renderer tone-maps + sRGB)
   }
 
   loop()

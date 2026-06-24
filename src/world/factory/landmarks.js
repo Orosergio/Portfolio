@@ -1,80 +1,107 @@
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { palette } from '../palette.js'
-import { paint, markEmissive } from '../../util/geo.js'
+import { paint, markEmissive, rbox } from '../../util/geo.js'
 import { rand, TAU } from '../../util/math.js'
 
 const mat = (color, o = {}) => new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: 0.8, metalness: 0, ...o })
+const shade = (hex, amt) => {
+  const c = new THREE.Color(hex)
+  if (amt < 0) c.multiplyScalar(1 + amt); else c.lerp(new THREE.Color('#ffffff'), amt)
+  return '#' + c.getHexString()
+}
 
-// ── Tokyo Tower — stylized red lattice tower with night lights ──────────
-// Returns { group, top }. ~18 units tall, sits on its own plaza.
+// ── Tokyo Tower — the HERO: ~20u tall, double-taper red lattice w/ fine
+// cross-bracing + night lights. Returns { group, top, beacon }. ───────────
 export function makeTokyoTower() {
   const g = new THREE.Group()
-  const red = mat(palette.towerRed, { roughness: 0.6 })
+  const red = mat(palette.towerRed, { roughness: 0.55 })
+  const redDark = mat(shade(palette.towerRed, -0.2), { roughness: 0.6 })
   const white = mat(palette.towerWhite, { roughness: 0.7 })
 
-  // four splayed legs (tapered) forming the base pyramid
+  const legH = 9.5, spread = 3.95, topSpread = 1.05
+  const off = (y) => { const t = Math.min(1, y / legH); return spread * (1 - t) + topSpread * t }
+  const corner = (sx, sz, y) => new THREE.Vector3(sx * off(y), y, sz * off(y))
+
+  // four splayed tapered legs
   const legGeos = []
-  const legH = 8, spread = 3.4, topSpread = 1.0
   for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-    const geo = new THREE.CylinderGeometry(0.18, 0.42, legH, 5)
+    const geo = new THREE.CylinderGeometry(0.16, 0.4, legH, 5)
     geo.translate(0, legH / 2, 0)
-    // lean inward: shift top toward center
     const pos = geo.attributes.position
     for (let i = 0; i < pos.count; i++) {
-      const y = pos.getY(i)
-      const t = y / legH
+      const y = pos.getY(i), t = y / legH
       pos.setX(i, pos.getX(i) + sx * (spread * (1 - t) + topSpread * t))
       pos.setZ(i, pos.getZ(i) + sz * (spread * (1 - t) + topSpread * t))
     }
-    geo.computeVertexNormals()
-    legGeos.push(geo)
+    geo.computeVertexNormals(); legGeos.push(geo)
   }
   const legs = new THREE.Mesh(mergeGeometries(legGeos, false), red)
-  legs.castShadow = true
-  g.add(legs)
+  legs.castShadow = true; g.add(legs)
 
-  // horizontal lattice bands (white deck rings)
-  for (const y of [3.2, 6.4]) {
-    const s = (spread * (1 - y / legH) + topSpread * (y / legH)) * 2 + 0.9
-    const ring = new THREE.Mesh(new THREE.BoxGeometry(s, 0.5, s), white)
+  // fine X cross-bracing on all 4 faces, in height bands (merged → 1 draw call)
+  const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
+  const braceGeos = []
+  const bands = [[0.6, 2.4], [2.4, 4.2], [4.2, 6.0], [6.0, 7.8], [7.8, legH]]
+  for (let f = 0; f < 4; f++) {
+    const a = corners[f], b = corners[(f + 1) % 4]
+    for (const [y0, y1] of bands) {
+      braceGeos.push(strutGeo(corner(a[0], a[1], y0), corner(b[0], b[1], y1), 0.05))
+      braceGeos.push(strutGeo(corner(b[0], b[1], y0), corner(a[0], a[1], y1), 0.05))
+    }
+  }
+  const braces = new THREE.Mesh(mergeGeometries(braceGeos, false), redDark)
+  braces.castShadow = true; g.add(braces)
+
+  // horizontal white deck rings (3)
+  for (const y of [2.4, 5.0, 7.6]) {
+    const s = off(y) * 2 + 0.7
+    const ring = new THREE.Mesh(new THREE.BoxGeometry(s, 0.34, s), white)
     ring.position.y = y; ring.castShadow = true; g.add(ring)
   }
 
-  // main observation deck
-  const deck = new THREE.Mesh(new THREE.BoxGeometry(3.0, 1.2, 3.0), white)
-  deck.position.y = legH + 0.2; deck.castShadow = true; g.add(deck)
-  // deck windows glow at night
-  const deckGlow = mat('#3a2a44', { roughness: 0.5 })
-  markEmissive(deckGlow, palette.towerLight, 1.1, 0.0)
-  const band = new THREE.Mesh(new THREE.BoxGeometry(3.05, 0.5, 3.05), deckGlow)
-  band.position.y = legH + 0.2; g.add(band)
+  // main observation deck + glowing window band
+  const deck = new THREE.Mesh(rbox(3.1, 1.3, 3.1, 0.12), white)
+  deck.position.y = legH + 0.3; deck.castShadow = true; g.add(deck)
+  const deckGlow = mat('#3a2a44', { roughness: 0.5 }); markEmissive(deckGlow, palette.towerLight, 1.15, 0.05)
+  const band = new THREE.Mesh(new THREE.BoxGeometry(3.16, 0.55, 3.16), deckGlow)
+  band.position.y = legH + 0.3; g.add(band)
 
-  // upper shaft (red lattice) + small deck
-  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 1.1, 5.5, 6), red)
-  shaft.position.y = legH + 3.1; shaft.castShadow = true; g.add(shaft)
-  const deck2 = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.9, 1.8), white)
-  deck2.position.y = legH + 5.0; g.add(deck2)
+  // upper red lattice shaft + small deck
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 1.05, 6.0, 6), red)
+  shaft.position.y = legH + 3.4; shaft.castShadow = true; g.add(shaft)
+  const deck2 = new THREE.Mesh(rbox(1.7, 0.85, 1.7, 0.1), white)
+  deck2.position.y = legH + 5.4; g.add(deck2)
+  const deck2Glow = mat('#3a2a44'); markEmissive(deck2Glow, palette.towerLight, 1.1, 0.05)
+  const band2 = new THREE.Mesh(new THREE.BoxGeometry(1.76, 0.32, 1.76), deck2Glow)
+  band2.position.y = legH + 5.4; g.add(band2)
 
-  // antenna
-  const ant = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.3, 4.5, 6), red)
-  ant.position.y = legH + 7.6; ant.castShadow = true; g.add(ant)
-  // beacon at the tip (always a bit lit, full at night)
-  const beaconMat = mat('#7a1a10')
-  markEmissive(beaconMat, '#ff5a3c', 1.4, 0.25)
-  const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 8), beaconMat)
-  beacon.position.y = legH + 9.9; g.add(beacon)
+  // antenna + pulsing tip beacon
+  const ant = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.26, 5.0, 6), red)
+  ant.position.y = legH + 8.2; ant.castShadow = true; g.add(ant)
+  const beaconMat = mat('#7a1a10'); markEmissive(beaconMat, '#ff5a3c', 1.6, 0.3)
+  const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.24, 10, 8), beaconMat)
+  beacon.position.y = legH + 10.9; g.add(beacon)
 
   // warm light strips up the legs (night glow)
-  const stripMat = mat('#7a4a10')
-  markEmissive(stripMat, palette.towerLight, 0.9, 0.0)
-  for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-    const strip = new THREE.Mesh(new THREE.BoxGeometry(0.1, legH, 0.1), stripMat)
-    strip.position.set(sx * spread * 0.7, legH / 2, sz * spread * 0.7)
-    g.add(strip)
+  const stripMat = mat('#7a4a10'); markEmissive(stripMat, palette.towerLight, 0.95, 0.0)
+  for (const [sx, sz] of corners) {
+    const strip = new THREE.Mesh(new THREE.BoxGeometry(0.09, legH, 0.09), stripMat)
+    strip.position.set(sx * spread * 0.72, legH / 2, sz * spread * 0.72); g.add(strip)
   }
 
-  return { group: g, top: legH + 10.2 }
+  return { group: g, top: legH + 11.1, beacon }
+}
+
+// thin oriented strut geometry between two points (for lattice bracing)
+function strutGeo(p1, p2, t = 0.05) {
+  const dir = new THREE.Vector3().subVectors(p2, p1)
+  const len = dir.length()
+  const geo = new THREE.CylinderGeometry(t, t, len, 4)
+  const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize())
+  geo.applyQuaternion(q)
+  geo.translate((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, (p1.z + p2.z) / 2)
+  return geo
 }
 
 // ── Torii gate (night-market entrance) ──────────────────────────────────
@@ -208,5 +235,73 @@ export function makeBench() {
     const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.5, 0.45), mat('#3a4048'))
     leg.position.set(sx, 0.25, 0); g.add(leg)
   }
+  return g
+}
+
+// ── Central fountain — the animated focal heart of the plaza ─────────────
+// Returns { group, animate(t) }. Tiered stone pool + gold orb + bobbing jets.
+export function makeFountain() {
+  const g = new THREE.Group()
+  const stone = mat(palette.plaza, { roughness: 0.9 })
+  const stoneDk = mat(shade(palette.plaza, -0.16), { roughness: 0.9 })
+
+  const pool = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.8, 0.55, 28), stone)
+  pool.position.y = 0.27; pool.castShadow = true; pool.receiveShadow = true; g.add(pool)
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(2.6, 0.16, 8, 28), stoneDk)
+  rim.rotation.x = Math.PI / 2; rim.position.y = 0.54; g.add(rim)
+
+  const waterMat = mat('#3fb6d8', { roughness: 0.18, metalness: 0.0, transparent: true, opacity: 0.78 })
+  markEmissive(waterMat, '#7fe3ff', 0.5, 0.0)
+  const water = new THREE.Mesh(new THREE.CylinderGeometry(2.45, 2.45, 0.14, 28), waterMat)
+  water.position.y = 0.5; g.add(water)
+  const ripple = new THREE.Mesh(new THREE.TorusGeometry(1.4, 0.05, 6, 24), waterMat)
+  ripple.rotation.x = Math.PI / 2; ripple.position.y = 0.56; g.add(ripple)
+
+  const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.15, 0.9, 20), stone)
+  ped.position.y = 0.95; ped.castShadow = true; g.add(ped)
+  const bowl = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 0.7, 0.24, 20), stoneDk)
+  bowl.position.y = 1.45; g.add(bowl)
+
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.9, 12), stoneDk)
+  stem.position.y = 1.95; g.add(stem)
+  const orbMat = mat('#e8c45a', { roughness: 0.3, metalness: 0.55 })
+  markEmissive(orbMat, '#ffd98a', 0.7, 0.12) // glows as the literal centre after dark
+  const orb = new THREE.Mesh(new THREE.SphereGeometry(0.52, 18, 14), orbMat)
+  orb.position.y = 2.6; orb.castShadow = true; g.add(orb)
+
+  // bobbing water jets around the bowl
+  const jets = []
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * TAU
+    const jet = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.09, 1.0, 6), waterMat)
+    jet.position.set(Math.cos(a) * 1.0, 1.9, Math.sin(a) * 1.0)
+    g.add(jet); jets.push({ jet, phase: a })
+  }
+
+  return {
+    group: g,
+    animate(t) {
+      orb.position.y = 2.6 + Math.sin(t * 1.6) * 0.06
+      orb.rotation.y = t * 0.5
+      ripple.scale.setScalar(0.7 + (Math.sin(t * 1.4) * 0.5 + 0.5) * 0.5)
+      ripple.material.opacity = 0.5 - (ripple.scale.x - 0.7) * 0.6
+      for (const { jet, phase } of jets) {
+        const s = 0.7 + (Math.sin(t * 3 + phase) * 0.5 + 0.5) * 0.9
+        jet.scale.y = s; jet.position.y = 1.9 + (s - 1) * 0.5
+      }
+    },
+  }
+}
+
+// ── Round plaza kiosk (low rim detail; lantern roof) ────────────────────
+export function makeKiosk(color = palette.domSandCream) {
+  const g = new THREE.Group()
+  const drum = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.05, 1.9, 14), mat(color, { roughness: 0.85 }))
+  drum.position.y = 0.95; drum.castShadow = true; drum.receiveShadow = true; g.add(drum)
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 1.25, 0.7, 14), mat(palette.roofWarm, { roughness: 0.8 }))
+  cap.position.y = 2.2; cap.castShadow = true; g.add(cap)
+  const lm = mat('#7a4a10'); markEmissive(lm, palette.lanternWarm, 1.0, 0.08)
+  const lan = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), lm)
+  lan.position.y = 2.75; g.add(lan)
   return g
 }

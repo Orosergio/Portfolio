@@ -18,7 +18,9 @@ export class Hud {
     container.appendChild(bar)
     bar.querySelector('#btnDriver').addEventListener('click', () => onSwitchDriver?.())
     bar.querySelector('#btnHelp').addEventListener('click', () => onHelp?.())
-    bar.querySelector('#btnDayNight').addEventListener('click', () => onDayNight?.())
+    this.btnDayNight = bar.querySelector('#btnDayNight')
+    this.btnDayNight.setAttribute('aria-pressed', 'false')
+    this.btnDayNight.addEventListener('click', () => onDayNight?.())
     this.driverLabel = bar.querySelector('#driverLabel')
     this.dnIcon = bar.querySelector('#dnIcon')
 
@@ -38,7 +40,11 @@ export class Hud {
   }
 
   setDriverLabel(label) { this.driverLabel.textContent = label }
-  setDayNight(mode) { this.dnIcon.textContent = mode === 'night' ? '🌙' : '☀' }
+  setDayNight(mode) {
+    this.dnIcon.textContent = mode === 'night' ? '🌙' : '☀'
+    this.btnDayNight.setAttribute('aria-pressed', String(mode === 'night'))
+    this.btnDayNight.setAttribute('aria-label', mode === 'night' ? 'Switch to day' : 'Switch to night')
+  }
 
   setActive(project) {
     if (this.active === project) return
