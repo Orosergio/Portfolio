@@ -20,9 +20,10 @@ export class CartController {
     this.bank = 0            // lateral signal exposed to the camera
 
     // tuning (compact map → calmer top speed, more agile steering)
-    this.maxSpeed = 13
-    this.accel = 21
-    this.reverseMax = 5.5
+    // ~25% slower than before — the diorama is small, fast felt frantic
+    this.maxSpeed = 9.5
+    this.accel = 16
+    this.reverseMax = 4.2
     this.drag = 1.3          // proportional air drag
     this.roll = 6           // rolling resistance when coasting
     this.steerRate = 2.55

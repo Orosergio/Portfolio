@@ -172,7 +172,9 @@ export function buildWorld(onPhase) {
     projectBuildings,
     obstacles,
     bounds: { min: -(half - 2), max: half - 2 },
-    spawn: { x: 0, z: 9, heading: Math.PI },
+    // start on the open avenue facing the hero Tower — clean first frame with
+    // the close follow cam (the dense market would otherwise occlude the cart)
+    spawn: { x: 0, z: -7, heading: Math.PI },
     minimap,
     animate(t, nightT = 0) {
       fountain.animate(t)

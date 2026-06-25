@@ -7,8 +7,9 @@ import { dampVec3, damp } from '../util/math.js'
 export class IsoCamera {
   constructor(aspect) {
     this.cam = new THREE.PerspectiveCamera(32, aspect, 1, 320)
-    // higher, closer rig for the compact map so the (small) cart never blocks the view
-    this.offset = new THREE.Vector3(19, 26, 19)
+    // close follow rig: near enough that the city scrolls past the cart (feels
+    // like following it through the streets, not surveying the whole diorama)
+    this.offset = new THREE.Vector3(13, 17, 13)
     this.cam.position.copy(this.offset)
     this.cam.lookAt(0, 0, 0)
     this._desired = new THREE.Vector3()
@@ -30,8 +31,8 @@ export class IsoCamera {
     // look slightly ahead along the cart's heading for lead room
     this._look.set(target.x + Math.sin(heading) * 2.2, target.y + 0.6, target.z + Math.cos(heading) * 2.2)
     // dolly back a touch at speed for a sense of velocity
-    const sf = Math.min(Math.abs(speed) / 14, 1)
-    const k = 1 + sf * 0.07
+    const sf = Math.min(Math.abs(speed) / 9.5, 1)
+    const k = 1 + sf * 0.09
     this._desired.set(target.x + this.offset.x * k, this.offset.y * k, target.z + this.offset.z * k)
     dampVec3(this.cam.position, this._desired, 4.5, dt)
     dampVec3(this._lookSmooth, this._look, 6, dt)
