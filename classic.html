@@ -3,7 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sergio Orozco — Swiss</title>
+<meta name="theme-color" content="#fafaf7">
+<title>Sergio Orozco — Software Engineer · Taipei</title>
+<meta name="description" content="Software engineer in Taipei shipping systems end-to-end: a procedural three.js city measured to a 266-draw-call frame, LLM pipelines on a self-managed Linux VPS, reinforcement-learning research, and BLE firmware. Open to SWE roles, Summer '26." />
+<link rel="canonical" href="https://orosergio.github.io/Portfolio/classic.html" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<meta property="og:title" content="Sergio Orozco — Software Engineer · Taipei" />
+<meta property="og:description" content="Systems shipped end-to-end: measured 3D graphics, LLM infrastructure, RL research, BLE firmware. Open to SWE roles, Summer '26." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://orosergio.github.io/Portfolio/classic.html" />
+<meta property="og:image" content="https://orosergio.github.io/Portfolio/assets/og-cover.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Sergio Orozco — Software Engineer · Taipei" />
+<meta name="twitter:description" content="Systems shipped end-to-end: measured 3D graphics, LLM infrastructure, RL research, BLE firmware." />
+<meta name="twitter:image" content="https://orosergio.github.io/Portfolio/assets/og-cover.png" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Sergio Orozco",
+  "jobTitle": "Software Engineer",
+  "url": "https://orosergio.github.io/Portfolio/",
+  "email": "mailto:orosergioo@gmail.com",
+  "sameAs": [
+    "https://github.com/Orosergio",
+    "https://www.linkedin.com/in/orosergioo"
+  ],
+  "address": { "@type": "PostalAddress", "addressLocality": "Taipei", "addressCountry": "TW" },
+  "alumniOf": { "@type": "CollegeOrUniversity", "name": "National Taipei University of Technology" }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -64,7 +95,7 @@ body{overflow-x:hidden}
 .hero h1 .slash{color:var(--acc)}
 
 .hero-sub{font-size:22px;line-height:1.4;color:var(--ink-2);max-width:560px;margin-bottom:48px;font-weight:400;letter-spacing:-.01em}
-.hero-sub b{color:var(--ink);font-weight:600;background:linear-gradient(transparent 62%,var(--acc) 62% 78%,transparent 78%);padding:0 2px}
+.hero-sub b{color:var(--ink);font-weight:600;background:linear-gradient(transparent 84%,var(--acc) 84% 98%,transparent 98%);padding:0 2px}
 
 .hero-specs{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:16px 0}
 .spec{padding:0 16px;border-right:1px solid var(--line);font-family:var(--mono)}
@@ -129,6 +160,7 @@ body{overflow-x:hidden}
 .screen-meta{font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:space-between;gap:16px;margin-bottom:20px}
 .screen-title{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:.95;margin-bottom:10px}
 .screen-desc{font-size:13px;line-height:1.6;color:var(--ink-2);max-width:420px;margin-bottom:22px}
+.screen-desc code{font-family:var(--mono);font-size:11px;background:var(--paper-2);border:1px solid var(--line);padding:1px 5px}
 .screen-main{aspect-ratio:16/10;border:1px solid var(--line);background:var(--paper-2);overflow:hidden;margin-top:auto}
 .screen-main img,.screen-thumbs img{width:100%;height:100%;object-fit:cover;object-position:top left;display:block}
 .screen-thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
@@ -208,6 +240,11 @@ iframe{width:100%;height:680px;border:none;display:block}
 
 @media(max-width:1020px){
   .hero,.sh,.nav,.live-head{grid-template-columns:1fr;gap:24px}
+  .nav-meta,.nav-cta{flex-wrap:wrap;justify-content:flex-start}
+  .hero-index{flex-wrap:wrap;gap:6px 18px}
+  .hero-specs{grid-template-columns:1fr 1fr}
+  .spec{padding:8px 12px;border-bottom:1px solid var(--line)}
+  .spec:first-child{padding-left:12px}
   .proj-grid,.screen-grid,.pipe-grid,.footer-grid,.live-foot,.other-grid{grid-template-columns:1fr}
   .proj,.proj.wide{grid-column:1}
   .pipe-cell,.footer-grid div,.live-foot div{border-right:none;border-bottom:1px solid var(--line)}
@@ -218,9 +255,9 @@ iframe{width:100%;height:680px;border:none;display:block}
 <a href="index.html" style="position:fixed;z-index:200;right:16px;bottom:16px;background:#0a0a08;color:#fafaf7;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;padding:10px 16px;border-radius:99px;box-shadow:0 8px 24px rgba(0,0,0,.25)">← Enter the city</a>
 <div class="grid-overlay"></div>
 <div class="rail">
-  <div class="rail-l"><span><span class="rail-dot"></span>TPE · <b id="clk">—</b></span><span>24.5°C</span></div>
+  <div class="rail-l"><span><span class="rail-dot"></span>TPE · <b id="clk">—</b></span></div>
   <div class="rail-c">SERGIO OROZCO · PORTFOLIO · 2026</div>
-  <div class="rail-r"><span>v1.0.0</span><span>BUILDING</span></div>
+  <div class="rail-r"><span>OPEN TO SWE ROLES · SUMMER '26</span><a href="resume.html" style="color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink)">RÉSUMÉ</a></div>
 </div>
 
 <div class="wrap">
@@ -229,14 +266,14 @@ iframe{width:100%;height:680px;border:none;display:block}
 <nav class="nav">
   <div class="logo"><span class="logo-mark"></span>Sergio Orozco</div>
   <div class="nav-meta">
-    <span>AI Engineer / <b>Full-stack</b></span>
+    <span>Software Engineer / <b>Systems + AI</b></span>
     <span>Based in <b>Taipei</b></span>
     <span>Studying at <b>NTUT</b></span>
   </div>
   <div class="nav-cta">
     <a href="#work">Work</a>
     <a href="#proof">Proof</a>
-    <a href="#process">Process</a>
+    <a href="resume.html">Résumé</a>
     <a href="mailto:orosergioo@gmail.com">Contact</a>
   </div>
 </nav>
@@ -246,31 +283,32 @@ iframe{width:100%;height:680px;border:none;display:block}
   <div>
     <div class="hero-index r d1">
       <span>INDEX / <b>001</b></span>
-      <span>Full-stack AI Engineer</span>
+      <span>Software Engineer · Systems + AI</span>
       <span>Taipei · TW</span>
     </div>
     <h1 class="r d2">
       I ship<br/>
-      <span class="stroke">AI</span> <span class="slash">/</span> systems<br/>
-      end&#8209;to&#8209;end.
+      <span class="stroke">systems</span><span class="slash">,</span><br/>
+      measured.
     </h1>
     <p class="hero-sub r d3">
-      Full-stack AI engineer building <b>production pipelines</b>, not demos.
-      From LLM orchestration down to the <b>hardened Linux server</b> it runs on.
+      Software engineer building <b>production systems</b>, not demos:
+      a procedural three.js city held to a <b>266-draw-call</b> gameplay frame,
+      LLM pipelines on a <b>self-managed Linux VPS</b>, RL research code, and BLE firmware.
     </p>
     <div class="hero-specs r d4">
-      <div class="spec"><div class="spec-k">Focus</div><div class="spec-v">AI <b>/</b> Infra</div></div>
-      <div class="spec"><div class="spec-k">Selected</div><div class="spec-v">5 <b>/</b> systems</div></div>
-      <div class="spec"><div class="spec-k">Server</div><div class="spec-v">Hetzner <b>/</b> SG</div></div>
+      <div class="spec"><div class="spec-k">Focus</div><div class="spec-v">Systems <b>/</b> AI</div></div>
+      <div class="spec"><div class="spec-k">Selected</div><div class="spec-v">6 <b>/</b> builds</div></div>
+      <div class="spec"><div class="spec-k">Range</div><div class="spec-v">Firmware <b>→</b> Web</div></div>
       <div class="spec"><div class="spec-k">Available</div><div class="spec-v">Summer <b>'26</b></div></div>
     </div>
   </div>
   <div class="hero-r r d3">
     <div class="portrait-wrap">
       <div class="portrait-corner">SYSTEM / 001</div>
-      <div class="portrait-corner tr">AI INFRA</div>
+      <div class="portrait-corner tr">SYSTEMS + AI</div>
       <div class="portrait-corner bl">TAIPEI</div>
-      <div class="portrait-corner br">2026.04</div>
+      <div class="portrait-corner br">2026.07</div>
       <div class="map-stack">
         <div class="map-row">
           <div class="map-node">
@@ -304,15 +342,28 @@ iframe{width:100%;height:680px;border:none;display:block}
   <div class="sh">
     <div class="sh-num">§<b>01</b> / Work</div>
     <div class="sh-title">Selected<br/>systems.</div>
-    <div class="sh-desc">Five high-signal builds across AI products, reinforcement learning, agent infrastructure, real-time apps, and embedded firmware.</div>
+    <div class="sh-desc">Six high-signal builds across real-time graphics, AI products, reinforcement learning, agent infrastructure, and embedded firmware. Every number below is measured, not estimated.</div>
   </div>
 
   <div class="proj-grid">
-    <a class="proj r d1" href="https://pattern-journal.vercel.app" target="_blank" rel="noopener noreferrer">
-      <div class="proj-meta"><span>001 · PRODUCT</span><span class="live">LIVE</span></div>
+    <a class="proj r d1" href="case-portfolio-city.html">
+      <div class="proj-meta"><span>001 · GRAPHICS / PERF</span><span class="live">LIVE + CASE STUDY</span></div>
+      <div class="proj-title">Portfolio<br/>City<span class="sup">↗</span></div>
+      <div class="proj-desc">This site's 3D mode: a procedural three.js city where each project is a landmark you drive to. 4,993 lines of vanilla ES modules, one runtime dependency, held to a measured draw-call budget with a two-tier renderer and full game-UI accessibility.</div>
+      <div class="proj-proof"><span>266 draws / frame in gameplay</span><span>248k tris whole island</span><span>Adaptive quality, 2 tiers</span></div>
+      <div class="proj-specs">
+        <div><span>Role</span><span>Solo eng</span></div>
+        <div><span>Stack</span><span>Three.js / ES modules</span></div>
+        <div><span>Deps</span><span>1 (three.js)</span></div>
+        <div><span>Year</span><span>2026</span></div>
+      </div>
+      <div class="proj-arrow">↗</div>
+    </a>
+    <a class="proj r d2" href="https://pattern-journal.vercel.app" target="_blank" rel="noopener noreferrer">
+      <div class="proj-meta"><span>002 · PRODUCT</span><span class="live">LIVE</span></div>
       <div class="proj-title">Pattern<br/>Journal<span class="sup">↗</span></div>
       <div class="proj-desc">AI journaling product that analyzes entries, detects emotional patterns, charts sentiment, and generates weekly insight reports.</div>
-      <div class="proj-proof"><span>OAuth + RLS</span><span>AI analysis</span><span>Charts + reports</span></div>
+      <div class="proj-proof"><span>OAuth + row-level security</span><span>Gemini 2.5 analysis pipeline</span><span>Weekly AI reports</span></div>
       <div class="proj-specs">
         <div><span>Role</span><span>Solo eng</span></div>
         <div><span>Stack</span><span>Next.js / TS</span></div>
@@ -321,11 +372,11 @@ iframe{width:100%;height:680px;border:none;display:block}
       </div>
       <div class="proj-arrow">↗</div>
     </a>
-    <a class="proj r d2" href="https://github.com/Orosergio/RegimeAwareGBWM" target="_blank" rel="noopener noreferrer">
-      <div class="proj-meta"><span>002 · AI / FINANCE</span><span class="live">REPO</span></div>
+    <a class="proj r d3" href="https://github.com/Orosergio/RegimeAwareGBWM" target="_blank" rel="noopener noreferrer">
+      <div class="proj-meta"><span>003 · AI / FINANCE</span><span class="live">REPO</span></div>
       <div class="proj-title">AI Wealth<br/>Lab<span class="sup">↗</span></div>
       <div class="proj-desc">Regime-aware goal-based wealth simulator using reinforcement learning, HMM regime detection, backtests, and transparent policy evaluation.</div>
-      <div class="proj-proof"><span>RL agents</span><span>HMM regimes</span><span>No-lookahead tests</span></div>
+      <div class="proj-proof"><span>G-Learner + PPO agents</span><span>HMM regime detection</span><span>No-lookahead backtests</span></div>
       <div class="proj-specs">
         <div><span>Role</span><span>Solo eng</span></div>
         <div><span>Stack</span><span>Python / RL</span></div>
@@ -334,24 +385,24 @@ iframe{width:100%;height:680px;border:none;display:block}
       </div>
       <div class="proj-arrow">↗</div>
     </a>
-    <a class="proj r d3" href="#live">
-      <div class="proj-meta"><span>003 · AI INFRA</span><span class="live">LIVE</span></div>
-      <div class="proj-title">OpenClaw<br/>Mission<span class="sup">↓</span></div>
-      <div class="proj-desc">Telegram-native AI workflow on a hardened Linux VPS, plus a Mission Control dashboard for tasks, memory, approvals, and generated artifacts.</div>
-      <div class="proj-proof"><span>Telegram bot</span><span>systemd VPS</span><span>HTML artifacts</span></div>
+    <a class="proj r d4" href="case-openclaw.html">
+      <div class="proj-meta"><span>004 · SYSTEMS</span><span class="live">LIVE + CASE STUDY</span></div>
+      <div class="proj-title">OpenClaw<br/>Mission<span class="sup">↗</span></div>
+      <div class="proj-desc">Telegram-native AI workflow on a self-managed Linux VPS: one message in, one production HTML artifact out. The three boards in §04 below are its real output.</div>
+      <div class="proj-proof"><span>1 msg → 1 artifact</span><span>systemd-managed gateway</span><span>3 live boards below</span></div>
       <div class="proj-specs">
         <div><span>Role</span><span>Solo eng</span></div>
         <div><span>Stack</span><span>Python / Next</span></div>
-        <div><span>Host</span><span>Hetzner SG</span></div>
+        <div><span>Host</span><span>Linux VPS</span></div>
         <div><span>Year</span><span>2026</span></div>
       </div>
-      <div class="proj-arrow">↓</div>
+      <div class="proj-arrow">↗</div>
     </a>
-    <a class="proj wide r d4" href="https://github.com/Orosergio/KinielaFulbrings" target="_blank" rel="noopener noreferrer">
-      <div class="proj-meta"><span>004 · FULL-STACK</span><span class="live">REPO</span></div>
+    <a class="proj r d5" href="https://github.com/Orosergio/KinielaFulbrings" target="_blank" rel="noopener noreferrer">
+      <div class="proj-meta"><span>005 · FULL-STACK</span><span class="live">REPO</span></div>
       <div class="proj-title">Kiniela<br/>Mundial<span class="sup">↗</span></div>
       <div class="proj-desc">Private World Cup pool app with auth, groups, predictions, live score sync, server-side rules, database migrations, health checks, and CI monitoring.</div>
-      <div class="proj-proof"><span>Auth + groups</span><span>Live score sync</span><span>DB triggers</span></div>
+      <div class="proj-proof"><span>Server-side scoring rules</span><span>Live score sync</span><span>DB triggers + CI checks</span></div>
       <div class="proj-specs">
         <div><span>Role</span><span>Solo eng</span></div>
         <div><span>Stack</span><span>React / Netlify</span></div>
@@ -360,11 +411,11 @@ iframe{width:100%;height:680px;border:none;display:block}
       </div>
       <div class="proj-arrow">↗</div>
     </a>
-    <article class="proj wide r d5">
-      <div class="proj-meta"><span>005 · EMBEDDED</span><span class="live">PRIVATE</span></div>
+    <article class="proj r d5">
+      <div class="proj-meta"><span>006 · EMBEDDED</span><span class="live">PRIVATE</span></div>
       <div class="proj-title">Finger<br/>Mouse<span class="sup">◎</span></div>
       <div class="proj-desc">BLE HID firmware for a custom nRF52840 wearable mouse with optical tracking, force sensors, capacitive touch, haptics, battery management, and DFU.</div>
-      <div class="proj-proof"><span>BLE HID</span><span>Sensor drivers</span><span>MCUboot DFU</span></div>
+      <div class="proj-proof"><span>BLE HID on nRF52840</span><span>Optical + force + cap-touch</span><span>MCUboot DFU updates</span></div>
       <div class="proj-specs">
         <div><span>Role</span><span>Firmware eng</span></div>
         <div><span>Stack</span><span>Zephyr / C</span></div>
@@ -400,30 +451,29 @@ iframe{width:100%;height:680px;border:none;display:block}
     </article>
 
     <article class="screen-case r d2">
+      <div class="screen-meta"><span>Portfolio City</span><span>Real-time 3D</span></div>
+      <div class="screen-title">A city you drive through.</div>
+      <div class="screen-desc">The 3D mode of this site, rendered by its own engine code: gameplay follow-cam, whole-island day and night, and the Raohe night-market gate. Captured from the deterministic <code>?shot</code> screenshot URLs.</div>
+      <div class="screen-main">
+        <img src="assets/case/gameplay-kart.jpg" alt="Portfolio City gameplay view: kart driving past the plaza" loading="lazy">
+      </div>
+      <div class="screen-thumbs">
+        <img src="assets/case/city-overview-day.jpg" alt="Portfolio City whole-island overview by day" loading="lazy">
+        <img src="assets/case/city-overview-night.jpg" alt="Portfolio City whole-island overview at night" loading="lazy">
+        <img src="assets/case/raohe-gate-night.jpg" alt="Raohe night market entrance gate at night with lanterns" loading="lazy">
+      </div>
+    </article>
+
+    <article class="screen-case r d3">
       <div class="screen-meta"><span>Kiniela Mundial</span><span>Full-stack</span></div>
       <div class="screen-title">Predictions, groups, scores.</div>
       <div class="screen-desc">A private World Cup pool with saved picks, live match state, group leaderboard, and scoring rules visible to members.</div>
       <div class="screen-main">
         <img src="assets/screenshots/kiniela-home.png" alt="Kiniela Mundial home dashboard screenshot" loading="lazy">
       </div>
-      <div class="screen-thumbs">
+      <div class="screen-thumbs" style="grid-template-columns:repeat(2,1fr)">
         <img src="assets/screenshots/kiniela-predictions.png" alt="Kiniela predictions screen screenshot" loading="lazy">
         <img src="assets/screenshots/kiniela-group.png" alt="Kiniela group table screenshot" loading="lazy">
-        <img src="assets/screenshots/kiniela-home.png" alt="Kiniela live match overview screenshot" loading="lazy">
-      </div>
-    </article>
-
-    <article class="screen-case r d3">
-      <div class="screen-meta"><span>Oro RealState</span><span>Ops dashboard</span></div>
-      <div class="screen-title">Rental operations.</div>
-      <div class="screen-desc">Property management screens for inventory, lease deadlines, payments, reminders, and maintenance workflow tracking.</div>
-      <div class="screen-main">
-        <img src="assets/screenshots/oro-realstate-panel.png" alt="Oro RealState dashboard screenshot" loading="lazy">
-      </div>
-      <div class="screen-thumbs">
-        <img src="assets/screenshots/oro-realstate-properties.png" alt="Oro RealState properties screenshot" loading="lazy">
-        <img src="assets/screenshots/oro-realstate-payments.png" alt="Oro RealState payments screenshot" loading="lazy">
-        <img src="assets/screenshots/oro-realstate-reminders.png" alt="Oro RealState reminders screenshot" loading="lazy">
       </div>
     </article>
   </div>
@@ -500,7 +550,7 @@ iframe{width:100%;height:680px;border:none;display:block}
 
   <div class="live-foot">
     <div><span>INPUT</span><b>1 TG message</b></div>
-    <div><span>RUNTIME</span><b>~40s</b></div>
+    <div><span>PIPELINE</span><b>Fully automated</b></div>
     <div><span>OUTPUT</span><b>1 HTML board</b></div>
   </div>
 </section>
@@ -508,9 +558,9 @@ iframe{width:100%;height:680px;border:none;display:block}
 <!-- OTHER BUILDS -->
 <section class="section" id="other">
   <div class="sh">
-    <div class="sh-num">§<b>05</b> / Archive</div>
-    <div class="sh-title">Other<br/>builds.</div>
-    <div class="sh-desc">Smaller or earlier systems worth mentioning without competing with the five headline projects.</div>
+    <div class="sh-num">§<b>05</b> / Earlier</div>
+    <div class="sh-title">Earlier &amp;<br/>smaller builds.</div>
+    <div class="sh-desc">Shipped systems that predate or sit below the six headline projects — still real, still running where marked live.</div>
   </div>
 
   <div class="other-grid">
@@ -541,8 +591,8 @@ iframe{width:100%;height:680px;border:none;display:block}
 <footer class="wrap" style="padding-bottom:40px">
   <div class="footer">
     <div class="footer-big">
-      Want AI <span class="acc">shipped</span>,<br/>
-      not <span class="u">demo&#8209;'d</span>?
+      Hiring for <span class="acc">Summer&nbsp;'26</span>?<br/>
+      <span class="u">Let's talk.</span>
     </div>
     <div class="footer-grid">
       <div>

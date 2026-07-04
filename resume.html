@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fafaf7">
+<title>Sergio Orozco — Résumé</title>
+<meta name="description" content="Résumé of Sergio Orozco — software engineer in Taipei: measured real-time 3D graphics, LLM pipelines on self-managed Linux, RL research, BLE firmware. Open to SWE roles, Summer '26." />
+<link rel="canonical" href="https://orosergio.github.io/Portfolio/resume.html" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<meta name="robots" content="index,follow" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --paper:#ffffff; --bg:#f0efe9; --ink:#0a0a08; --ink-2:#2d2d2a; --mute:#8a8a82;
+  --line:#e0dfd6; --acc:oklch(55% .2 28);
+  --sans:'Inter Tight',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+html{background:var(--bg)}
+body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+.toolbar{max-width:210mm;margin:20px auto 0;display:flex;justify-content:space-between;align-items:center;padding:0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.06em}
+.toolbar a,.toolbar button{color:var(--ink);text-decoration:none;border:1px solid var(--ink);background:var(--paper);padding:8px 14px;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.toolbar a:hover,.toolbar button:hover{background:var(--ink);color:var(--paper)}
+.sheet{background:var(--paper);max-width:210mm;min-height:290mm;margin:14px auto 40px;padding:16mm 15mm;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+
+header.hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:16px}
+.hd h1{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.hd .role{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin-top:6px}
+.hd-contact{text-align:right;font-family:var(--mono);font-size:10px;line-height:1.8;color:var(--ink-2)}
+.hd-contact a{color:var(--ink);text-decoration:none}
+
+.summary{font-size:12.5px;line-height:1.6;color:var(--ink-2);margin-bottom:16px}
+.summary b{color:var(--ink)}
+
+h2{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:5px;margin:18px 0 10px}
+h2 span{color:var(--acc)}
+
+.item{margin-bottom:12px;page-break-inside:avoid}
+.item-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.item-title{font-size:13px;font-weight:700;letter-spacing:-.01em}
+.item-title a{color:inherit;text-decoration:none}
+.item-title .tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;color:var(--acc);text-transform:uppercase;font-weight:500;margin-left:8px}
+.item-when{font-family:var(--mono);font-size:9.5px;color:var(--mute);white-space:nowrap}
+.item-sub{font-family:var(--mono);font-size:9.5px;color:var(--mute);margin:2px 0 4px;letter-spacing:.02em}
+.item ul{margin:4px 0 0 16px}
+.item li{font-size:11.5px;line-height:1.55;color:var(--ink-2);margin-bottom:2px}
+.item li b{color:var(--ink);font-weight:600}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+.skills{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:11.5px;line-height:1.55}
+.skills dt{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding-top:2px;white-space:nowrap}
+.skills dd{color:var(--ink-2)}
+.skills dd b{color:var(--ink);font-weight:600}
+
+.foot{margin-top:16px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:var(--mono);font-size:8.5px;color:var(--mute);letter-spacing:.08em;text-transform:uppercase}
+
+@media print{
+  html{background:#fff}
+  .toolbar{display:none}
+  .sheet{box-shadow:none;margin:0;max-width:none;min-height:0;padding:0}
+  @page{size:A4;margin:14mm 15mm}
+  a{color:inherit}
+}
+@media(max-width:760px){
+  .sheet{padding:24px 18px;margin:10px}
+  .hd{flex-direction:column;align-items:flex-start;gap:10px}
+  .hd-contact{text-align:left}
+  .cols{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <a href="classic.html">← Back to portfolio</a>
+  <button onclick="window.print()">Print / Save as PDF</button>
+</div>
+
+<div class="sheet">
+  <header class="hd">
+    <div>
+      <h1>Sergio Orozco</h1>
+      <div class="role">Software Engineer · Systems + AI · Open to SWE roles, Summer 2026</div>
+    </div>
+    <div class="hd-contact">
+      Taipei, Taiwan<br>
+      <a href="mailto:orosergioo@gmail.com">orosergioo@gmail.com</a><br>
+      <a href="https://github.com/Orosergio">github.com/Orosergio</a><br>
+      <a href="https://www.linkedin.com/in/orosergioo">linkedin.com/in/orosergioo</a><br>
+      <a href="https://orosergio.github.io/Portfolio/">orosergio.github.io/Portfolio</a>
+      <!-- TODO(sergio): add phone number if you want it on the PDF -->
+    </div>
+  </header>
+
+  <p class="summary">
+    Software engineer who ships systems end-to-end and measures them: a procedural three.js city held to a
+    <b>266-draw-call gameplay frame</b> (4,993 lines, one dependency), LLM pipelines on a <b>self-managed Linux VPS</b>,
+    reinforcement-learning research code, and <b>BLE firmware</b> on nRF52840. Every claim below is verifiable from
+    the linked repositories and live deployments.
+  </p>
+
+  <!-- TODO(sergio): EXPERIENCE — fill with real roles/internships and delete this comment.
+       Format per item:
+       <div class="item">
+         <div class="item-head"><div class="item-title">Company — Role</div><div class="item-when">MMM YYYY – MMM YYYY</div></div>
+         <div class="item-sub">Team / stack</div>
+         <ul><li>Impact bullet with a real number.</li></ul>
+       </div>
+  -->
+
+  <h2><span>01</span> Selected engineering work</h2>
+
+  <div class="item">
+    <div class="item-head">
+      <div class="item-title"><a href="https://orosergio.github.io/Portfolio/">Portfolio City</a><span class="tag">Real-time 3D · live + case study</span></div>
+      <div class="item-when">2026</div>
+    </div>
+    <div class="item-sub">three.js r169 · vanilla ES modules · zero framework · 1 runtime dependency</div>
+    <ul>
+      <li>Procedural drivable city (8 landmark builds, traffic, pedestrians, day/night) in <b>4,993 lines / 38 modules</b>; measured at <b>266 draw calls per gameplay frame</b>, 405 with the whole 248k-triangle island visible.</li>
+      <li>Cut ~200 draws by <b>merging vertex-colored geometry over pooled materials</b> (night market ~103 meshes → ~10 draws; 7-car fleet ~70 → 21; 16 buildings ~96 → ~12) and instancing vegetation/crowds.</li>
+      <li>Built a <b>two-tier renderer</b> (GTAO+bloom composer capped at 1.5× DPR vs. direct-render mobile path) with adaptive quality that sheds AO, then lowers a persistent DPR ceiling on frame-time regression.</li>
+      <li>Game UI is <b>WCAG-AA and screen-reader playable</b>: live-region announcements, keyboard-complete flow, honored reduced-motion, dialog semantics.</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <div class="item-title">OpenClaw<span class="tag">Systems / LLM infra · live artifacts</span></div>
+      <div class="item-when">2026</div>
+    </div>
+    <div class="item-sub">Python · Telegram Bot API · systemd · Linux VPS · static publishing</div>
+    <ul>
+      <li>Telegram-native AI pipeline: one message → LLM → <b>artifacts as files on disk</b> (JSON+MD) → deterministic Python renderer → self-contained static HTML, published at zero serving cost.</li>
+      <li>Separated generation from presentation so the design system is <b>enforced by code, not prompts</b>; gateway service is loopback-bound and systemd-managed on a server I provision myself.</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <div class="item-title"><a href="https://github.com/Orosergio/RegimeAwareGBWM">AI Wealth Lab</a><span class="tag">RL research · repo</span></div>
+      <div class="item-when">2026</div>
+    </div>
+    <div class="item-sub">Python · G-Learner / PPO · hidden Markov models</div>
+    <ul>
+      <li>Regime-aware goal-based wealth simulator: <b>HMM market-regime detection</b> feeding RL agents, with <b>no-lookahead backtests</b> and transparent policy evaluation.</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <div class="item-title">Finger Mouse<span class="tag">Embedded · private</span></div>
+      <div class="item-when">2025–26</div>
+    </div>
+    <div class="item-sub">Zephyr RTOS · C · nRF52840</div>
+    <ul>
+      <li><b>BLE HID firmware</b> for a wearable mouse: optical tracking, force + capacitive sensing, haptics, battery management, <b>MCUboot DFU</b> field updates.</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <div class="item-title"><a href="https://pattern-journal.vercel.app">Pattern Journal</a> &amp; <a href="https://github.com/Orosergio/KinielaFulbrings">Kiniela Mundial</a><span class="tag">Full-stack · live / repo</span></div>
+      <div class="item-when">2025–26</div>
+    </div>
+    <div class="item-sub">Next.js / TypeScript / Gemini 2.5 · React / Neon Postgres / Netlify</div>
+    <ul>
+      <li>AI journaling product (OAuth + row-level security, sentiment pipeline, weekly AI reports) and a private World Cup pool (server-side scoring, live score sync, DB triggers, CI health checks).</li>
+    </ul>
+  </div>
+
+  <h2><span>02</span> Education</h2>
+  <div class="item">
+    <div class="item-head">
+      <div class="item-title">National Taipei University of Technology (NTUT)</div>
+      <div class="item-when"><!-- TODO(sergio): start year --> — 2026 <!-- TODO(sergio): confirm graduation date --></div>
+    </div>
+    <div class="item-sub"><!-- TODO(sergio): exact degree + major, e.g. "B.S. Computer Science and Information Engineering" --> Taipei, Taiwan</div>
+    <!-- TODO(sergio): GPA / honors / relevant coursework if strong -->
+  </div>
+
+  <div class="cols">
+    <div>
+      <h2><span>03</span> Skills</h2>
+      <dl class="skills">
+        <dt>Languages</dt><dd><b>JavaScript/TypeScript, Python, C</b>, SQL, Dart</dd>
+        <dt>Graphics</dt><dd><b>three.js / WebGL</b>, render pipelines, post-processing, profiling with renderer instrumentation</dd>
+        <dt>Systems</dt><dd><b>Linux ops (systemd, hardening)</b>, GitHub Actions CI, static + serverless deploys</dd>
+        <dt>AI / ML</dt><dd>LLM product pipelines (Gemini), <b>RL (PPO, G-Learner)</b>, HMMs</dd>
+        <dt>Embedded</dt><dd><b>Zephyr RTOS, BLE HID</b>, nRF52840, MCUboot DFU</dd>
+        <dt>Web</dt><dd>Next.js/React, Flutter, Supabase/Postgres (RLS), MariaDB</dd>
+      </dl>
+    </div>
+    <div>
+      <h2><span>04</span> Spoken languages</h2>
+      <dl class="skills">
+        <dt>Spanish</dt><dd>Native</dd>
+        <dt>English</dt><dd><!-- TODO(sergio): level, e.g. "Professional working proficiency (TOEFL/IELTS score if any)" -->Professional working proficiency</dd>
+        <!-- TODO(sergio): Mandarin level if applicable:
+        <dt>Mandarin</dt><dd>…</dd> -->
+      </dl>
+      <h2><span>05</span> Links</h2>
+      <dl class="skills">
+        <dt>Portfolio</dt><dd><a href="https://orosergio.github.io/Portfolio/classic.html" style="color:inherit">orosergio.github.io/Portfolio/classic.html</a></dd>
+        <dt>Case study</dt><dd><a href="https://orosergio.github.io/Portfolio/case-portfolio-city.html" style="color:inherit">"A city in 266 draw calls"</a></dd>
+        <dt>GitHub</dt><dd><a href="https://github.com/Orosergio" style="color:inherit">github.com/Orosergio</a></dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>Sergio Orozco — Résumé</span>
+    <span>Updated 2026.07</span>
+    <span>orosergio.github.io/Portfolio/resume.html</span>
+  </div>
+</div>
+</body>
+</html>

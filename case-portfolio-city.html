@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fafaf7">
+<title>Engineering Portfolio City — a procedural 3D city in 266 draw calls</title>
+<meta name="description" content="Case study: how a procedural three.js city (4,993 lines, one dependency) is held to a measured 266-draw-call gameplay frame — mesh merging, instancing, a DPR-capped post pipeline, adaptive quality, and accessibility for a game UI." />
+<link rel="canonical" href="https://orosergio.github.io/Portfolio/case-portfolio-city.html" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<meta property="og:title" content="Engineering Portfolio City — a procedural 3D city in 266 draw calls" />
+<meta property="og:description" content="Mesh merging, instancing, DPR-capped post processing, adaptive quality, and game-UI accessibility — with measured numbers." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://orosergio.github.io/Portfolio/case-portfolio-city.html" />
+<meta property="og:image" content="https://orosergio.github.io/Portfolio/assets/og-cover.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --paper:#fafaf7; --paper-2:#f0efe9; --ink:#0a0a08; --ink-2:#2d2d2a;
+  --mute:#8a8a82; --line:#e0dfd6; --line-2:#0a0a08;
+  --acc:oklch(62% .22 28); --acc-2:oklch(62% .22 250);
+  --sans:'Inter Tight',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+.rail{position:fixed;top:0;left:0;right:0;height:28px;background:var(--paper);z-index:60;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;justify-content:space-between}
+.rail a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink)}
+.rail a:hover{color:var(--acc);border-color:var(--acc)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 40px;position:relative}
+.section{padding:64px 0;border-bottom:1px solid var(--line)}
+.nav{margin-top:28px;padding:24px 0;display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line-2)}
+.logo{font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink);text-decoration:none}
+.logo-mark{display:inline-block;width:14px;height:14px;background:var(--ink);margin-right:8px;vertical-align:-2px}
+.nav-cta{display:flex;gap:16px}
+.nav-cta a{font-family:var(--mono);font-size:11px;color:var(--ink);text-decoration:none;letter-spacing:.05em;border-bottom:1px solid var(--ink);padding-bottom:2px}
+.nav-cta a:hover{color:var(--acc);border-color:var(--acc)}
+.hero{padding:56px 0 48px}
+.kicker{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;margin-bottom:20px}
+.kicker b{color:var(--acc);font-weight:500}
+h1{font-size:clamp(44px,6.5vw,88px);font-weight:700;line-height:.92;letter-spacing:-.04em;margin-bottom:28px}
+h1 .acc{color:var(--acc)}
+.lede{font-size:19px;line-height:1.5;color:var(--ink-2);max-width:720px}
+.lede b{color:var(--ink);font-weight:600}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);margin-top:40px}
+.stat{padding:16px;border-right:1px solid var(--line);font-family:var(--mono)}
+.stat:last-child{border-right:none}
+.stat-k{font-size:9px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase;margin-bottom:6px}
+.stat-v{font-size:20px;font-weight:600;letter-spacing:-.02em}
+.stat-v small{font-size:11px;color:var(--mute);font-weight:400}
+h2{font-size:clamp(28px,3.6vw,44px);font-weight:600;letter-spacing:-.03em;line-height:1;margin-bottom:8px}
+.sec-num{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.15em;text-transform:uppercase;margin-bottom:14px}
+.sec-num b{color:var(--acc);font-weight:500}
+p{font-size:15px;line-height:1.7;color:var(--ink-2);max-width:720px;margin-bottom:16px}
+p b,li b{color:var(--ink);font-weight:600}
+ul{max-width:720px;margin:0 0 16px 20px}
+li{font-size:15px;line-height:1.7;color:var(--ink-2);margin-bottom:8px}
+code{font-family:var(--mono);font-size:.85em;background:var(--paper-2);border:1px solid var(--line);padding:1px 5px}
+pre{font-family:var(--mono);font-size:12.5px;line-height:1.6;background:var(--ink);color:var(--paper);padding:20px 24px;overflow-x:auto;margin:20px 0;max-width:720px}
+pre code{background:none;border:none;padding:0;color:inherit}
+table{border-collapse:collapse;width:100%;max-width:820px;margin:24px 0;font-size:13.5px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);text-align:left;padding:10px 14px;border-bottom:1px solid var(--ink)}
+td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--ink-2);line-height:1.5}
+td b{color:var(--ink);font-weight:600}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+.tbl-note{font-family:var(--mono);font-size:10.5px;color:var(--mute);letter-spacing:.03em;max-width:820px;margin-top:-12px;margin-bottom:8px}
+.figgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin:28px 0}
+.fig{background:var(--paper);padding:14px}
+.fig img{width:100%;display:block;border:1px solid var(--line)}
+.fig figcaption{font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.06em;text-transform:uppercase;padding-top:10px}
+.callout{border-left:3px solid var(--acc);background:var(--paper-2);padding:18px 22px;max-width:720px;margin:20px 0}
+.callout p{margin-bottom:0;font-size:14px}
+.footer{padding:64px 0 40px}
+.footer-big{font-size:clamp(34px,5vw,64px);font-weight:700;letter-spacing:-.04em;line-height:.92;margin-bottom:32px}
+.footer-big .acc{color:var(--acc)}
+.footer-links{display:flex;gap:28px;font-family:var(--mono);font-size:11px;letter-spacing:.05em}
+.footer-links a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:2px}
+.footer-links a:hover{color:var(--acc);border-color:var(--acc)}
+.colophon{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase}
+@media(max-width:860px){
+  .statgrid{grid-template-columns:1fr 1fr}
+  .stat{border-bottom:1px solid var(--line)}
+  .figgrid{grid-template-columns:1fr}
+  .wrap{padding:0 22px}
+  .rail-r-extra{display:none}
+}
+</style>
+</head>
+<body>
+<div class="rail">
+  <div><a href="classic.html">← Back to portfolio</a></div>
+  <div class="rail-r-extra">CASE STUDY · REAL-TIME GRAPHICS</div>
+  <div><a href="index.html">Play the city ↗</a></div>
+</div>
+
+<div class="wrap">
+
+<nav class="nav">
+  <a class="logo" href="classic.html"><span class="logo-mark"></span>Sergio Orozco</a>
+  <div class="nav-cta">
+    <a href="index.html">Live demo</a>
+    <a href="https://github.com/Orosergio/Portfolio" target="_blank" rel="noopener noreferrer">Source</a>
+    <a href="mailto:orosergioo@gmail.com">Contact</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="kicker">CASE STUDY <b>/</b> PORTFOLIO CITY · 2026</div>
+  <h1>A city in<br/><span class="acc">266</span> draw calls.</h1>
+  <p class="lede">
+    The 3D mode of this portfolio is a procedural isometric city — Tokyo Tower, Taipei 101 and six
+    other landmarks, each hosting one real project, connected by drivable streets with traffic,
+    pedestrians and a day/night cycle. It is <b>4,993 lines of vanilla ES modules</b> with a single
+    runtime dependency (three.js), and it is engineered to a measured frame budget instead of a vibe.
+  </p>
+  <div class="statgrid">
+    <div class="stat"><div class="stat-k">Gameplay frame</div><div class="stat-v">266 <small>draw calls</small></div></div>
+    <div class="stat"><div class="stat-k">Whole island</div><div class="stat-v">405 <small>calls · 248k tris</small></div></div>
+    <div class="stat"><div class="stat-k">Scene graph</div><div class="stat-v">320 <small>meshes · 17 instanced</small></div></div>
+    <div class="stat"><div class="stat-k">Runtime deps</div><div class="stat-v">1 <small>three.js r169</small></div></div>
+  </div>
+  <p class="tbl-note" style="margin-top:10px">Measured July 2026 with <code>renderer.info</code> on an isolated scene render (Chrome; the whole-island numbers use the overview camera so nothing is frustum-culled). Reproducible in the live site console — see §07.</p>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>01</b> / The problem</div>
+  <h2>A portfolio that has to prove itself.</h2>
+  <p>
+    A 3D portfolio is a risky pitch: if it stutters on a recruiter's laptop, it argues <em>against</em>
+    the engineer who built it. So the constraints were set up front:
+  </p>
+  <ul>
+    <li><b>No framework, no engine, one dependency.</b> Everything above raw three.js — the world
+      generator, vehicle controller, day/night system, HUD, minimap, audio — is written from scratch,
+      so every line is defensible in a code review.</li>
+    <li><b>A hard frame budget.</b> The whole island is procedural, so it is easy to accidentally emit
+      thousands of meshes. Draw calls are measured, not guessed.</li>
+    <li><b>Runs on phones.</b> A second render tier with different quality decisions, not just a smaller canvas.</li>
+    <li><b>Accessible, even though it's a game.</b> Screen-reader announcements, keyboard-complete UI,
+      WCAG AA contrast, and <code>prefers-reduced-motion</code> support.</li>
+    <li><b>No assets to download.</b> Every building, vehicle, tree and sound is generated in code —
+      the network payload is the code itself plus fonts and UI screenshots.</li>
+  </ul>
+  <div class="figgrid">
+    <figure class="fig"><img src="assets/case/city-overview-day.jpg" alt="Whole-island overview by day: two districts, ring road, eight landmarks" loading="lazy"><figcaption>FIG 01 — The island: Japan district (north), Taiwan district (south), 8 project landmarks</figcaption></figure>
+    <figure class="fig"><img src="assets/case/city-overview-night.jpg" alt="Whole-island overview at night with emissive windows and lanterns" loading="lazy"><figcaption>FIG 02 — Same scene at night: one lighting rig driven by a single day-night parameter</figcaption></figure>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>02</b> / Architecture</div>
+  <h2>One data file drives everything.</h2>
+  <p>
+    <code>projects.data.js</code> is the single source of truth: each entry declares its landmark
+    builder, world position, proximity radius, accent color and card copy. The world generator,
+    HUD cards, minimap dots, visit tracker and guide arrow all derive from it — adding a project
+    is one data entry plus one procedural builder function.
+  </p>
+  <p>
+    The runtime is ~38 small modules in plain ES: <code>core/</code> (renderer tiers, camera rig,
+    post pipeline, day/night, synth audio), <code>world/factory/</code> (procedural builders for
+    landmarks, buildings, traffic, trees), <code>vehicle/</code> (arcade controller with per-vehicle
+    handling presets — a kart and a YouBike share one controller), <code>ui/</code> (DOM overlay:
+    HUD, minimap, dialogs) and <code>projects/</code> (proximity system with enter/exit hysteresis
+    and neighbor hand-off).
+  </p>
+  <div class="figgrid">
+    <figure class="fig"><img src="assets/case/gameplay-kart.jpg" alt="Gameplay view following the kart through the plaza" loading="lazy"><figcaption>FIG 03 — Gameplay frame: the 266-draw-call view players actually pay for</figcaption></figure>
+    <figure class="fig"><img src="assets/case/raohe-gate-night.jpg" alt="Raohe night market gate with hanging lanterns at night" loading="lazy"><figcaption>FIG 04 — Raohe night-market gate: the whole street renders in ~10 draw calls after merging</figcaption></figure>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>03</b> / The draw-call budget</div>
+  <h2>Merging until the GPU stops caring.</h2>
+  <p>
+    Procedural generation loves to emit one mesh per part — a market stall is a counter, a roof,
+    four posts, an awning and a sign. Multiplied across a city, that becomes hundreds of draws with
+    hundreds of unique materials, and every draw is paid up to three times per frame
+    (shadow pass, AO pre-pass, main pass). The fix is boring and effective: <b>pool materials at
+    module scope</b> so identical colors share one instance, then <b>bake vertex colors and merge
+    geometry</b> per material bucket — with a custom <code>mergeStatic()</code> that skips anything
+    live (emissive day/night materials, instanced meshes, textured signs).
+  </p>
+  <table>
+    <thead><tr><th>Assembly</th><th class="num">Before (meshes)</th><th class="num">After (draws)</th><th>Technique</th></tr></thead>
+    <tbody>
+      <tr><td><b>Night-market street</b> (8 stalls + 3 lantern strings)</td><td class="num">~103</td><td class="num">~10</td><td>Vertex-color merge + pooled neon/lantern materials</td></tr>
+      <tr><td><b>Traffic fleet</b> (7 cars)</td><td class="num">~70</td><td class="num">21</td><td>Painted single-mesh body + 2 pooled emissive light materials per car</td></tr>
+      <tr><td><b>Filler shophouses</b> (16 buildings)</td><td class="num">~96</td><td class="num">~12</td><td>Cross-building <code>mergeStatic</code> over memoized materials</td></tr>
+      <tr><td><b>Forest</b> (~60 trees, 3 tints)</td><td class="num">—</td><td class="num">3</td><td><code>InstancedMesh</code> per foliage tint, per-instance transforms</td></tr>
+      <tr><td><b>Pedestrians</b> (22 people)</td><td class="num">—</td><td class="num">1</td><td>One instanced mesh, per-instance color, matrices updated in place</td></tr>
+    </tbody>
+  </table>
+  <p class="tbl-note">"Before" counts come from the engineering log kept during the optimization pass (mesh counts of the naive builders); "after" figures are the current build. Whole scene today: 320 meshes → 405 draws with everything visible, 266 in gameplay framing.</p>
+  <p>
+    Just as important: what was <em>not</em> merged. Anything that animates (lantern strings bob per
+    string), glows on a day/night schedule (emissive materials are lerped by one system scanning
+    <code>userData.nightE</code> tags), or carries a canvas texture stays live. The merge utility
+    filters these automatically, so builders stay readable and the optimization is opt-out, not
+    hand-maintained.
+  </p>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>04</b> / Post pipeline &amp; adaptive quality</div>
+  <h2>Paying for pretty, but with a cap.</h2>
+  <p>
+    The high tier renders through an <code>EffectComposer</code> chain: scene → ground-truth ambient
+    occlusion (GTAO) → bloom → color grade + vignette → tone-map. Two decisions keep it honest:
+  </p>
+  <ul>
+    <li><b>The post pipeline is capped at 1.5× device-pixel-ratio</b> (<code>Post.MAX_DPR</code>).
+      GTAO and a bloom mip-chain at native 2× DPR is the single largest GPU cost on a laptop, and
+      through bloom + grade the difference is invisible. ~44% fewer shaded pixels at DPR 2.</li>
+    <li><b>Adaptive quality degrades in the right order and stays degraded.</b> A frame-time EMA
+      first sheds the AO pass (&gt;26 ms), then lowers a <em>persistent</em> DPR ceiling to 1.25
+      (&gt;33 ms). The ceiling matters: a naive <code>setPixelRatio</code> call is silently reverted
+      by the next resize event — which on phones fires on every URL-bar show/hide, exactly on the
+      devices that needed the downgrade.</li>
+  </ul>
+  <div class="callout">
+    <p><b>War story:</b> screen-space AO hated the sky. The sky dome and cloud sprites have no usable
+    depth/normals and produced black smears in the AO pass. Fix: atmosphere lives on layer 1, and the
+    GTAO pass renders through a layer-0-only clone camera that stays in lock-step with the follow
+    camera — the sky is composited but never occluded.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>05</b> / Two render tiers</div>
+  <h2>Phones get a different engine, not a smaller one.</h2>
+  <table>
+    <thead><tr><th>Decision</th><th>High tier (desktop)</th><th>Low tier (coarse pointer / ≤3GB RAM)</th></tr></thead>
+    <tbody>
+      <tr><td><b>Pipeline</b></td><td>EffectComposer: GTAO + bloom + grade</td><td>Direct render — no composer, no HalfFloat target</td></tr>
+      <tr><td><b>Anti-aliasing</b></td><td>2× MSAA on the composer target (canvas MSAA would resolve nothing visible)</td><td>Hardware MSAA on the canvas — cheap on mobile tile GPUs</td></tr>
+      <tr><td><b>Shadows</b></td><td>1024px, PCF-soft</td><td>512px, plain PCF — the soft kernel is wasted at that resolution</td></tr>
+      <tr><td><b>DPR ceiling</b></td><td>2.0 (post capped at 1.5)</td><td>1.5</td></tr>
+      <tr><td><b>Shader programs</b></td><td class="num">54</td><td class="num">22</td></tr>
+    </tbody>
+  </table>
+  <p>
+    The hot loop is allocation-free: pedestrian path closures write into a shared scratch object,
+    the ring-road parametric writes into a caller-provided struct, and the HUD caches its DOM
+    measurements so proximity tooltips never force a synchronous reflow. Under
+    <code>prefers-reduced-motion</code> the ambient animation clock freezes and the world update
+    early-returns when its inputs are unchanged — zero recompute, zero instance-buffer uploads.
+  </p>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>06</b> / Accessibility for a game UI</div>
+  <h2>Drivable with a screen reader running.</h2>
+  <ul>
+    <li><b>Game state is announced</b> through a polite live region: approaching a landmark, opening a
+      project card, switching vehicle or day/night, visit progress ("Discovered Milingua at Raohe
+      Night Market — 5 of 8").</li>
+    <li><b>The whole flow is keyboard-complete:</b> WASD/arrows drive, T/E/Enter opens the project at a
+      landmark, the revealed card receives focus so Enter opens the project link, Escape dismisses.
+      The intro is a real dialog: focus trap, Escape, focus restore.</li>
+    <li><b>Reduced motion is honored end-to-end:</b> traffic, pedestrians, clouds, beacons, the guide
+      arrow and every CSS animation freeze; driving stays user-controlled.</li>
+    <li><b>Contrast is tokenized:</b> the accent color that fails WCAG AA as text (3.0:1) has a
+      dedicated deep variant (≥4.8:1) used for every chip and label; hit targets meet the 24px minimum.</li>
+    <li><b>No-WebGL and no-JS fallbacks</b> route to the classic page; the SEO content behind the
+      canvas is a real focusable document, revealed as a panel when keyboard focus enters it.</li>
+  </ul>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>07</b> / Verify it yourself</div>
+  <h2>Numbers you can reproduce in the console.</h2>
+  <p>Open the <a href="index.html" style="color:var(--ink)">live city</a>, then in DevTools:</p>
+  <pre><code>const { engine, camera } = window.__city
+const info = engine.renderer.info
+info.autoReset = false; info.reset()
+engine.render(camera.cam)          // one isolated scene pass
+console.log(info.render.calls, info.render.triangles)
+info.autoReset = true</code></pre>
+  <p>
+    Deterministic camera setups for screenshots and QA are URL-addressable:
+    <code>?shot</code> (overview), <code>?shot=night</code>, <code>?shot=play</code> (gameplay
+    framing), <code>?shot=lm:&lt;projectId&gt;,night</code> (any landmark). Every figure on this
+    page was captured through those URLs.
+  </p>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>08</b> / Honest next steps</div>
+  <h2>What I'd do with another week.</h2>
+  <ul>
+    <li>Merge the remaining live emissive meshes per color bucket (window strips share one material
+      but still cost one draw each).</li>
+    <li>Move pedestrian/traffic animation into a vertex shader or GPU instancing attributes to drop
+      the per-frame matrix uploads.</li>
+    <li>Bake a light probe for night emissive bounce instead of leaning on bloom.</li>
+    <li>Measure and publish frame times per GPU class — draw calls are architecture,
+      milliseconds are the product.</li>
+  </ul>
+</section>
+
+</div>
+
+<footer class="wrap">
+  <div class="footer">
+    <div class="footer-big">Want the <span class="acc">tour</span>?</div>
+    <div class="footer-links">
+      <a href="index.html">Drive the city ↗</a>
+      <a href="classic.html">Back to portfolio</a>
+      <a href="case-openclaw.html">Next case study: OpenClaw →</a>
+      <a href="mailto:orosergioo@gmail.com">orosergioo@gmail.com</a>
+    </div>
+    <div class="colophon">
+      <span>© 2026 Sergio Orozco</span>
+      <span>Measured July 2026 · three.js r169</span>
+      <span>Case 01 / Graphics</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

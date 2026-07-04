@@ -15,7 +15,10 @@ export default defineConfig({
         { src: 'visual-campaign-board-*.html', dest: '.' },
         { src: 'portfolio-hero.html', dest: '.' },
         { src: 'classic.html', dest: '.' },
+        { src: 'case-*.html', dest: '.' },
+        { src: 'resume.html', dest: '.' },
         { src: 'assets/screenshots/*', dest: 'assets/screenshots' },
+        { src: 'assets/case/*', dest: 'assets/case' },
         { src: 'assets/favicon.svg', dest: 'assets' },
         { src: 'assets/og-cover.png', dest: 'assets' },
         { src: '.nojekyll', dest: '.' }

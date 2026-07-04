@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fafaf7">
+<title>Engineering OpenClaw — one message in, one production artifact out</title>
+<meta name="description" content="Case study: a Telegram-native AI pipeline on a self-managed Linux VPS — localhost-bound gateway, artifacts as files on disk, deterministic Python renderer, static HTML output. With three live boards as evidence." />
+<link rel="canonical" href="https://orosergio.github.io/Portfolio/case-openclaw.html" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<meta property="og:title" content="Engineering OpenClaw — one message in, one production artifact out" />
+<meta property="og:description" content="A Telegram-native AI pipeline: localhost-bound gateway, artifacts as files, deterministic renderer, static output. Three live boards as evidence." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://orosergio.github.io/Portfolio/case-openclaw.html" />
+<meta property="og:image" content="https://orosergio.github.io/Portfolio/assets/og-cover.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --paper:#fafaf7; --paper-2:#f0efe9; --ink:#0a0a08; --ink-2:#2d2d2a;
+  --mute:#8a8a82; --line:#e0dfd6; --line-2:#0a0a08;
+  --acc:oklch(62% .22 28); --acc-2:oklch(62% .22 250);
+  --sans:'Inter Tight',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+.rail{position:fixed;top:0;left:0;right:0;height:28px;background:var(--paper);z-index:60;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;justify-content:space-between}
+.rail a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink)}
+.rail a:hover{color:var(--acc);border-color:var(--acc)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 40px;position:relative}
+.section{padding:64px 0;border-bottom:1px solid var(--line)}
+.nav{margin-top:28px;padding:24px 0;display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line-2)}
+.logo{font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink);text-decoration:none}
+.logo-mark{display:inline-block;width:14px;height:14px;background:var(--ink);margin-right:8px;vertical-align:-2px}
+.nav-cta{display:flex;gap:16px}
+.nav-cta a{font-family:var(--mono);font-size:11px;color:var(--ink);text-decoration:none;letter-spacing:.05em;border-bottom:1px solid var(--ink);padding-bottom:2px}
+.nav-cta a:hover{color:var(--acc);border-color:var(--acc)}
+.hero{padding:56px 0 48px}
+.kicker{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;margin-bottom:20px}
+.kicker b{color:var(--acc);font-weight:500}
+h1{font-size:clamp(40px,6vw,80px);font-weight:700;line-height:.92;letter-spacing:-.04em;margin-bottom:28px}
+h1 .acc{color:var(--acc)}
+.lede{font-size:19px;line-height:1.5;color:var(--ink-2);max-width:720px}
+.lede b{color:var(--ink);font-weight:600}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);margin-top:40px}
+.stat{padding:16px;border-right:1px solid var(--line);font-family:var(--mono)}
+.stat:last-child{border-right:none}
+.stat-k{font-size:9px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase;margin-bottom:6px}
+.stat-v{font-size:18px;font-weight:600;letter-spacing:-.02em}
+.stat-v small{font-size:11px;color:var(--mute);font-weight:400}
+h2{font-size:clamp(28px,3.6vw,44px);font-weight:600;letter-spacing:-.03em;line-height:1;margin-bottom:8px}
+.sec-num{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.15em;text-transform:uppercase;margin-bottom:14px}
+.sec-num b{color:var(--acc);font-weight:500}
+p{font-size:15px;line-height:1.7;color:var(--ink-2);max-width:720px;margin-bottom:16px}
+p b,li b{color:var(--ink);font-weight:600}
+ul{max-width:720px;margin:0 0 16px 20px}
+li{font-size:15px;line-height:1.7;color:var(--ink-2);margin-bottom:8px}
+code{font-family:var(--mono);font-size:.85em;background:var(--paper-2);border:1px solid var(--line);padding:1px 5px}
+.pipe-grid{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--ink);margin:28px 0}
+.pipe-cell{padding:24px 18px 20px;border-right:1px solid var(--line);background:var(--paper);min-height:200px;display:flex;flex-direction:column;position:relative}
+.pipe-cell:last-child{border-right:none}
+.pipe-num{font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.1em;margin-bottom:14px;display:flex;justify-content:space-between}
+.pipe-num b{color:var(--acc)}
+.pipe-h{font-size:17px;font-weight:600;line-height:1.15;margin-bottom:10px}
+.pipe-d{font-size:12px;line-height:1.55;color:var(--ink-2);flex:1}
+.pipe-tech{font-family:var(--mono);font-size:10px;color:var(--mute);padding-top:10px;border-top:1px solid var(--line)}
+.pipe-tech b{color:var(--ink);font-weight:500}
+.callout{border-left:3px solid var(--acc);background:var(--paper-2);padding:18px 22px;max-width:720px;margin:20px 0}
+.callout p{margin-bottom:0;font-size:14px}
+.boards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:28px 0}
+.board{background:var(--paper);padding:24px;text-decoration:none;color:inherit;min-height:180px;display:flex;flex-direction:column;transition:background .2s}
+.board:hover{background:var(--paper-2)}
+.board-meta{font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;display:flex;justify-content:space-between}
+.board-title{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1;margin-bottom:10px}
+.board-desc{font-size:12.5px;line-height:1.55;color:var(--ink-2);flex:1}
+.board-foot{font-family:var(--mono);font-size:10px;color:var(--ink);letter-spacing:.06em;text-transform:uppercase;border-top:1px solid var(--line);padding-top:12px;margin-top:14px}
+.footer{padding:64px 0 40px}
+.footer-big{font-size:clamp(34px,5vw,64px);font-weight:700;letter-spacing:-.04em;line-height:.92;margin-bottom:32px}
+.footer-big .acc{color:var(--acc)}
+.footer-links{display:flex;gap:28px;font-family:var(--mono);font-size:11px;letter-spacing:.05em;flex-wrap:wrap}
+.footer-links a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:2px}
+.footer-links a:hover{color:var(--acc);border-color:var(--acc)}
+.colophon{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase}
+@media(max-width:860px){
+  .statgrid{grid-template-columns:1fr 1fr}
+  .pipe-grid,.boards{grid-template-columns:1fr}
+  .pipe-cell{border-right:none;border-bottom:1px solid var(--line)}
+  .wrap{padding:0 22px}
+  .rail-c-extra{display:none}
+}
+</style>
+</head>
+<body>
+<div class="rail">
+  <div><a href="classic.html">← Back to portfolio</a></div>
+  <div class="rail-c-extra">CASE STUDY · SYSTEMS</div>
+  <div><a href="case-portfolio-city.html">Case 01: the 3D city ↗</a></div>
+</div>
+
+<div class="wrap">
+
+<nav class="nav">
+  <a class="logo" href="classic.html"><span class="logo-mark"></span>Sergio Orozco</a>
+  <div class="nav-cta">
+    <a href="classic.html#live">Live boards</a>
+    <a href="mailto:orosergioo@gmail.com">Contact</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="kicker">CASE STUDY <b>/</b> OPENCLAW · 2026</div>
+  <h1>One message in.<br/>One <span class="acc">production artifact</span> out.</h1>
+  <p class="lede">
+    OpenClaw is a Telegram-native AI workflow running on a Linux VPS I provision and operate myself.
+    An operator sends one structured message; the system routes it through an LLM, materializes the
+    result as <b>files on disk</b>, renders a self-contained HTML board with a deterministic Python
+    renderer, and publishes it as a static page. <b>No dashboard, no forms, no frontend to babysit</b> —
+    chat is the whole control plane.
+  </p>
+  <div class="statgrid">
+    <div class="stat"><div class="stat-k">Input</div><div class="stat-v">1 <small>Telegram message</small></div></div>
+    <div class="stat"><div class="stat-k">Output</div><div class="stat-v">1 <small>self-contained HTML</small></div></div>
+    <div class="stat"><div class="stat-k">Live evidence</div><div class="stat-v">3 <small>boards, below</small></div></div>
+    <div class="stat"><div class="stat-k">Serving cost</div><div class="stat-v">$0 <small>static hosting</small></div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>01</b> / The system</div>
+  <h2>Five stages, all inspectable.</h2>
+  <div class="pipe-grid">
+    <div class="pipe-cell">
+      <div class="pipe-num"><span>STAGE</span><b>01</b></div>
+      <div class="pipe-h">Telegram request</div>
+      <div class="pipe-d">Operator prompt sent to the bot. No UI, no form — structured text only.</div>
+      <div class="pipe-tech"><b>Telegram Bot API</b></div>
+    </div>
+    <div class="pipe-cell">
+      <div class="pipe-num"><span>STAGE</span><b>02</b></div>
+      <div class="pipe-h">Gateway routing</div>
+      <div class="pipe-d">A systemd-managed service parses intent and dispatches the right agent. Bound to loopback — nothing on this box listens publicly except what must.</div>
+      <div class="pipe-tech"><b>127.0.0.1:18789</b></div>
+    </div>
+    <div class="pipe-cell">
+      <div class="pipe-num"><span>STAGE</span><b>03</b></div>
+      <div class="pipe-h">Artifact on disk</div>
+      <div class="pipe-d">The LLM's output — positioning, palette, copy — is saved as JSON + markdown files. Inspectable, diffable, replayable.</div>
+      <div class="pipe-tech"><b>/workspace/content/</b></div>
+    </div>
+    <div class="pipe-cell">
+      <div class="pipe-num"><span>STAGE</span><b>04</b></div>
+      <div class="pipe-h">Deterministic render</div>
+      <div class="pipe-d">A Python renderer stitches the artifact into a styled HTML board. Same artifact in, same board out — the model never touches the presentation layer directly.</div>
+      <div class="pipe-tech"><b>render.py</b></div>
+    </div>
+    <div class="pipe-cell">
+      <div class="pipe-num"><span>STAGE</span><b>05</b></div>
+      <div class="pipe-h">Publish static</div>
+      <div class="pipe-d">Boards ship as single self-contained HTML files to GitHub Pages — zero runtime dependencies, zero serving infrastructure to break.</div>
+      <div class="pipe-tech"><b>GitHub Pages</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>02</b> / Design decisions</div>
+  <h2>Why it's built this way.</h2>
+  <ul>
+    <li><b>Chat as the only control plane.</b> A bot the operator already lives in beats a dashboard
+      nobody opens. Every capability is reachable from a phone, and the interaction log doubles as an
+      audit trail.</li>
+    <li><b>Artifacts are files, not rows.</b> Intermediate state lives on disk as JSON + markdown:
+      versionable with git, inspectable with <code>cat</code>, replayable through the renderer without
+      re-paying the LLM. When a board looks wrong, the diff says whether the model or the renderer is
+      to blame.</li>
+    <li><b>The model writes data; code writes HTML.</b> Splitting generation (LLM → structured
+      artifact) from presentation (deterministic <code>render.py</code>) means output quality is
+      debuggable and the design system is enforced by code, not by prompt engineering.</li>
+    <li><b>Minimal public surface.</b> The gateway binds to loopback; the public artifact is a static
+      page. The attack surface of the serving path is a CDN's, not my VPS's.</li>
+    <li><b>Static output as an SLA.</b> A self-contained HTML file has no cold starts, no runtime
+      errors and no dependencies to patch. The boards below will render identically years from now.</li>
+  </ul>
+  <div class="callout">
+    <p><b>Scope note:</b> this page only claims what the public artifacts demonstrate. Server
+    configuration details (hosting, exact hardening checklist, throughput) are available on request —
+    I'd rather under-claim here than decorate.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>03</b> / Evidence</div>
+  <h2>Three briefs. Same pipeline.</h2>
+  <p>Each board below is a real, unedited output artifact — a different prompt through the same five stages.</p>
+  <div class="boards">
+    <a class="board" href="visual-campaign-board-soft-pink-bouquet-2026-04-03-premium.html" target="_blank" rel="noopener">
+      <div class="board-meta"><span>BRIEF 01</span><span>2026.04</span></div>
+      <div class="board-title">Soft Pink Bouquet</div>
+      <div class="board-desc">A florist campaign brief: positioning, palette and copy rendered as a premium landing board.</div>
+      <div class="board-foot">Open artifact ↗</div>
+    </a>
+    <a class="board" href="visual-campaign-board-pattern-recognition-journaling-app-2026-04-05-premium.html" target="_blank" rel="noopener">
+      <div class="board-meta"><span>BRIEF 02</span><span>2026.04</span></div>
+      <div class="board-title">Journaling App</div>
+      <div class="board-desc">A product-marketing brief for Pattern Journal, generated by the same pipeline that has never seen it before.</div>
+      <div class="board-foot">Open artifact ↗</div>
+    </a>
+    <a class="board" href="visual-campaign-board-founder-copilot-for-telegram-2026-04-05-premium.html" target="_blank" rel="noopener">
+      <div class="board-meta"><span>BRIEF 03</span><span>2026.04</span></div>
+      <div class="board-title">Founder Copilot</div>
+      <div class="board-desc">The system describing itself: a campaign board for a Telegram-native founder copilot.</div>
+      <div class="board-foot">Open artifact ↗</div>
+    </a>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-num">§<b>04</b> / Honest limits &amp; next steps</div>
+  <h2>What it is not, yet.</h2>
+  <ul>
+    <li><b>Single-tenant by design.</b> It automates one operator's work. Multi-user would need real
+      queueing, per-user workspaces and authorization — none of which I'll claim before building.</li>
+    <li><b>Not yet instrumented.</b> I don't publish latency or throughput numbers because I haven't
+      measured them rigorously; adding tracing around each stage is the next task.</li>
+    <li><b>Renderer templates are hand-grown.</b> Extracting them into a documented theme system would
+      make new board types a data change instead of a code change — the same lesson the
+      <a href="case-portfolio-city.html" style="color:var(--ink)">3D city's registry</a> already applies.</li>
+  </ul>
+</section>
+
+</div>
+
+<footer class="wrap">
+  <div class="footer">
+    <div class="footer-big">Systems that <span class="acc">ship</span>.</div>
+    <div class="footer-links">
+      <a href="classic.html#live">See the boards in context</a>
+      <a href="case-portfolio-city.html">Case 01: Portfolio City</a>
+      <a href="classic.html">Back to portfolio</a>
+      <a href="mailto:orosergioo@gmail.com">orosergioo@gmail.com</a>
+    </div>
+    <div class="colophon">
+      <span>© 2026 Sergio Orozco</span>
+      <span>Artifacts dated 2026.04</span>
+      <span>Case 02 / Systems</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
