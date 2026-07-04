@@ -111,6 +111,9 @@ export function makeTraffic({ hx = 22, hz = 22, corner = 5.5 } = {}) {
   let lastT = 0
   return {
     group,
+    // live Group refs (ring cars + shuttles) — the autopilot reads their
+    // .position/.rotation.y for car-following; built once, zero per-frame allocs
+    cars: [...ring.map((r) => r.car), shuttleN, shuttleS],
     animate(t, cart) {
       const dt = Math.min(Math.max(t - lastT, 0), 0.1) // 0 when frozen (reduced motion)
       lastT = t

@@ -22,7 +22,10 @@ export function createKeyboard(state, { onAction, onVehicle, onHorn, onDayNight,
       else if (k === 'v') onVehicle?.()
       else if (k === 'b') onHorn?.()
       else if (k === 'n') onDayNight?.()
-      else if (k === 'escape') onDismiss?.()
+      // the intro dialog registers its keydown first and preventDefaults the
+      // Escape that closes it — don't also fire onDismiss (which would cancel
+      // an autopilot running behind the help overlay)
+      else if (k === 'escape' && !e.defaultPrevented) onDismiss?.()
     }
     keys.add(k); recompute()
     if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k) || (k === ' ' && !onWidget)) e.preventDefault()

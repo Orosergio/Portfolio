@@ -68,6 +68,24 @@
 .horn-btn:active{transform:scale(.92)}
 @media (pointer:fine){ .touch{display:none} }
 
+/* ── Autopilot pill (destination + cancel while self-driving) ───────────── */
+.hud-auto{position:fixed; top:max(64px,calc(env(safe-area-inset-top) + 52px)); left:50%; transform:translateX(-50%);
+  z-index:55; pointer-events:auto; display:flex; align-items:center; gap:9px; white-space:nowrap;
+  background:#34230f; color:#ffe9c9; font-family:var(--mono); font-size:11.5px; letter-spacing:.02em;
+  padding:8px 8px 8px 14px; border-radius:99px; box-shadow:0 12px 30px rgba(40,20,5,.4); max-width:94vw}
+.hud-auto b{color:#ffd27a}
+.hud-auto #autoLabel{overflow:hidden; text-overflow:ellipsis}
+.au-dot{width:8px; height:8px; border-radius:50%; background:#5fbf8a; flex:none; animation:blinkAuto 1.1s ease-in-out infinite}
+@keyframes blinkAuto{50%{opacity:.35}}
+.hud-auto button{border:none; cursor:pointer; background:rgba(255,233,201,.16); color:#ffe9c9;
+  width:26px; height:26px; border-radius:50%; font-size:12px; line-height:1; flex:none}
+.hud-auto button:hover{background:rgba(255,233,201,.3)}
+.hud-auto button:focus-visible{outline:2px solid #ffd27a; outline-offset:2px}
+/* touch: bottom-center, above the tracker/joystick band */
+@media (pointer:coarse){
+  .hud-auto{top:auto; bottom:max(206px,calc(env(safe-area-inset-bottom) + 206px)); left:50%; font-size:11px}
+}
+
 /* ── Toast (celebration / hints) ────────────────────────────────────────── */
 .hud-toast{position:fixed; top:max(72px,calc(env(safe-area-inset-top) + 58px)); left:50%; transform:translateX(-50%);
   z-index:60; pointer-events:auto; max-width:min(92vw,480px); text-align:center;
@@ -152,6 +170,11 @@
   #btnClassic{display:none}
   /* icons only — with the new vehicle button the labeled bar overflows 360-390px phones */
   #vehLabel, #driverLabel{display:none}
+}
+@media (max-width:400px){
+  .hud-bar{padding-left:max(10px,env(safe-area-inset-left)); padding-right:max(10px,env(safe-area-inset-right)); gap:8px}
+  .hud-brand{font-size:14px; padding:8px 11px}
+  .hud-btn{padding:8px 10px}
 }
 @media (prefers-reduced-motion:reduce){
   /* kill ALL animation (trPulse, cardPop, toastPop…), not just a hand-list */

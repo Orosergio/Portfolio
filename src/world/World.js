@@ -247,6 +247,7 @@ export function buildWorld(onPhase) {
     half,
     projectBuildings,
     obstacles,
+    trafficCars: traffic.cars,
     bounds: { min: -(half - 2), max: half - 2 },
     // spawn on the grand avenue facing the Tower + Fuji — the money shot
     spawn: { x: 0, z: -8, heading: Math.PI },

@@ -2,7 +2,7 @@
 // the project preview card (a real clickable link), and the visit tracker
 // ("Projects 3/8" with one clickable dot per project → sets the guide arrow).
 export class Hud {
-  constructor(container, { onSwitchDriver, onSwitchVehicle, onHelp, onDayNight, onTrackerClick, onTipClick } = {}) {
+  constructor(container, { onSwitchDriver, onSwitchVehicle, onHelp, onDayNight, onTrackerClick, onTipClick, onAutoCancel } = {}) {
     this.active = null
     this.revealed = false
     this.onTrackerClick = onTrackerClick
@@ -46,6 +46,16 @@ export class Hud {
     this.toastEl = toast
     this._toastTimer = 0
 
+    // autopilot pill — shows the destination while the vehicle self-drives
+    const auto = document.createElement('div')
+    auto.className = 'hud-auto'
+    auto.hidden = true
+    auto.innerHTML = `<span class="au-dot"></span><span id="autoLabel"></span><button id="autoCancel" aria-label="Cancel autopilot">✕</button>`
+    container.appendChild(auto)
+    this.autoEl = auto
+    this.autoLabel = auto.querySelector('#autoLabel')
+    auto.querySelector('#autoCancel').addEventListener('click', () => onAutoCancel?.())
+
     const tip = document.createElement('div')
     tip.className = 'hud-tip'
     tip.innerHTML = `<kbd>T</kbd> <span id="tipText">check preview</span>`
@@ -85,6 +95,13 @@ export class Hud {
     this.btnDayNight.setAttribute('aria-label', 'Night mode')
     if (this._dnInit) this.announce(mode === 'night' ? 'Night mode' : 'Day mode')
     this._dnInit = true
+  }
+
+  // Autopilot destination pill (null hides it).
+  setAuto(project) {
+    if (!project) { this.autoEl.hidden = true; return }
+    this.autoLabel.innerHTML = `AUTO → <b>${project.title}</b> · ${project.venue} — take the wheel anytime`
+    this.autoEl.hidden = false
   }
 
   // Screen-reader announcement (aria-live region, no visual).

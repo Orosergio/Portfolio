@@ -20,3 +20,11 @@ export function dampVec3(out, target, lambda, dt) {
 export const rand = (a, b) => a + Math.random() * (b - a)
 export const pick = (arr) => arr[(Math.random() * arr.length) | 0]
 export const TAU = Math.PI * 2
+
+// Wrap an angle to (-π, π] — shortest-arc error for steering controllers.
+export const wrapAngle = (a) => {
+  a = a % TAU
+  if (a > Math.PI) a -= TAU
+  else if (a <= -Math.PI) a += TAU
+  return a
+}

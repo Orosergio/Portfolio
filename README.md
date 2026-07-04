@@ -35,11 +35,15 @@ How it stays there:
 | | Desktop | Mobile |
 |---|---|---|
 | Drive | Arrows / WASD | Joystick |
+| **Autopilot to a project** | Tap a tracker/map dot | Tap a tracker/map dot |
+| Take back control | Touch the controls | Touch the controls |
 | Open the project at a landmark | **T** / E / Enter | Action button |
 | Switch vehicle (kart ↔ UBike) | **V** | Top-bar button |
 | Horn / bike bell | **B** | 🔔 button |
 | Day ↔ night | **N** / top-bar ☀🌙 | Top-bar ☀🌙 |
-| Dismiss card / close intro | **Esc** | — |
+| Dismiss card / cancel autopilot | **Esc** | — |
+
+Autopilot routes the vehicle over a hand-laid waypoint graph (ring, avenues, roundabout, landmark spurs) with a pure-pursuit follower feeding the existing arcade controller — so collisions, camera and vehicle-switching all keep working, and any manual input hands the wheel back instantly. Deep-link straight into a drive with `?goto=<projectId>` (e.g. `?goto=ai-wealth-lab`).
 
 ### Debug & QA affordances
 

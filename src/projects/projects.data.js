@@ -24,7 +24,7 @@ export const projects = [
     screenshot: SHOTS + 'oro-realstate-panel.png',
     thumbs: [SHOTS + 'oro-realstate-properties.png', SHOTS + 'oro-realstate-payments.png', SHOTS + 'oro-realstate-reminders.png'],
     landmark: 'tokyoTower', venue: 'Tokyo Tower', district: 'japan',
-    pos: [0, -27], rotY: 0, enterR: 9.5,
+    pos: [0, -27], rotY: 0, enterR: 9.5, park: [0, -21.2],
   },
   {
     id: 'ai-wealth-lab',
@@ -40,7 +40,7 @@ export const projects = [
     screenshot: null,
     thumbs: [],
     landmark: 'taipei101', venue: 'Taipei 101', district: 'taiwan',
-    pos: [0, 27], rotY: 0, enterR: 9.5,
+    pos: [0, 27], rotY: 0, enterR: 9.5, park: [0, 22.4],
   },
   {
     id: 'openclaw',
@@ -56,7 +56,7 @@ export const projects = [
     screenshot: null,
     thumbs: [],
     landmark: 'skytree', venue: 'Tokyo Skytree', district: 'japan',
-    pos: [17, -16.5], rotY: 0, enterR: 8,
+    pos: [17, -16.5], rotY: 0, enterR: 8, park: [21.2, -16.5],
   },
   {
     id: 'pattern-journal',
@@ -72,7 +72,7 @@ export const projects = [
     screenshot: SHOTS + 'pattern-journal-dashboard.png',
     thumbs: [SHOTS + 'pattern-journal-write.png', SHOTS + 'pattern-journal-history.png', SHOTS + 'pattern-journal-insights.png'],
     landmark: 'fushimi', venue: 'Fushimi Inari Path', district: 'japan',
-    pos: [-27, -9], rotY: 0, enterR: 10.5,
+    pos: [-27, -9], rotY: 0, enterR: 10.5, park: [-23.4, -9],
   },
   {
     id: 'kiniela',
@@ -88,7 +88,7 @@ export const projects = [
     screenshot: SHOTS + 'kiniela-home.png',
     thumbs: [SHOTS + 'kiniela-predictions.png', SHOTS + 'kiniela-group.png'],
     landmark: 'stadium', venue: 'Taipei Dome', district: 'taiwan',
-    pos: [13.5, 13.5], rotY: 0, enterR: 10,
+    pos: [13.5, 13.5], rotY: 0, enterR: 10, park: [13.5, 7.2],
   },
   {
     id: 'finger-mouse',
@@ -104,7 +104,7 @@ export const projects = [
     screenshot: null,
     thumbs: [],
     landmark: 'akihabara', venue: 'Akihabara', district: 'japan',
-    pos: [13, -7], rotY: 0, enterR: 7.5,
+    pos: [13, -7], rotY: 0, enterR: 7.5, park: [13, -2.5],
   },
   {
     id: 'milingua',
@@ -120,7 +120,7 @@ export const projects = [
     screenshot: null,
     thumbs: [],
     landmark: 'nightMarket', venue: 'Raohe Night Market', district: 'taiwan',
-    pos: [0, 8.4], rotY: 0, enterR: 7,
+    pos: [0, 8.4], rotY: 0, enterR: 7, park: [0, 12],
   },
   {
     id: 'inmob',
@@ -136,6 +136,6 @@ export const projects = [
     screenshot: null,
     thumbs: [],
     landmark: 'longshan', venue: 'Longshan Temple', district: 'taiwan',
-    pos: [-14, 13.5], rotY: 0, enterR: 8.5,
+    pos: [-14, 13.5], rotY: 0, enterR: 8.5, park: [-14, 8.6],
   },
 ]

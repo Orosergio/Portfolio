@@ -25,7 +25,7 @@ export class Intro {
                <div class="intro-row"><span class="ic key">T</span><div><b>Press T</b><small>open the project at a landmark</small></div></div>
                <div class="intro-row"><span class="ic key">V · B</span><div><b>Kart or UBike</b><small>V swaps your ride · B honks the horn / rings the bell</small></div></div>
                <div class="intro-row"><span class="ic key">N</span><div><b>Try night mode</b><small>lanterns, neon and beacons light up</small></div></div>`}
-          <div class="intro-row"><span class="ic">◎</span><div><b>Visit tracker</b><small>bottom-right — tap a dot and the arrow guides you there</small></div></div>
+          <div class="intro-row"><span class="ic">◎</span><div><b>Autopilot</b><small>tap a project dot (tracker or map) — the vehicle drives you there; grab the controls anytime</small></div></div>
         </div>
         <button class="intro-start" id="introStart">Start driving →</button>
         <a class="intro-classic" href="classic.html">Prefer a classic page? View the text portfolio →</a>

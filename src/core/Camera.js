@@ -20,6 +20,14 @@ export class IsoCamera {
     this.fovBase = 32
     this.rollVis = 0
     this._shake = 0
+    this._portrait = 1
+    this.setAspect(aspect)
+  }
+
+  // Portrait phones see almost nothing at the desktop rig distance — zoom the
+  // whole offset out as the viewport narrows (1.0 landscape → ~1.42 at 390×844).
+  setAspect(aspect) {
+    this._portrait = Math.min(Math.max(Math.pow(1 / Math.max(aspect, 0.01), 0.45), 1), 1.5)
   }
 
   // One-shot collision jolt: brief decaying positional noise (main gates this
@@ -28,7 +36,8 @@ export class IsoCamera {
 
   // Snap instantly to a target (used once after world build, before fade-in).
   snapTo(target) {
-    this._desired.set(target.x + this.offset.x, this.offset.y, target.z + this.offset.z)
+    const p = this._portrait
+    this._desired.set(target.x + this.offset.x * p, this.offset.y * p, target.z + this.offset.z * p)
     this.cam.position.copy(this._desired)
     this._look.copy(target); this._lookSmooth.copy(target)
     this.cam.lookAt(this._lookSmooth)
@@ -39,7 +48,7 @@ export class IsoCamera {
     this._look.set(target.x + Math.sin(heading) * 2.2, target.y + 0.6, target.z + Math.cos(heading) * 2.2)
     // dolly back a touch at speed for a sense of velocity
     const sf = Math.min(Math.abs(speed) / 9.5, 1)
-    const k = 1 + sf * 0.09
+    const k = (1 + sf * 0.09) * this._portrait
     this._desired.set(target.x + this.offset.x * k, this.offset.y * k, target.z + this.offset.z * k)
     dampVec3(this.cam.position, this._desired, 4.5, dt)
     dampVec3(this._lookSmooth, this._look, 6, dt)

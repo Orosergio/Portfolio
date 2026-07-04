@@ -13,6 +13,7 @@ import { Fireworks } from './world/factory/fireworks.js'
 import { makeCart } from './vehicle/Cart.js'
 import { makeBike } from './vehicle/Bike.js'
 import { CartController } from './vehicle/CartController.js'
+import { Autopilot } from './vehicle/Autopilot.js'
 import { Sound } from './core/Sound.js'
 import { DriverSwitcher } from './character/Driver.js'
 import { ProximitySystem } from './projects/ProximitySystem.js'
@@ -61,7 +62,7 @@ async function boot() {
   // High tier gets the full composer (bloom + AO + grade). Low/mobile skips it
   // entirely — no HalfFloat target, no bloom mip chain — and renders direct.
   const post = engine.tier === 'low' ? null : new Post({ renderer: engine.renderer, scene: engine.scene, camera: camera.cam, tier: engine.tier })
-  if (post) engine.onResize = (w, h) => post.setSize(w, h)
+  engine.onResize = (w, h) => { post?.setSize(w, h); camera.setAspect(w / h) }
 
   // vehicles: kart + UBike, same scale so the rider reads identical on both.
   // Only the active one is visible; the controller swaps meshes in place.
@@ -99,10 +100,12 @@ async function boot() {
     else { camera.cam.position.set(72, 80, 72); camera.cam.lookAt(0, 3, 0) }
   }
 
-  // UI overlay
+  // UI overlay. ?goto=<projectId> deep-links straight into autopilot — skip the intro.
   const overlay = document.getElementById('overlay')
+  const gotoId = params.get('goto')
+  const gotoProject = gotoId ? projects.find((p) => p.id === gotoId) : null
   const seen = (() => { try { return localStorage.getItem('city.seen') === '1' } catch { return false } })()
-  const intro = new Intro(overlay, { open: !seen && !shot })
+  const intro = new Intro(overlay, { open: !seen && !shot && !gotoProject })
 
   // ── visit tracking (persisted) + guide target ──
   const visited = new Set((() => {
@@ -135,7 +138,31 @@ async function boot() {
     hud.announce(vehicleKind === 'bike' ? 'Now riding the UBike' : 'Now driving the kart')
     try { localStorage.setItem('city.vehicle', vehicleKind) } catch { /* private mode */ }
   }
-  const toggleTarget = (id) => { explicitTarget = (explicitTarget === id) ? null : id; syncTracker() }
+  // ── autopilot: selecting a project drives you there; touching the
+  // controls hands the wheel straight back ──
+  // Under reduced-motion the traffic is frozen mid-street; feeding those
+  // static cars to the follower would make it park behind scenery, so it
+  // drives with no car-following (frozen cars are decor, not traffic).
+  const autopilot = new Autopilot(reduced ? [] : world.trafficCars)
+  const stopAuto = (announceText) => {
+    if (!autopilot.active) return
+    autopilot.cancel()
+    hud.setAuto(null)
+    if (announceText) hud.announce(announceText)
+  }
+  const toggleTarget = (id) => {
+    // re-engage when tapping a dot whose autopilot already ended (arrived /
+    // cancelled) — only a same-dot tap while ACTIVELY driving toggles it off
+    const on = explicitTarget !== id || !autopilot.active
+    explicitTarget = on ? id : null
+    syncTracker()
+    if (!on) { stopAuto('Autopilot off'); return }
+    const b = byId(id)
+    if (b && autopilot.engage(b.project, cart.position)) {
+      hud.setAuto(b.project)
+      hud.announce(`Autopilot engaged — driving to ${b.project.title} at ${b.project.venue}. Use the controls to take over.`)
+    }
+  }
   const hud = new Hud(overlay, {
     onSwitchDriver: () => { hud.setDriverLabel(driver.toggle().label); hud.announce(`Driver: ${driver.label}`) },
     onSwitchVehicle: switchVehicle,
@@ -143,6 +170,7 @@ async function boot() {
     onDayNight: () => { if (dayNight) dayNight.toggle() },
     onTrackerClick: toggleTarget,
     onTipClick: () => doAction(),
+    onAutoCancel: () => stopAuto('Autopilot off — you have the wheel'),
   })
   hud.setDriverLabel(driver.label)
   hud.setVehicleLabel(vehicleKind)
@@ -166,6 +194,7 @@ async function boot() {
     minimap.setState(visited, lastTargetId)
   }
   syncTracker()
+  if (gotoProject) toggleTarget(gotoProject.id) // ?goto deep-link: drive there now
 
   const fireworks = new Fireworks(engine.scene)
   const markVisited = (id) => {
@@ -215,7 +244,11 @@ async function boot() {
     onVehicle: () => { if (!intro.visible) switchVehicle() },
     onHorn: doHorn,
     onDayNight: () => { if (dayNight && !intro.visible) dayNight.toggle() },
-    onDismiss: () => hud.unreveal(),
+    // Escape dismisses one layer per press (topmost first): an open card,
+    // then autopilot. The intro closes itself; Keyboard skips Escape when the
+    // intro already consumed it (defaultPrevented), so closing help never
+    // cancels the drive.
+    onDismiss: () => { if (hud.revealed) { hud.unreveal(); return } stopAuto('Autopilot off') },
   })
   if (window.matchMedia('(pointer:coarse)').matches) {
     createTouchControls(input, { onAction: doAction, onHorn: doHorn, container: overlay })
@@ -242,6 +275,7 @@ async function boot() {
   const ndc = new THREE.Vector3()
   const cartXZ = { x: 0, z: 0 } // reused every frame (no per-frame allocation)
   const mmState = { x: 0, z: 0, heading: 0 }
+  const IDLE_DRIVE = { throttle: 0, steer: 0 }
   let lastBump = -1
   let running = true
   let rafId = 0
@@ -256,8 +290,28 @@ async function boot() {
     const dt = Math.min(engine.clock.getDelta(), 0.05)
     const t = engine.clock.elapsedTime
 
-    const drive = intro.visible ? { throttle: 0, steer: 0 } : input
+    // manual input hands the wheel back instantly (guide target stays set).
+    // Gated on the intro: while it's up the input drives nothing (below), so a
+    // stray key behind the help overlay must not silently cancel the drive.
+    if (autopilot.active && !intro.visible && (Math.abs(input.throttle) > 0.15 || Math.abs(input.steer) > 0.15)) {
+      stopAuto('Manual control — autopilot off')
+    }
+    const auto = autopilot.active && !intro.visible ? autopilot.update(dt, controller) : null
+    const drive = intro.visible ? IDLE_DRIVE : (auto || input)
     controller.update(dt, drive)
+    if (autopilot.arrived) {
+      autopilot.arrived = false
+      const arrivedAt = autopilot.project
+      autopilot.project = null
+      hud.setAuto(null)
+      // skip the "press T" prompt if the card is already open or the project
+      // was opened on approach — it would tell the user to close their own
+      // card, and would clobber the one-time all-8 celebration toast
+      if (arrivedAt && !visited.has(arrivedAt.id) && !hud.revealed) {
+        hud.announce(`Arrived at ${arrivedAt.venue}. Press T to open ${arrivedAt.title}.`)
+        hud.toast(`Arrived at <b>${arrivedAt.venue}</b> — press T to open the project`, 3400)
+      }
+    }
     // collision feedback: audible thunk + camera jolt (debounced; motion-safe)
     if (controller.bumped && Math.abs(controller.speed) > 2.2 && t - lastBump > 0.35) {
       lastBump = t
@@ -301,7 +355,7 @@ async function boot() {
   await loader.hide()
 
   if (import.meta.env.DEV) {
-    window.__city = { controller, proximity, hud, camera, driver, world, kart, bike, input, dayNight, engine, visited, guide, switchVehicle, fireworks, get cart() { return cart } }
+    window.__city = { controller, proximity, hud, camera, driver, world, kart, bike, input, dayNight, engine, visited, guide, switchVehicle, fireworks, autopilot, toggleTarget, get cart() { return cart } }
   }
 }
 
