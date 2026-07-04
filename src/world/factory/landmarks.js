@@ -93,8 +93,9 @@ export function makeTokyoTower() {
   return { group: g, top: legH + 11.1, beacon }
 }
 
-// thin oriented strut geometry between two points (for lattice bracing)
-function strutGeo(p1, p2, t = 0.05) {
+// thin oriented strut geometry between two points (for lattice bracing).
+// Exported: the Japan/Taiwan landmark modules reuse it.
+export function strutGeo(p1, p2, t = 0.05) {
   const dir = new THREE.Vector3().subVectors(p2, p1)
   const len = dir.length()
   const geo = new THREE.CylinderGeometry(t, t, len, 4)
@@ -124,59 +125,86 @@ export function makeTorii(scale = 1) {
 }
 
 // ── Paper lantern (glows at night) ──────────────────────────────────────
-export function makeLantern(color = palette.lantern) {
+// Pooled emissive materials: one per lantern color, shared by every lantern
+// and string in the city (was one fresh material per lantern).
+const LANTERN_COLORS = [palette.lantern, palette.lanternWarm, '#ff8a4d']
+const lanternMats = LANTERN_COLORS.map((c) => {
   const m = mat('#7a1a14', { roughness: 0.5 })
-  markEmissive(m, color, 1.3, 0.15)
-  const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.34, 10, 8), m)
+  markEmissive(m, c, 1.3, 0.15)
+  return m
+})
+const lanternCapMat = mat('#241a18')
+
+export function makeLantern(colorIdx = 0) {
+  const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.34, 10, 8), lanternMats[colorIdx % lanternMats.length])
   lamp.scale.y = 1.15
-  const capMat = mat('#241a18')
-  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.1, 6), capMat)
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.1, 6), lanternCapMat)
   cap.position.y = 0.42
   const g = new THREE.Group(); g.add(lamp, cap)
   return g
 }
 
 // A string of lanterns between two points (for night-market lanes).
+// One mesh per lantern color + one for caps + one wire ⇒ 5 meshes per string
+// (was 13: wire + 6 × [lamp + cap] with per-lantern materials).
 export function makeLanternString(x1, z1, x2, z2, count = 6, y = 3.4) {
   const g = new THREE.Group()
-  // wire
   const len = Math.hypot(x2 - x1, z2 - z1)
-  const wire = new THREE.Mesh(new THREE.BoxGeometry(len, 0.03, 0.03), mat('#2a1a14'))
+  const wire = new THREE.Mesh(new THREE.BoxGeometry(len, 0.03, 0.03), lanternCapMat)
   wire.position.set((x1 + x2) / 2, y, (z1 + z2) / 2)
   wire.rotation.y = Math.atan2(z2 - z1, x2 - x1)
   g.add(wire)
-  const colors = [palette.lantern, palette.lanternWarm, '#ff8a4d']
+
+  const byColor = lanternMats.map(() => [])
+  const caps = []
   for (let i = 1; i <= count; i++) {
     const t = i / (count + 1)
-    const lan = makeLantern(colors[i % colors.length])
-    lan.position.set(x1 + (x2 - x1) * t, y - 0.45, z1 + (z2 - z1) * t)
-    g.add(lan)
+    const lx = x1 + (x2 - x1) * t, lz = z1 + (z2 - z1) * t
+    const lamp = new THREE.SphereGeometry(0.34, 10, 8)
+    lamp.scale(1, 1.15, 1)
+    lamp.translate(lx, y - 0.45, lz)
+    byColor[i % byColor.length].push(lamp.toNonIndexed())
+    const cap = new THREE.CylinderGeometry(0.12, 0.12, 0.1, 6)
+    cap.translate(lx, y - 0.03, lz)
+    caps.push(cap.toNonIndexed())
   }
+  byColor.forEach((geos, ci) => {
+    if (geos.length) g.add(new THREE.Mesh(mergeGeometries(geos, false), lanternMats[ci]))
+  })
+  g.add(new THREE.Mesh(mergeGeometries(caps, false), lanternCapMat))
   return g
 }
 
 // ── Night-market stall (counter + striped awning + sign) ────────────────
+// One painted static mesh + one pooled-material sign per stall. Counter is
+// waist-high (0.75u) so the rescaled pedestrians can actually shop at it.
+const stallBodyMat = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.8 })
+const stallSignMats = palette.neon.map((c) => {
+  const m = mat('#241820')
+  markEmissive(m, c, 1.2, 0.1)
+  return m
+})
+
 export function makeStall(i = 0) {
   const g = new THREE.Group()
   const body = palette.stallColors[i % palette.stallColors.length]
   const aw = palette.awning[i % palette.awning.length]
 
-  const counter = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.1, 1.6), mat(body))
-  counter.position.y = 0.55; counter.castShadow = true; counter.receiveShadow = true; g.add(counter)
-  const top = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.18, 1.7), mat('#3a2a26'))
-  top.position.y = 1.18; g.add(top)
-  // posts
+  const geos = []
+  const add = (geo, hex) => { const n = geo.toNonIndexed ? geo.toNonIndexed() : geo; paint(n, hex); geos.push(n) }
+  const counter = new THREE.BoxGeometry(2.4, 0.75, 1.6); counter.translate(0, 0.375, 0); add(counter, body)
+  const top = new THREE.BoxGeometry(2.5, 0.18, 1.7); top.translate(0, 0.83, 0); add(top, '#3a2a26')
   for (const sx of [-1.1, 1.1]) for (const sz of [-0.7, 0.7]) {
-    const p = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.2, 6), mat('#4a3a30'))
-    p.position.set(sx, 1.1, sz); g.add(p)
+    const p = new THREE.CylinderGeometry(0.06, 0.06, 2.2, 6); p.translate(sx, 1.1, sz); add(p, '#4a3a30')
   }
-  // slanted awning
-  const awning = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.12, 1.4), mat(aw, { roughness: 0.7 }))
-  awning.position.set(0, 2.25, 0.4); awning.rotation.x = -0.32; awning.castShadow = true; g.add(awning)
-  // glowing sign
-  const signMat = mat('#241820')
-  markEmissive(signMat, palette.neon[i % palette.neon.length], 1.2, 0.1)
-  const sign = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 0.08), signMat)
+  const awning = new THREE.BoxGeometry(2.8, 0.12, 1.4)
+  awning.rotateX(-0.32); awning.translate(0, 2.25, 0.4)
+  add(awning, aw)
+  const mesh = new THREE.Mesh(mergeGeometries(geos, false), stallBodyMat)
+  mesh.castShadow = true; mesh.receiveShadow = true
+  g.add(mesh)
+
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 0.08), stallSignMats[i % stallSignMats.length])
   sign.position.set(0, 1.9, 0.85); g.add(sign)
 
   return g

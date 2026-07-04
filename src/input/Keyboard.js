@@ -1,5 +1,6 @@
-// Keyboard → shared input state. Arrows/WASD drive; T fires the action once.
-export function createKeyboard(state, { onAction } = {}) {
+// Keyboard → shared input state. Arrows/WASD drive; T/E/Enter/Space fire the
+// action; V swaps kart↔UBike; B honks/rings; N toggles day/night; Esc dismisses.
+export function createKeyboard(state, { onAction, onVehicle, onHorn, onDayNight, onDismiss } = {}) {
   const keys = new Set()
   const recompute = () => {
     let t = 0, s = 0
@@ -14,9 +15,17 @@ export function createKeyboard(state, { onAction } = {}) {
     const t = e.target
     if (t && (t.isContentEditable || /^(input|textarea|select)$/i.test(t.tagName))) return
     const k = e.key.toLowerCase()
-    if (k === 't' && !e.repeat) onAction?.()
+    // let focused buttons/links keep their native Enter/Space activation
+    const onWidget = t && /^(button|a)$/i.test(t.tagName)
+    if (!e.repeat) {
+      if (k === 't' || (!onWidget && (k === 'e' || k === 'enter' || k === ' '))) onAction?.()
+      else if (k === 'v') onVehicle?.()
+      else if (k === 'b') onHorn?.()
+      else if (k === 'n') onDayNight?.()
+      else if (k === 'escape') onDismiss?.()
+    }
     keys.add(k); recompute()
-    if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault()
+    if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k) || (k === ' ' && !onWidget)) e.preventDefault()
   }
   const up = (e) => { keys.delete(e.key.toLowerCase()); recompute() }
   const reset = () => { keys.clear(); recompute() }

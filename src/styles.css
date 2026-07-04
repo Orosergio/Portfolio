@@ -2,6 +2,9 @@
 :root{
   --ink:#2a1c10; --ink-soft:#6b4a28; --cream:#fbf1df; --cream-2:#f5e6cd;
   --line:rgba(90,52,19,.16); --accent:#f26b2a; --blue:#5aa0cf;
+  /* darker accent for TEXT + small chips — raw #f26b2a fails WCAG AA on cream
+     (2.7:1) and under white text (3.0:1); #b34a10 passes both (4.8 / 5.4:1) */
+  --accent-deep:#b34a10;
   --mono:'JetBrains Mono',ui-monospace,monospace; --sans:'Inter Tight',system-ui,sans-serif;
   --shadow:0 18px 50px rgba(90,40,10,.28);
 }
@@ -24,18 +27,20 @@
   padding:9px 13px; border-radius:99px; box-shadow:var(--shadow); display:flex; align-items:center; gap:7px;
   transition:transform .15s ease, background .15s ease}
 .hud-btn:hover{transform:translateY(-1px); background:#fff7ea}
-.hud-btn:focus-visible, .intro-start:focus-visible, .intro-classic:focus-visible, .act-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.hud-btn:focus-visible, .intro-start:focus-visible, .intro-classic:focus-visible, .act-btn:focus-visible,
+.horn-btn:focus-visible, .tr-dot:focus-visible{outline:2px solid var(--accent-deep); outline-offset:2px}
 .hud-btn .dot{width:8px; height:8px; border-radius:50%; background:var(--accent)}
 #btnDriver .dot{background:var(--blue)}
 
-/* proximity tooltip */
-.hud-tip{position:absolute; transform:translate(-50%,-135%); pointer-events:none;
+/* proximity tooltip — clickable: mouse users can tap it instead of finding T */
+.hud-tip{position:absolute; transform:translate(-50%,-135%); pointer-events:auto; cursor:pointer;
   display:flex; align-items:center; gap:8px; white-space:nowrap;
   background:#34230f; color:#ffe9c9; font-size:13px; font-weight:500; letter-spacing:.01em;
   padding:8px 13px; border-radius:99px; box-shadow:0 10px 26px rgba(40,20,5,.4);
   animation:tipPop .18s ease both}
-.hud-tip kbd{font-family:var(--mono); font-weight:700; background:var(--accent); color:#fff;
+.hud-tip kbd{font-family:var(--mono); font-weight:700; background:var(--accent-deep); color:#fff;
   border-radius:6px; padding:2px 7px; font-size:12px; box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.hud-tip .tip-venue{font-style:normal; font-weight:400; color:#d9b98c}
 .hud-tip::after{content:''; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%);
   border:6px solid transparent; border-top-color:#34230f}
 @keyframes tipPop{from{opacity:0; transform:translate(-50%,-120%)} to{opacity:1; transform:translate(-50%,-135%)}}
@@ -57,16 +62,61 @@
   background:#34230f; color:#ffe9c9; font-family:var(--mono); font-weight:700; font-size:24px;
   box-shadow:0 12px 28px rgba(40,20,5,.45)}
 .act-btn:active{transform:scale(.94)}
+.horn-btn{position:absolute; right:calc(max(24px,env(safe-area-inset-right)) + 98px); bottom:max(52px,env(safe-area-inset-bottom));
+  width:60px; height:60px; border-radius:50%; pointer-events:auto; cursor:pointer; border:1.5px solid rgba(251,241,223,.7);
+  background:rgba(251,241,223,.82); font-size:22px; box-shadow:var(--shadow); backdrop-filter:blur(4px)}
+.horn-btn:active{transform:scale(.92)}
 @media (pointer:fine){ .touch{display:none} }
 
-/* ── Mini-map (GTA-style) ───────────────────────────────────────────────── */
+/* ── Toast (celebration / hints) ────────────────────────────────────────── */
+.hud-toast{position:fixed; top:max(72px,calc(env(safe-area-inset-top) + 58px)); left:50%; transform:translateX(-50%);
+  z-index:60; pointer-events:auto; max-width:min(92vw,480px); text-align:center;
+  background:#34230f; color:#ffe9c9; font-size:14px; line-height:1.5; font-weight:500;
+  padding:12px 20px; border-radius:16px; box-shadow:0 14px 34px rgba(40,20,5,.45)}
+.hud-toast a{color:#ffb347; font-weight:700}
+.hud-toast.show{animation:toastPop .4s cubic-bezier(.2,.9,.3,1.35) both}
+@keyframes toastPop{from{opacity:0; transform:translate(-50%,-10px) scale(.96)} to{opacity:1; transform:translate(-50%,0) scale(1)}}
+
+/* ── Visit tracker ("Projects 3/8" + one dot per landmark) ─────────────── */
+.hud-tracker{position:fixed; right:max(16px,env(safe-area-inset-right)); bottom:max(16px,env(safe-area-inset-bottom));
+  pointer-events:auto; display:flex; align-items:center; gap:10px;
+  background:rgba(251,241,223,.82); backdrop-filter:blur(8px);
+  padding:9px 12px; border-radius:99px; box-shadow:var(--shadow)}
+.tr-label{font-family:var(--mono); font-size:11px; color:#4a2c10; letter-spacing:.04em; white-space:nowrap}
+.tr-label b{color:var(--accent-deep)}
+.tr-dots{display:flex; gap:10px}
+/* 14px visual dot, 24px effective hit area (::before) — the raw 14px buttons
+   failed the WCAG 24px minimum. inset:-5 + gap:10 = adjacent hit boxes just
+   touch without overlapping (overlap would make a dot's edge fire its neighbor). */
+.tr-dot{width:14px; height:14px; border-radius:50%; border:2px solid rgba(255,255,255,.9);
+  background:var(--c); cursor:pointer; padding:0; position:relative;
+  transition:transform .15s ease, box-shadow .15s ease}
+.tr-dot::before{content:''; position:absolute; inset:-5px; border-radius:50%}
+.tr-dot:hover{transform:scale(1.25)}
+.tr-dot.done{background:transparent; border-color:var(--c)}
+.tr-dot.done::after{content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:8px; font-weight:800; color:var(--c); line-height:1;
+  color:color-mix(in srgb, var(--c) 55%, #2a1c10)}
+.tr-dot.target{box-shadow:0 0 0 3px color-mix(in srgb, var(--c) 45%, transparent); animation:trPulse 1.2s ease-in-out infinite}
+@keyframes trPulse{50%{box-shadow:0 0 0 6px color-mix(in srgb, var(--c) 25%, transparent)}}
+/* touch devices: the action button owns bottom-right, tuck the tracker above it.
+   Keep the count visible — only the word "Projects" hides. */
+@media (pointer:coarse){
+  .hud-tracker{bottom:max(140px,calc(env(safe-area-inset-bottom) + 140px)); padding:7px 10px}
+  .tr-word{display:none}
+}
+
+/* ── Mini-map (GTA-style) — project dots are tappable guide shortcuts ───── */
 .minimap{position:fixed; left:max(16px,env(safe-area-inset-left)); bottom:max(16px,env(safe-area-inset-bottom));
-  width:150px; height:150px; border-radius:16px; overflow:hidden; pointer-events:none;
+  width:160px; height:160px; border-radius:16px; overflow:hidden; pointer-events:auto; cursor:pointer;
   border:2px solid rgba(251,241,223,.75); box-shadow:var(--shadow)}
 .minimap canvas{display:block; width:100%; height:100%}
-/* on touch devices the joystick owns the bottom-left, so move the map under the brand */
+/* on touch devices the joystick owns the bottom-left, so move the map under
+   the brand pill — tracking the safe-area inset so notched phones don't
+   stack the (now tappable) map on top of the brand */
 @media (pointer:coarse){
-  .minimap{width:104px; height:104px; top:62px; left:max(12px,env(safe-area-inset-left)); bottom:auto}
+  .minimap{width:104px; height:104px; top:max(62px, calc(env(safe-area-inset-top) + 52px));
+    left:max(12px,env(safe-area-inset-left)); bottom:auto}
 }
 #dnIcon{font-size:14px; line-height:1}
 
@@ -74,30 +124,37 @@
 .intro{position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:20px;
   background:radial-gradient(circle at 50% 35%, rgba(255,210,150,.34), rgba(120,60,20,.42));
   backdrop-filter:blur(3px); transition:opacity .45s ease; pointer-events:auto}
-.intro.hide{opacity:0; pointer-events:none}
+/* visibility (not just opacity) so the ghost dialog leaves the tab order.
+   The visibility delay lives ONLY on the hide direction — on the base rule it
+   would keep a reopened dialog invisible (and unfocusable) for 450ms. */
+.intro.hide{opacity:0; pointer-events:none; visibility:hidden;
+  transition:opacity .45s ease, visibility 0s linear .45s}
 .intro-card{width:min(440px,92vw); background:var(--cream); border-radius:22px; padding:28px 26px 22px;
   box-shadow:0 30px 80px rgba(60,30,8,.4); text-align:left}
-.intro-kicker{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:10px}
+.intro-kicker{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent-deep); margin-bottom:10px}
 .intro-card h2{font-size:25px; line-height:1.1; letter-spacing:-.02em; color:#3a2410; margin-bottom:10px}
 .intro-card p{font-size:14px; line-height:1.6; color:var(--ink-soft); margin-bottom:18px}
 .intro-rows{display:flex; flex-direction:column; gap:10px; margin-bottom:22px}
 .intro-row{display:flex; align-items:center; gap:13px}
 .intro-row .ic{flex:0 0 auto; min-width:52px; height:38px; padding:0 10px; border-radius:10px; background:var(--cream-2);
   display:flex; align-items:center; justify-content:center; font-weight:700; color:#5a3413; font-size:14px}
-.intro-row .ic.key{font-family:var(--mono); background:var(--accent); color:#fff}
+.intro-row .ic.key{font-family:var(--mono); background:var(--accent-deep); color:#fff}
 .intro-row b{display:block; font-size:14px; color:#3a2410}
 .intro-row small{color:var(--ink-soft); font-size:12px}
 .intro-start{width:100%; border:none; cursor:pointer; background:#34230f; color:#ffe9c9; font-family:var(--sans);
   font-weight:700; font-size:15px; padding:14px; border-radius:13px; transition:transform .15s ease, background .15s}
 .intro-start:hover{transform:translateY(-1px); background:#46301a}
 .intro-classic{display:block; text-align:center; margin-top:14px; font-size:12.5px; color:var(--ink-soft); text-decoration:none}
-.intro-classic:hover{color:var(--accent)}
+.intro-classic:hover{color:var(--accent-deep)}
 
 @media (max-width:520px){
   .hud-brand i{display:none}
   #btnClassic{display:none}
+  /* icons only — with the new vehicle button the labeled bar overflows 360-390px phones */
+  #vehLabel, #driverLabel{display:none}
 }
 @media (prefers-reduced-motion:reduce){
-  .hud-tip, .ld-mark{animation:none !important}
-  *{transition-duration:.001ms !important}
+  /* kill ALL animation (trPulse, cardPop, toastPop…), not just a hand-list */
+  *{animation-duration:.001ms !important; animation-iteration-count:1 !important;
+    transition-duration:.001ms !important}
 }

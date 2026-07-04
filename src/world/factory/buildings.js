@@ -16,12 +16,31 @@ const metalMat = mat(palette.metal, { roughness: 0.5, metalness: 0.35 })
 const metalDarkMat = mat(palette.metalDark, { roughness: 0.6 })
 const darkMat = mat('#1a1320')
 const plainGlassMat = (() => { const m = mat(palette.glass, { roughness: 0.28, metalness: 0.12 }); markEmissive(m, '#ffd49a', 0.5, 0.0); return m })()
+// machiya upper window strip — ONE shared emissive (was one per building:
+// DayNight touched 16 materials and mergeStatic could never bucket them)
+const machiyaWinMat = (() => { const m = mat('#1c2630', { roughness: 0.3 }); markEmissive(m, '#ffd49a', 0.85, 0.05); return m })()
+// memoized opaque materials so identical colours share one instance — this is
+// what lets a cross-building mergeStatic collapse 16 fillers into ~a dozen draws
+const matCache = new Map()
+const cmat = (color, rough = 0.8) => {
+  const key = color + '|' + rough
+  if (!matCache.has(key)) matCache.set(key, mat(color, { roughness: rough }))
+  return matCache.get(key)
+}
 
 // ── Per-window emissive grid glass ───────────────────────────────────────
 // A canvas of lit/cool/off cells used as BOTH map and emissiveMap, so towers
 // read as real lit floors at night instead of one uniform glowing band.
-// One material per building (≈22 total → negligible for DayNight's tween).
-function windowGridMaterial(cols = 6, rows = 9, litRatio = 0.36) {
+// POOLED: 4 shared materials round-robined across buildings (was one canvas
+// per building — needless texture uploads and material switches).
+const windowPool = []
+let windowPoolIdx = 0
+function windowGridMaterial() {
+  if (windowPool.length < 4) windowPool.push(buildWindowGridMaterial(6 + windowPool.length, 9 + windowPool.length))
+  windowPoolIdx = (windowPoolIdx + 1) % windowPool.length
+  return windowPool[windowPoolIdx]
+}
+function buildWindowGridMaterial(cols = 6, rows = 9, litRatio = 0.36) {
   const c = document.createElement('canvas'); c.width = 96; c.height = 128
   const x = c.getContext('2d')
   x.fillStyle = '#16242f'; x.fillRect(0, 0, 96, 128) // dark mullions
@@ -103,27 +122,25 @@ function rooftop(g, fw, fd, y, accent) {
 function gableRoof(g, w, d, baseY, roofH, color, over = 0.34) {
   const ang = Math.atan2(roofH, w / 2 + over)
   const planeLen = Math.hypot(w / 2 + over, roofH)
-  const roofMat = mat(color, { roughness: 0.82 })
+  const roofMat = cmat(color, 0.82)
   for (const s of [-1, 1]) {
     const plane = new THREE.Mesh(rbox(planeLen, 0.17, d + over * 2, 0.05), roofMat)
     plane.position.set(s * (w / 2 + over) / 2, baseY + roofH / 2, 0)
     plane.rotation.z = -s * ang
     plane.castShadow = true; plane.receiveShadow = true; g.add(plane)
   }
-  const ridge = new THREE.Mesh(rbox(0.26, 0.2, d + over * 2, 0.06), mat(shade(color, -0.18)))
+  const ridge = new THREE.Mesh(rbox(0.26, 0.2, d + over * 2, 0.06), cmat(shade(color, -0.18)))
   ridge.position.set(0, baseY + roofH, 0); g.add(ridge)
 }
 
 // ── A. Machiya shophouse (workhorse: most fillers + FM/ML/IR) ───────────
 function makeMachiya(accent, w, d, h, signage = true) {
   const g = new THREE.Group()
-  const bodyMat = mat(accent, { roughness: 0.84 })
-  const body = new THREE.Mesh(rbox(w, h, d, 0.12), bodyMat)
+  const body = new THREE.Mesh(rbox(w, h, d, 0.12), cmat(accent, 0.84))
   body.position.y = h / 2; body.castShadow = true; body.receiveShadow = true; g.add(body)
   shopfront(g, w, d, accent, signage)
-  // upper warm window strip (glows at night)
-  const wm = mat('#1c2630', { roughness: 0.3 }); markEmissive(wm, '#ffd49a', 0.85, 0.05)
-  const win = new THREE.Mesh(rbox(w - 0.9, 0.7, 0.08, 0.04), wm)
+  // upper warm window strip (glows at night; shared material)
+  const win = new THREE.Mesh(rbox(w - 0.9, 0.7, 0.08, 0.04), machiyaWinMat)
   win.position.set(0, h - 0.7, d / 2 - 0.02); g.add(win)
   const roofH = Math.min(1.3, w * 0.32)
   gableRoof(g, w, d, h, roofH, pick([palette.roofWarm, palette.roofClay, palette.roofTeal]))

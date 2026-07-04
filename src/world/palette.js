@@ -4,10 +4,11 @@
 // lighting, sky and how strongly emissive elements glow.
 
 export const palette = {
-  // ground / base
-  ground:      '#eda04e',  // warm orange diorama top
+  // ground / base — one notch toward sand (was #eda04e: 82% sat covering half
+  // the frame + warm rig + grade boost read "monochrome-hot" and tired the eye)
+  ground:      '#e3a968',
   groundEdge:  '#f6e3c2',  // cream bevel
-  groundUnder: '#c98a4e',
+  groundUnder: '#c28a55',
   park:        '#73c06a',  // lush grass
   parkDark:    '#4f9e55',
   plaza:       '#d9c49a',
@@ -65,6 +66,7 @@ export const palette = {
   cartGlass:   '#cfeaf6',
   wheel:       '#1d2228',
   wheelHub:    '#d3d7de',
+  bikeFrame:   '#f2b53a',  // YouBike warm yellow
 
   // trees
   treeFoliage: ['#4e9a5a', '#3f8a4c', '#62b562'],
@@ -89,15 +91,15 @@ export const palette = {
   marker:      '#f26b2a',
 
   // ── Day theme ──
+  // sky is a value step above the ground (was iso-luminant with it — horizon
+  // and diorama merged); zenith slightly desaturated to rest the eye.
   day: {
-    skyTop: '#ffe3bd', skyBottom: '#ef9a4e',
-    hemiSky: '#fff0d8', hemiGround: '#e8a35e', hemiI: 0.96,
+    skyTop: '#f2e7d3', skyBottom: '#f4ad6d',
+    hemiSky: '#fff0d8', hemiGround: '#e2a874', hemiI: 0.96,
     sun: '#fff4e2', sunI: 1.18,
     ambI: 0.34,
     fog: '#f7ddb6', fogD: 0.0028,  // light — let building colours breathe (was a sepia veil)
     exposure: 1.12,
-    emissive: 0.04, // tiny self-glow so neon still reads in daylight
-    lampGlow: 0.0,
   },
 
   // ── Night theme ──
@@ -108,7 +110,5 @@ export const palette = {
     ambI: 0.2,
     fog: '#1d1830', fogD: 0.0085,
     exposure: 1.12,
-    emissive: 1.0,  // full neon / lit windows / lanterns
-    lampGlow: 1.0,
   },
 }

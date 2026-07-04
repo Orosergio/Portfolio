@@ -1,12 +1,13 @@
 import { clamp } from '../util/math.js'
 
-// On-screen analog joystick (drive) + action button (mirrors the T key),
-// both feeding the SAME shared input state the keyboard writes to.
-export function createTouchControls(state, { onAction, container } = {}) {
+// On-screen analog joystick (drive) + action button (mirrors the T key) +
+// horn button (mirrors B), all feeding the SAME shared input state.
+export function createTouchControls(state, { onAction, onHorn, container } = {}) {
   const root = document.createElement('div')
   root.className = 'touch'
   root.innerHTML = `
     <div class="joy" id="joyBase"><div class="joy-knob" id="joyKnob"></div></div>
+    <button class="horn-btn" id="hornBtn" aria-label="Horn">🔔</button>
     <button class="act-btn" id="actBtn" aria-label="Open project preview">T</button>`
   container.appendChild(root)
 
@@ -51,8 +52,10 @@ export function createTouchControls(state, { onAction, container } = {}) {
   window.addEventListener('pointerup', end)
   window.addEventListener('pointercancel', end)
 
-  const fire = (e) => { e.preventDefault(); onAction?.() }
-  btn.addEventListener('pointerup', fire)
+  // 'click' (not pointerup) so hardware-keyboard / switch-access activation of
+  // these real <button>s works too — click fires after pointerup on touch.
+  btn.addEventListener('click', (e) => { e.preventDefault(); onAction?.() })
+  root.querySelector('#hornBtn').addEventListener('click', (e) => { e.preventDefault(); onHorn?.() })
 
   return {
     root,

@@ -5,10 +5,10 @@ import { palette } from '../world/palette.js'
 // one shadow-casting key light + a hint of ambient. Shadow frustum is wrapped
 // tight to the diorama so the single soft shadow stays crisp.
 export function addLighting(scene, { shadowSize = 1024, half = 30 } = {}) {
-  const hemi = new THREE.HemisphereLight(palette.hemiSky, palette.hemiGround, 0.85)
+  const hemi = new THREE.HemisphereLight(palette.day.hemiSky, palette.day.hemiGround, 0.85)
   scene.add(hemi)
 
-  const sun = new THREE.DirectionalLight(palette.sun, 1.12)
+  const sun = new THREE.DirectionalLight(palette.day.sun, 1.12)
   sun.position.set(26, 38, 18)
   sun.castShadow = true
   sun.shadow.mapSize.set(shadowSize, shadowSize)

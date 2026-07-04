@@ -1,26 +1,30 @@
-// ── Project → building registry (single source of truth) ────────────────
-// Each entry places ONE landmark building in the city AND drives its HUD card.
-// `pos` is the [x, z] block-center in world units. `href:null` => private (no CTA).
-// Screenshot paths are PLAIN RELATIVE so they resolve on GitHub Pages (/Portfolio/)
-// and Netlify (root) identically. `screenshot:null` => generated gradient cover card.
+// ── Project → landmark registry (single source of truth) ────────────────
+// Each project LIVES INSIDE an iconic landmark from Japan or Taiwan. The
+// entry places the landmark in the city AND drives its HUD card + minimap.
+// `pos` is the [x, z] anchor in world units. `landmark` picks the builder in
+// world/factory (see LANDMARK_BUILDERS in World.js). `venue` is the display
+// name of the place. `enterR` = proximity radius that pops the tooltip.
+// `href:null` => private (no CTA). Screenshot paths are PLAIN RELATIVE so
+// they resolve on GitHub Pages (/Portfolio/) and Netlify (root) identically.
 
 export const SHOTS = 'assets/screenshots/'
 
 export const projects = [
   {
-    id: 'pattern-journal',
-    title: 'Pattern Journal',
-    category: 'AI Product',
+    id: 'oro-realstate',
+    title: 'Oro RealState',
+    category: 'Real Estate',
     status: 'LIVE',
-    href: 'https://pattern-journal.vercel.app',
+    href: 'https://oro-real-state.vercel.app/',
     linkLabel: 'Open live app',
-    stack: 'Next.js · TS · Gemini 2.5',
-    blurb: 'AI journaling that detects emotional patterns, charts sentiment, and writes weekly insight reports.',
-    accent: '#4fa3c7',
-    glyph: 'PJ',
-    screenshot: SHOTS + 'pattern-journal-dashboard.png',
-    thumbs: [SHOTS + 'pattern-journal-write.png', SHOTS + 'pattern-journal-history.png', SHOTS + 'pattern-journal-insights.png'],
-    pos: [-8, -9], height: 8.5, footprint: [5.5, 5.0], archetype: 'curtain',
+    stack: 'Next.js · Supabase · Resend',
+    blurb: 'Rental operations dashboard: properties, leases, payments, receipts, reminders and maintenance.',
+    accent: '#e0a93c',
+    glyph: 'OR',
+    screenshot: SHOTS + 'oro-realstate-panel.png',
+    thumbs: [SHOTS + 'oro-realstate-properties.png', SHOTS + 'oro-realstate-payments.png', SHOTS + 'oro-realstate-reminders.png'],
+    landmark: 'tokyoTower', venue: 'Tokyo Tower', district: 'japan',
+    pos: [0, -27], rotY: 0, enterR: 9.5,
   },
   {
     id: 'ai-wealth-lab',
@@ -35,7 +39,8 @@ export const projects = [
     glyph: 'WL',
     screenshot: null,
     thumbs: [],
-    pos: [-8, -18], height: 6.0, footprint: [6.0, 4.5], archetype: 'curtain',
+    landmark: 'taipei101', venue: 'Taipei 101', district: 'taiwan',
+    pos: [0, 27], rotY: 0, enterR: 9.5,
   },
   {
     id: 'openclaw',
@@ -50,7 +55,24 @@ export const projects = [
     glyph: 'OC',
     screenshot: null,
     thumbs: [],
-    pos: [9, 9], height: 9.0, footprint: [5.0, 5.0], archetype: 'capsule',
+    landmark: 'skytree', venue: 'Tokyo Skytree', district: 'japan',
+    pos: [17, -16.5], rotY: 0, enterR: 8,
+  },
+  {
+    id: 'pattern-journal',
+    title: 'Pattern Journal',
+    category: 'AI Product',
+    status: 'LIVE',
+    href: 'https://pattern-journal.vercel.app',
+    linkLabel: 'Open live app',
+    stack: 'Next.js · TS · Gemini 2.5',
+    blurb: 'AI journaling that detects emotional patterns, charts sentiment, and writes weekly insight reports.',
+    accent: '#4fa3c7',
+    glyph: 'PJ',
+    screenshot: SHOTS + 'pattern-journal-dashboard.png',
+    thumbs: [SHOTS + 'pattern-journal-write.png', SHOTS + 'pattern-journal-history.png', SHOTS + 'pattern-journal-insights.png'],
+    landmark: 'fushimi', venue: 'Fushimi Inari Path', district: 'japan',
+    pos: [-27, -9], rotY: 0, enterR: 10.5,
   },
   {
     id: 'kiniela',
@@ -65,7 +87,8 @@ export const projects = [
     glyph: 'KM',
     screenshot: SHOTS + 'kiniela-home.png',
     thumbs: [SHOTS + 'kiniela-predictions.png', SHOTS + 'kiniela-group.png'],
-    pos: [9, -9], height: 7.0, footprint: [5.5, 5.0], archetype: 'pagoda',
+    landmark: 'stadium', venue: 'Taipei Dome', district: 'taiwan',
+    pos: [13.5, 13.5], rotY: 0, enterR: 10,
   },
   {
     id: 'finger-mouse',
@@ -80,22 +103,8 @@ export const projects = [
     glyph: 'FM',
     screenshot: null,
     thumbs: [],
-    pos: [16, -12], height: 5.5, footprint: [5.0, 4.5], archetype: 'machiya',
-  },
-  {
-    id: 'oro-realstate',
-    title: 'Oro RealState',
-    category: 'Real Estate',
-    status: 'LIVE',
-    href: 'https://oro-real-state.vercel.app/',
-    linkLabel: 'Open live app',
-    stack: 'Next.js · Supabase · Resend',
-    blurb: 'Rental operations dashboard: properties, leases, payments, receipts, reminders and maintenance.',
-    accent: '#e0a93c',
-    glyph: 'OR',
-    screenshot: SHOTS + 'oro-realstate-panel.png',
-    thumbs: [SHOTS + 'oro-realstate-properties.png', SHOTS + 'oro-realstate-payments.png', SHOTS + 'oro-realstate-reminders.png'],
-    pos: [-8, 9], height: 7.0, footprint: [5.5, 5.0], archetype: 'market',
+    landmark: 'akihabara', venue: 'Akihabara', district: 'japan',
+    pos: [13, -7], rotY: 0, enterR: 7.5,
   },
   {
     id: 'milingua',
@@ -110,7 +119,8 @@ export const projects = [
     glyph: 'ML',
     screenshot: null,
     thumbs: [],
-    pos: [-19, 1], height: 5.5, footprint: [5.0, 4.5], archetype: 'machiya',
+    landmark: 'nightMarket', venue: 'Raohe Night Market', district: 'taiwan',
+    pos: [0, 8.4], rotY: 0, enterR: 7,
   },
   {
     id: 'inmob',
@@ -125,6 +135,7 @@ export const projects = [
     glyph: 'IR',
     screenshot: null,
     thumbs: [],
-    pos: [-18, 12], height: 4.5, footprint: [5.0, 4.0], archetype: 'machiya',
+    landmark: 'longshan', venue: 'Longshan Temple', district: 'taiwan',
+    pos: [-14, 13.5], rotY: 0, enterR: 8.5,
   },
 ]

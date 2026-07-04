@@ -60,7 +60,9 @@ export class Post {
     this.tier = tier
     // Work in CSS pixels and let EffectComposer apply the pixel ratio — feeding
     // device pixels here would double-apply DPR (passes run at 4× the pixels).
-    const dpr = renderer.getPixelRatio()
+    // The post pipeline is capped at 1.5×: GTAO+bloom at full DPR 2 is the
+    // single largest GPU cost and is indistinguishable through bloom+grade.
+    const dpr = Math.min(renderer.getPixelRatio(), Post.MAX_DPR)
     const size = renderer.getSize(new THREE.Vector2())
     const w = size.x, h = size.y
 
@@ -90,7 +92,7 @@ export class Post {
         radius: 0.85, distanceExponent: 1.0, thickness: 1.2,
         scale: 1.0, samples: 16, distanceFallOff: 1.0, screenSpaceRadius: false,
       })
-      ao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 4, radiusExponent: 1, rings: 2, samples: 16 })
+      ao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 4, radiusExponent: 1, rings: 2, samples: 8 })
       this.composer.addPass(ao)
       this.ao = ao
     }
@@ -111,12 +113,15 @@ export class Post {
     // size every pass + target consistently in CSS px (composer applies DPR)
     this.composer.setSize(w, h)
 
-    // day/night tuning endpoints. NOTE: night threshold stays HIGH so only true
-    // emissive (windows/lanterns/neon/tower) blooms — a low threshold makes the
-    // bright orange ground bloom and washes the whole night sky orange.
+    // day/night tuning endpoints. Day threshold stays HIGH (0.7) so the warm
+    // ground never blooms. The night endpoint sits at 0.45: the signature RED
+    // emissives (lanterns ~0.50 luma, neon pink ~0.43, tower beacons ~0.47)
+    // live below the old 0.62 gate, so only white/cool screens ever bloomed —
+    // the opposite of the warm-neon intent. Ground reflected luma at night is
+    // <0.3, still safely under the gate. Strength eased to compensate.
     this._tune = {
-      bloomStrength: [0.22, 0.82], bloomThreshold: [0.7, 0.62], bloomRadius: [0.5, 0.72],
-      vignette: [0.22, 0.42], sat: [1.1, 1.16],
+      bloomStrength: [0.22, 0.68], bloomThreshold: [0.7, 0.45], bloomRadius: [0.5, 0.72],
+      vignette: [0.22, 0.42], sat: [1.05, 1.16],
     }
     this.setNight(0)
   }
@@ -138,7 +143,7 @@ export class Post {
   setSize(w, h) {
     // w,h are CSS px (from engine.onResize). Re-sync DPR (can change on monitor
     // move) then let the composer resize its targets and every pass.
-    this.composer.setPixelRatio(this.renderer.getPixelRatio())
+    this.composer.setPixelRatio(Math.min(this.renderer.getPixelRatio(), Post.MAX_DPR))
     this.composer.setSize(w, h)
   }
 
@@ -154,3 +159,5 @@ export class Post {
 
   dispose() { this.composer.dispose?.() }
 }
+
+Post.MAX_DPR = 1.5

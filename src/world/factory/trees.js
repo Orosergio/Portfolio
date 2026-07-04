@@ -26,9 +26,41 @@ export function makeTrees(positions) {
     mesh.frustumCulled = false // instances span the whole diorama; template sphere would mis-cull
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), p = new THREE.Vector3(), s = new THREE.Vector3()
     bucket.forEach((pos, i) => {
-      const sc = rand(0.78, 1.25)
+      // clamped: the old ranges compounded to 6.8u — taller than Longshan
+      const sc = rand(0.72, 1.05)
       q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), rand(0, TAU))
-      p.set(pos[0], 0, pos[1]); s.set(sc, rand(0.9, 1.35) * sc, sc)
+      p.set(pos[0], 0, pos[1]); s.set(sc, rand(0.85, 1.1) * sc, sc)
+      m.compose(p, q, s); mesh.setMatrixAt(i, m)
+    })
+    mesh.instanceMatrix.needsUpdate = true
+    group.add(mesh)
+  })
+  return group
+}
+
+// Sakura / cherry-blossom trees (Japan district): dark trunk + 2 stacked
+// pink blossom puffs, vertex-colored + instanced → one draw call per tint.
+export function makeSakura(positions) {
+  const group = new THREE.Group()
+  const pinks = ['#f2a8c0', '#ea96b6', '#f7bccd']
+  const buckets = pinks.map(() => [])
+  positions.forEach((p, i) => buckets[i % buckets.length].push(p))
+
+  buckets.forEach((bucket, bi) => {
+    if (!bucket.length) return
+    const trunk = paint(new THREE.CylinderGeometry(0.13, 0.2, 1.1, 6).translate(0, 0.55, 0), '#5a4030')
+    const puff1 = paint(new THREE.IcosahedronGeometry(1.05, 1).translate(0, 1.85, 0), pinks[bi])
+    const puff2 = paint(new THREE.IcosahedronGeometry(0.7, 1).translate(0.35, 2.55, 0.15), pinks[(bi + 1) % pinks.length])
+    const tpl = mergeGeometries([trunk.toNonIndexed(), puff1.toNonIndexed(), puff2.toNonIndexed()], false)
+    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.9, metalness: 0 })
+    const mesh = new THREE.InstancedMesh(tpl, mat, bucket.length)
+    mesh.castShadow = true
+    mesh.frustumCulled = false
+    const m = new THREE.Matrix4(), q = new THREE.Quaternion(), p = new THREE.Vector3(), s = new THREE.Vector3()
+    bucket.forEach((pos, i) => {
+      const sc = rand(0.8, 1.2)
+      q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), rand(0, TAU))
+      p.set(pos[0], 0, pos[1]); s.set(sc, rand(0.9, 1.2) * sc, sc)
       m.compose(p, q, s); mesh.setMatrixAt(i, m)
     })
     mesh.instanceMatrix.needsUpdate = true

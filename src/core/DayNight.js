@@ -34,7 +34,7 @@ export class DayNight {
       for (const m of mats) if (m && m.userData && m.userData.nightE != null) this.nightables.push(m)
     })
 
-    this._apply(0)
+    this._apply(0, true)
   }
 
   toggle() {
@@ -49,7 +49,7 @@ export class DayNight {
     this.nightT = this.target = t
     this.mode = t > 0.5 ? 'night' : 'day'
     this.onLabel?.(this.mode)
-    this._apply(t)
+    this._apply(t, true)
   }
 
   update(dt) {
@@ -57,12 +57,14 @@ export class DayNight {
     const step = dt / this.dur
     if (this.nightT < this.target) this.nightT = Math.min(this.target, this.nightT + step)
     else this.nightT = Math.max(this.target, this.nightT - step)
-    this._apply(this.nightT)
+    // the body gradient sits behind an opaque canvas — write it once when the
+    // tween settles instead of forcing a style recalc every tween frame
+    this._apply(this.nightT, this.nightT === this.target)
   }
 
   _hex(pair, t) { return this._tmp.copy(pair[0]).lerp(pair[1], t) }
 
-  _apply(t) {
+  _apply(t, updateBody = false) {
     const d = palette.day, n = palette.night
     const L = (a, b) => a + (b - a) * t
     const { hemi, sun, amb } = this.lights
@@ -76,10 +78,11 @@ export class DayNight {
     this.scene.fog.density = L(d.fogD, n.fogD)
     this.renderer.toneMappingExposure = L(d.exposure, n.exposure)
     for (const m of this.nightables) m.emissiveIntensity = L(m.userData.dayE, m.userData.nightE)
-    const top = this._hex(this.col.skyTop, t).getStyle()
     const botC = this._hex(this.col.skyBottom, t)
     this.renderer.setClearColor(botC) // backstop so the bg matches even where the dome clips
-    const bot = botC.getStyle()
-    this.body.style.background = `linear-gradient(180deg, ${top} 0%, ${bot} 100%)`
+    if (updateBody) {
+      const top = this._hex(this.col.skyTop, t).getStyle()
+      this.body.style.background = `linear-gradient(180deg, ${top} 0%, ${botC.getStyle()} 100%)`
+    }
   }
 }

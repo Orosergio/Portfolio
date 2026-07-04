@@ -1,17 +1,33 @@
 import * as THREE from 'three'
 import { clamp, damp } from '../util/math.js'
 
+// Per-vehicle handling presets. The kart is a brisk cruiser; the UBike is
+// slower but nimbler (tighter steering, deeper lean, smaller footprint).
+export const VEHICLE_PRESETS = {
+  kart: {
+    maxSpeed: 11.5, accel: 19, reverseMax: 5.0, drag: 1.25, roll: 6,
+    steerRate: 2.7, radius: 1.05, wheelR: 0.44, lean: 0.5, bob: 0.012, idle: 0.004,
+  },
+  bike: {
+    maxSpeed: 8.2, accel: 13, reverseMax: 2.2, drag: 1.1, roll: 4.5,
+    steerRate: 3.4, radius: 0.55, wheelR: 0.46, lean: 1.05, bob: 0.004, idle: 0.0015,
+  },
+}
+
 // Arcade kinematic driving — no physics engine. Frame-rate-independent (dt).
+// Drives whichever vehicle mesh is active; setVehicle() swaps mesh + preset
+// while keeping position/heading/momentum.
 export class CartController {
-  constructor(cart, { bounds, obstacles, spawn }) {
+  constructor(cart, { bounds, obstacles, spawn, preset = 'kart', reduced = false }) {
     this.cart = cart
     this.bounds = bounds
     this.obstacles = obstacles || []
+    this.reduced = reduced // prefers-reduced-motion: no idle bob
+    this.bumped = false    // true on frames where we hit a wall (feedback hook)
     this.pos = new THREE.Vector2(spawn.x, spawn.z) // (x, z)
     this.heading = spawn.heading
     this.speed = 0
     this.steerVis = 0
-    this.radius = 1.05       // tuned for the smaller cart
     // juice state
     this.t = 0
     this.accelEst = 0
@@ -19,19 +35,30 @@ export class CartController {
     this.pitchVis = 0
     this.bank = 0            // lateral signal exposed to the camera
 
-    // tuning (compact map → calmer top speed, more agile steering)
-    // ~25% slower than before — the diorama is small, fast felt frantic
-    this.maxSpeed = 9.5
-    this.accel = 16
-    this.reverseMax = 4.2
-    this.drag = 1.3          // proportional air drag
-    this.roll = 6           // rolling resistance when coasting
-    this.steerRate = 2.55
+    this.setPreset(preset)
+    this._apply(0)
+  }
 
+  setPreset(name) {
+    const p = VEHICLE_PRESETS[name] || VEHICLE_PRESETS.kart
+    this.presetName = name
+    Object.assign(this, p)
+  }
+
+  // Swap the driven mesh (kart ↔ bike) in place: the new vehicle appears at
+  // the same spot/heading; momentum is clamped to the new top speed.
+  setVehicle(mesh, presetName) {
+    // reset the old chassis pose so it parks cleanly
+    const old = this.cart.userData
+    if (old.body) { old.body.rotation.set(0, 0, 0); old.body.position.y = 0 }
+    this.cart = mesh
+    this.setPreset(presetName)
+    this.speed = clamp(this.speed, -this.reverseMax, this.maxSpeed)
     this._apply(0)
   }
 
   update(dt, input) {
+    this.bumped = false
     const throttle = clamp(input.throttle, -1, 1)
     const steer = clamp(input.steer, -1, 1)
     const prevSpeed = this.speed
@@ -64,7 +91,7 @@ export class CartController {
     if (this.pos.x > b.max) { this.pos.x = b.max; bumped = true }
     if (this.pos.y < b.min) { this.pos.y = b.min; bumped = true }
     if (this.pos.y > b.max) { this.pos.y = b.max; bumped = true }
-    if (bumped) this.speed *= 0.4
+    if (bumped) { this.speed *= 0.4; this.bumped = true }
 
     this._collide()
 
@@ -84,7 +111,10 @@ export class CartController {
       const pz = o.hd + r - adz
       if (px < pz) this.pos.x += (dx >= 0 ? 1 : -1) * px
       else this.pos.y += (dz >= 0 ? 1 : -1) * pz
-      this.speed *= 0.5
+      // gentle bump: bleed a little speed, keep momentum so walls feel
+      // slideable rather than sticky (was 0.5 — jarring on every graze)
+      this.speed *= 0.78
+      this.bumped = true
     }
   }
 
@@ -94,7 +124,7 @@ export class CartController {
     this.cart.rotation.y = this.heading
     const ud = this.cart.userData
     if (ud.wheels) {
-      const roll = (this.speed * dt) / 0.44
+      const roll = (this.speed * dt) / (ud.wheelR || this.wheelR)
       for (const w of ud.wheels) w.rotation.x += roll
     }
     if (ud.steer) ud.steer.rotation.y = -this.steerVis
@@ -103,14 +133,17 @@ export class CartController {
     const speedFactor = clamp(Math.abs(this.speed) / this.maxSpeed, 0, 1)
     const dir = this.speed >= 0 ? 1 : -1
     this.bank = this.steerVis * speedFactor * dir
-    const bankTarget = this.bank * 0.5                                  // roll the body outward
+    const bankTarget = this.bank * this.lean                            // roll the body outward
     const pitchTarget = clamp(-this.accelEst * 0.006, -0.07, 0.07)      // squat/dip
     this.bankVis = damp(this.bankVis, bankTarget, 9, dt)
     this.pitchVis = damp(this.pitchVis, pitchTarget, 7, dt)
     if (ud.body) {
       ud.body.rotation.z = this.bankVis
       ud.body.rotation.x = this.pitchVis
-      ud.body.position.y = Math.sin(this.t * 23) * 0.012 * speedFactor  // engine idle/road bob
+      // engine idle at rest (slower, tiny) blending into road bob at speed —
+      // a perfectly frozen vehicle reads as dead when you stop to look around
+      const idleAmp = this.reduced ? 0 : this.idle
+      ud.body.position.y = Math.sin(this.t * (9 + 14 * speedFactor)) * (idleAmp + this.bob * speedFactor)
     }
   }
 

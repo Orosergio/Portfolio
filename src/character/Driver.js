@@ -60,5 +60,12 @@ export class DriverSwitcher {
     this._mountCurrent()
     return characters[this.index]
   }
+  // Re-parent the rider onto another vehicle's driverMount (kart ↔ bike).
+  setMount(mount) {
+    if (this.mount === mount) return
+    this.mount.remove(this.current)
+    this.mount = mount
+    this.mount.add(this.current)
+  }
   get label() { return characters[this.index].label }
 }

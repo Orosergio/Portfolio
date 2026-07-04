@@ -11,18 +11,24 @@ export class Engine {
     this.shadowSize = this.tier === 'low' ? 512 : 1024
 
     this.renderer = new THREE.WebGLRenderer({
-      antialias: this.tier !== 'low',
+      // high tier presents through EffectComposer (canvas MSAA would resolve
+      // nothing visible); low tier renders direct, so IT gets hardware MSAA.
+      antialias: this.tier === 'low',
       alpha: false, // opaque — the 3D sky dome owns the background now
       powerPreference: 'high-performance',
     })
     this.renderer.setClearColor(palette.day.skyBottom, 1)
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.tier === 'low' ? 1.5 : 2))
+    // mutable DPR ceiling — autoQuality can lower it and resizes respect it
+    this.dprCap = this.tier === 'low' ? 1.5 : 2
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.dprCap))
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
     this.renderer.toneMappingExposure = 1.12
     this.renderer.shadowMap.enabled = true
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    // PCFSoft's wide kernel is wasted on the low tier's 512px map — plain PCF
+    // is near-identical there and much cheaper on mobile GPUs.
+    this.renderer.shadowMap.type = this.tier === 'low' ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap
     mount.appendChild(this.renderer.domElement)
 
     this.scene = new THREE.Scene()
@@ -37,6 +43,9 @@ export class Engine {
 
   setCamera(cam) { this.cameraRef = cam }
 
+  // Lower the DPR ceiling at runtime (adaptive quality) — sticks across resizes.
+  setDprCap(cap) { this.dprCap = cap; this._onResize() }
+
   _onResize() {
     // coalesce bursts (mobile URL-bar, orientation) into one rAF
     if (this._resizeQueued) return
@@ -45,7 +54,7 @@ export class Engine {
       this._resizeQueued = false
       const w = window.innerWidth, h = window.innerHeight
       // re-apply DPR — it changes on zoom or moving between monitors
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.tier === 'low' ? 1.5 : 2))
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.dprCap))
       this.renderer.setSize(w, h)
       if (this.cameraRef) {
         this.cameraRef.aspect = w / h

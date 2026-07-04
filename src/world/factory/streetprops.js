@@ -19,14 +19,16 @@ function place(mesh, positions, scale = 1) {
 }
 
 // Vending machines (Taiwan/Japan staple) — colored body + glowing front panel.
+// ~1.3u tall (chunky-style 1.3× real): the old 1.9u monoliths out-talled the
+// shop doorways and doubled pedestrian height.
 export function makeVending(positions) {
   const g = new THREE.Group(); if (!positions.length) return g
-  const bodies = new THREE.InstancedMesh(rbox(1.0, 1.9, 0.7, 0.08).translate(0, 0.95, 0),
+  const bodies = new THREE.InstancedMesh(rbox(0.7, 1.3, 0.55, 0.06).translate(0, 0.65, 0),
     new THREE.MeshStandardMaterial({ roughness: 0.6 }), positions.length)
   bodies.castShadow = true
   const pm = new THREE.MeshStandardMaterial({ color: '#0e1c28', roughness: 0.3 })
   markEmissive(pm, '#bfeaff', 1.0, 0.22)
-  const panels = new THREE.InstancedMesh(rbox(0.74, 1.34, 0.06, 0.04).translate(0, 1.04, 0.36), pm, positions.length)
+  const panels = new THREE.InstancedMesh(rbox(0.5, 0.9, 0.05, 0.03).translate(0, 0.72, 0.28), pm, positions.length)
   place(bodies, positions); place(panels, positions)
   positions.forEach((_, i) => bodies.setColorAt(i, linColor(pick(palette.vending))))
   if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true
@@ -82,6 +84,7 @@ export function makeBikes(positions) {
   ]
   const mesh = new THREE.InstancedMesh(merge(parts),
     new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.6 }), positions.length)
-  mesh.castShadow = true; place(mesh, positions)
+  // 0.72 ⇒ ~1.1u long — a real bike, not the car-sized ones they were
+  mesh.castShadow = true; place(mesh, positions, 0.72)
   return mesh
 }

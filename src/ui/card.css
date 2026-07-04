@@ -7,6 +7,7 @@
   transition:transform .16s ease, box-shadow .16s ease;
 }
 .hud-card:hover{transform:translateY(-3px); box-shadow:0 26px 60px rgba(90,40,10,.36)}
+.hud-card:focus-visible{outline:3px solid var(--accent-deep); outline-offset:3px}
 .hud-card.is-private{cursor:default}
 .hud-card.is-private:hover{transform:none; box-shadow:var(--shadow)}
 @keyframes cardPop{from{opacity:0; transform:translateY(8px) scale(.96)} to{opacity:1; transform:translateY(0) scale(1)}}
@@ -27,12 +28,21 @@
   color:rgba(255,255,255,.92); text-shadow:0 4px 14px rgba(0,0,0,.22)}
 
 .card-body{padding:14px 15px 15px}
-.card-cat{font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:7px}
+/* ink-shifted accent: raw project accents (gold #e0a93c ≈1.8:1) are unreadable
+   as 10px text on cream — mix toward ink, keep the hue identity.
+   Solid declarations first: engines without color-mix() drop the second one. */
+.card-cat{font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+  color:#6b4a28;
+  color:color-mix(in srgb, var(--accent) 55%, #3a2410); margin-bottom:7px;
+  display:flex; align-items:center; justify-content:space-between; gap:8px}
+.card-venue{color:var(--ink-soft); letter-spacing:.04em; text-transform:none; white-space:nowrap}
 .card-title{font-size:20px; font-weight:800; letter-spacing:-.02em; color:#3a2410; line-height:1; margin-bottom:8px}
 .card-blurb{font-size:12.5px; line-height:1.5; color:var(--ink-soft); margin-bottom:14px}
 .card-foot{display:flex; align-items:center; justify-content:space-between; gap:10px; padding-top:11px; border-top:1px solid var(--line)}
 .card-stack{font-family:var(--mono); font-size:10px; color:var(--ink-soft); letter-spacing:.02em}
-.card-cta{font-family:var(--mono); font-size:11px; font-weight:600; color:#fff; background:var(--accent);
+.card-cta{font-family:var(--mono); font-size:11px; font-weight:600; color:#fff;
+  background:var(--accent-deep); /* fallback: engines without color-mix() */
+  background:color-mix(in srgb, var(--accent) 72%, #402508);
   padding:6px 11px; border-radius:99px; white-space:nowrap}
 .card-cta.muted{background:transparent; color:var(--ink-soft); border:1px solid var(--line)}
 

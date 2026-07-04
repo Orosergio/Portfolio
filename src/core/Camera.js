@@ -6,10 +6,12 @@ import { dampVec3, damp } from '../util/math.js'
 // with critically-damped smoothing; the world never rotates, only the cart.
 export class IsoCamera {
   constructor(aspect) {
-    this.cam = new THREE.PerspectiveCamera(32, aspect, 1, 320)
+    this.cam = new THREE.PerspectiveCamera(32, aspect, 1, 360)
     // close follow rig: near enough that the city scrolls past the cart (feels
-    // like following it through the streets, not surveying the whole diorama)
-    this.offset = new THREE.Vector3(13, 17, 13)
+    // like following it through the streets, not surveying the whole diorama).
+    // Slightly higher than the old rig — the island doubled and the landmark
+    // towers need headroom in frame. Far plane covers the Fuji backdrop.
+    this.offset = new THREE.Vector3(13.5, 18, 13.5)
     this.cam.position.copy(this.offset)
     this.cam.lookAt(0, 0, 0)
     this._desired = new THREE.Vector3()
@@ -17,7 +19,12 @@ export class IsoCamera {
     this._lookSmooth = new THREE.Vector3()
     this.fovBase = 32
     this.rollVis = 0
+    this._shake = 0
   }
+
+  // One-shot collision jolt: brief decaying positional noise (main gates this
+  // behind prefers-reduced-motion).
+  shake(amp = 0.4) { this._shake = Math.min(this._shake + amp, 0.6) }
 
   // Snap instantly to a target (used once after world build, before fade-in).
   snapTo(target) {
@@ -36,6 +43,12 @@ export class IsoCamera {
     this._desired.set(target.x + this.offset.x * k, this.offset.y * k, target.z + this.offset.z * k)
     dampVec3(this.cam.position, this._desired, 4.5, dt)
     dampVec3(this._lookSmooth, this._look, 6, dt)
+    if (this._shake > 0.001) {
+      this.cam.position.x += (Math.random() - 0.5) * this._shake * 0.4
+      this.cam.position.y += (Math.random() - 0.5) * this._shake * 0.25
+      this.cam.position.z += (Math.random() - 0.5) * this._shake * 0.4
+      this._shake *= Math.exp(-7 * dt)
+    }
     this.cam.lookAt(this._lookSmooth)
 
     // speed-reactive FOV (subtle sense of velocity)
