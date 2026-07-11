@@ -1,5 +1,9 @@
+import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+
+const root = fileURLToPath(new URL('.', import.meta.url))
 
 // Relative base so the SAME dist works on:
 //  - GitHub Pages under /Portfolio/  (orosergio.github.io/Portfolio/)
@@ -29,7 +33,13 @@ export default defineConfig({
     target: 'es2020',
     outDir: 'dist',
     emptyOutDir: true,
-    chunkSizeWarningLimit: 900
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      input: {
+        main: resolve(root, 'index.html'),
+        city: resolve(root, 'city.html')
+      }
+    }
   },
   server: { host: true }
 })

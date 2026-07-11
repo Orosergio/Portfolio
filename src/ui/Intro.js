@@ -28,7 +28,7 @@ export class Intro {
           <div class="intro-row"><span class="ic">◎</span><div><b>Autopilot</b><small>tap a project dot (tracker or map) — the vehicle drives you there; grab the controls anytime</small></div></div>
         </div>
         <button class="intro-start" id="introStart">Start driving →</button>
-        <a class="intro-classic" href="classic.html">Prefer a classic page? View the text portfolio →</a>
+        <a class="intro-classic" href="index.html">Prefer a classic page? View the text portfolio →</a>
       </div>`
     container.appendChild(el)
     this.el = el

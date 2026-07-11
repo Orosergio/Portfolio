@@ -16,7 +16,7 @@ export class Hud {
         <button class="hud-btn" id="btnVehicle" aria-label="Switch vehicle" title="Switch vehicle (V)"><span id="vehIcon">🏎</span><span id="vehLabel">Kart</span></button>
         <button class="hud-btn" id="btnDriver" aria-label="Switch driver" title="Switch driver"><span class="dot"></span><span id="driverLabel">Driver</span></button>
         <button class="hud-btn" id="btnHelp" aria-label="Controls and help" title="Controls">?</button>
-        <a class="hud-btn" id="btnClassic" href="classic.html" title="Classic portfolio">Classic ↗</a>
+        <a class="hud-btn" id="btnClassic" href="index.html" title="Classic portfolio">Classic ↗</a>
       </div>`
     container.appendChild(bar)
     bar.querySelector('#btnDriver').addEventListener('click', () => onSwitchDriver?.())

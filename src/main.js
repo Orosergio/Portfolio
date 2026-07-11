@@ -211,7 +211,7 @@ async function boot() {
       // the payoff moment: fireworks over the player + fanfare + toast
       if (!reduced) fireworks.show(cart.position.x, cart.position.z)
       sound.fanfare()
-      hud.toast(`🎆 <b>All ${projects.length} landmarks visited!</b> Thanks for exploring — <a href="classic.html">see the classic portfolio ↗</a>`)
+      hud.toast(`🎆 <b>All ${projects.length} landmarks visited!</b> Thanks for exploring — <a href="index.html">see the classic portfolio ↗</a>`)
     } else {
       sound.visit()
     }

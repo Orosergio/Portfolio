@@ -2,8 +2,8 @@
 
 Two front doors, one codebase:
 
-- **[Portfolio City](https://orosergio.github.io/Portfolio/)** — a procedural, drivable isometric 3D city (three.js, no framework). Each of the 8 landmarks — Tokyo Tower, Taipei 101, the Raohe night market… — hosts one real project.
-- **[Classic](https://orosergio.github.io/Portfolio/classic.html)** — the professional hub: selected work with measured evidence, engineering case studies, and a printable [résumé](https://orosergio.github.io/Portfolio/resume.html).
+- **[Classic](https://orosergio.github.io/Portfolio/)** — the default professional hub: selected work with measured evidence, engineering case studies, and a printable [résumé](https://orosergio.github.io/Portfolio/resume.html).
+- **[Portfolio City](https://orosergio.github.io/Portfolio/city.html)** — an optional procedural, drivable isometric 3D city (three.js, no framework). Each of the 8 landmarks — Tokyo Tower, Taipei 101, the Raohe night market… — hosts one real project.
 
 Deep dives: **[A city in 266 draw calls](https://orosergio.github.io/Portfolio/case-portfolio-city.html)** (graphics/perf/a11y) · **[OpenClaw](https://orosergio.github.io/Portfolio/case-openclaw.html)** (systems).
 
@@ -43,7 +43,7 @@ How it stays there:
 | Day ↔ night | **N** / top-bar ☀🌙 | Top-bar ☀🌙 |
 | Dismiss card / cancel autopilot | **Esc** | — |
 
-Autopilot routes the vehicle over a hand-laid waypoint graph (ring, avenues, roundabout, landmark spurs) with a pure-pursuit follower feeding the existing arcade controller — so collisions, camera and vehicle-switching all keep working, and any manual input hands the wheel back instantly. Deep-link straight into a drive with `?goto=<projectId>` (e.g. `?goto=ai-wealth-lab`).
+Autopilot routes the vehicle over a hand-laid waypoint graph (ring, avenues, roundabout, landmark spurs) with a pure-pursuit follower feeding the existing arcade controller — so collisions, camera and vehicle-switching all keep working, and any manual input hands the wheel back instantly. Deep-link straight into a drive with `city.html?goto=<projectId>` (e.g. `city.html?goto=ai-wealth-lab`).
 
 ### Debug & QA affordances
 
@@ -67,7 +67,7 @@ src/
 
 | Project | What it is | Link |
 |---|---|---|
-| Portfolio City | This repo's 3D mode — see the [case study](https://orosergio.github.io/Portfolio/case-portfolio-city.html) | [Live](https://orosergio.github.io/Portfolio/) |
+| Portfolio City | This repo's 3D mode — see the [case study](https://orosergio.github.io/Portfolio/case-portfolio-city.html) | [Live](https://orosergio.github.io/Portfolio/city.html) |
 | Pattern Journal | AI journaling — pattern detection, sentiment charts, weekly reports | [Live](https://pattern-journal.vercel.app) |
 | AI Wealth Lab | Regime-aware RL wealth simulator (HMM regimes, no-lookahead backtests) | [Repo](https://github.com/Orosergio/RegimeAwareGBWM) |
 | OpenClaw Mission | Telegram-native AI pipeline → static HTML artifacts | [Case study](https://orosergio.github.io/Portfolio/case-openclaw.html) |
@@ -94,7 +94,7 @@ One `dist/` serves both hosts (relative `base: './'`):
 - **GitHub Pages** — push to `main`; [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml) builds and publishes (Pages source = *GitHub Actions*).
 - **Netlify** — `netlify.toml` (`npm run build` → publish `dist`).
 
-`classic.html`, the case studies, `resume.html` and the legacy `visual-campaign-board-*.html` artifacts are self-contained static pages copied through verbatim, so their URLs are stable and they need no build step.
+`city.html` is the Vite-built 3D experience. `classic.html`, the case studies, `resume.html` and the legacy `visual-campaign-board-*.html` artifacts are self-contained static pages copied through verbatim, so their URLs are stable and they need no build step.
 
 ---
 

@@ -167,7 +167,8 @@
 
 @media (max-width:520px){
   .hud-brand i{display:none}
-  #btnClassic{display:none}
+  #btnClassic{font-size:0}
+  #btnClassic::before{content:'Classic'; font-size:11px}
   /* icons only — with the new vehicle button the labeled bar overflows 360-390px phones */
   #vehLabel, #driverLabel{display:none}
 }
