@@ -12,7 +12,7 @@ export function rbox(w, h, d, r = 0.13, seg = 2) {
 // MeshStandardMaterial.color under ColorManagement). Enables merging
 // multi-colored shapes into ONE geometry drawn with vertexColors:true.
 export function paint(geo, hex) {
-  const c = new THREE.Color(hex).convertSRGBToLinear()
+  const c = new THREE.Color(hex) // ColorManagement already converts CSS sRGB
   const n = geo.attributes.position.count
   const arr = new Float32Array(n * 3)
   for (let i = 0; i < n; i++) {
@@ -23,7 +23,7 @@ export function paint(geo, hex) {
 }
 
 // Color in linear space for InstancedMesh.setColorAt (kept consistent with paint()).
-export const linColor = (hex) => new THREE.Color(hex).convertSRGBToLinear()
+export const linColor = (hex) => new THREE.Color(hex)
 
 // Tag a material as day/night emissive. DayNight scans userData.nightE and sets
 // emissiveIntensity per mode. dayE keeps a faint glow in daylight (0 = none).
@@ -50,7 +50,7 @@ export function mergeStatic(root) {
     const mergeable = o.isMesh && !o.isInstancedMesh && !Array.isArray(o.material) &&
       !o.material.map && o.material.userData.nightE == null && !o.material.transparent
     if (!mergeable) { if (o.isMesh || o.isSprite || o.isPoints || o.isInstancedMesh) keep.push(o); return }
-    const geo = o.geometry.clone().toNonIndexed()
+    const geo = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone()
     geo.applyMatrix4(new THREE.Matrix4().copy(o.matrixWorld).premultiply(inv))
     if (!buckets.has(o.material)) buckets.set(o.material, [])
     buckets.get(o.material).push(geo)
@@ -58,6 +58,7 @@ export function mergeStatic(root) {
   const merged = new THREE.Group()
   for (const [material, geos] of buckets) {
     const geo = mergeGeometries(geos, false)
+    for (const part of geos) part.dispose()
     if (!geo) continue
     const m = new THREE.Mesh(geo, material)
     m.castShadow = true

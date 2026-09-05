@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#fafaf7">
-<title>Engineering Portfolio City — a procedural 3D city in 266 draw calls</title>
+<title>Engineering Portfolio City — a city on a frame budget</title>
 <meta name="description" content="Case study: how a procedural three.js city (4,993 lines, one dependency) is held to a measured 266-draw-call gameplay frame — mesh merging, instancing, a DPR-capped post pipeline, adaptive quality, and accessibility for a game UI." />
 <link rel="canonical" href="https://orosergio.github.io/Portfolio/case-portfolio-city.html" />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-<meta property="og:title" content="Engineering Portfolio City — a procedural 3D city in 266 draw calls" />
+<meta property="og:title" content="Engineering Portfolio City — a city on a frame budget" />
 <meta property="og:description" content="Mesh merging, instancing, DPR-capped post processing, adaptive quality, and game-UI accessibility — with measured numbers." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://orosergio.github.io/Portfolio/case-portfolio-city.html" />
@@ -109,20 +109,21 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 
 <section class="hero">
   <div class="kicker">CASE STUDY <b>/</b> PORTFOLIO CITY · 2026</div>
-  <h1>A city in<br/><span class="acc">266</span> draw calls.</h1>
+  <h1>A city on<br/><span class="acc">a frame</span> budget.</h1>
   <p class="lede">
     The 3D mode of this portfolio is a procedural isometric city — Tokyo Tower, Taipei 101 and six
     other landmarks, each hosting one real project, connected by drivable streets with traffic,
-    pedestrians and a day/night cycle. It is <b>4,993 lines of vanilla ES modules</b> with a single
-    runtime dependency (three.js), and it is engineered to a measured frame budget instead of a vibe.
+    pedestrians and a day/night cycle. It uses <b>vanilla ES modules</b> with a single
+    runtime dependency (three.js), and it is engineered around a measured frame budget.
   </p>
+  <div class="callout" style="margin:30px 0"><p><b>September 2026 performance update.</b> The original desktop effects chain was too expensive. The current version starts with direct rendering, caps total pixels, and adds optional bloom, a stable camera, and a project selector. In a four-second local route comparison at 1440 × 900, rendered FPS increased from <b>36.9 to 54.5</b>. This is a single-browser comparison of the old and new experiences, including their camera framing, not a claim for every GPU. The July geometry counts and figures below document the earlier optimization pass.</p></div>
   <div class="statgrid">
     <div class="stat"><div class="stat-k">Gameplay frame</div><div class="stat-v">266 <small>draw calls</small></div></div>
     <div class="stat"><div class="stat-k">Whole island</div><div class="stat-v">405 <small>calls · 248k tris</small></div></div>
     <div class="stat"><div class="stat-k">Scene graph</div><div class="stat-v">320 <small>meshes · 17 instanced</small></div></div>
     <div class="stat"><div class="stat-k">Runtime deps</div><div class="stat-v">1 <small>three.js r169</small></div></div>
   </div>
-  <p class="tbl-note" style="margin-top:10px">Measured July 2026 with <code>renderer.info</code> on an isolated scene render (Chrome; the whole-island numbers use the overview camera so nothing is frustum-culled). Reproducible in the live site console — see §07.</p>
+  <p class="tbl-note" style="margin-top:10px">Measured July 2026 with <code>renderer.info</code> on an isolated scene render (Chrome; the whole-island numbers use the overview camera so nothing is frustum-culled). These historical isolated-pass figures are not full-pipeline frame costs; see §07 for current diagnostics.</p>
 </section>
 
 <section class="section">
@@ -168,7 +169,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
     and neighbor hand-off).
   </p>
   <div class="figgrid">
-    <figure class="fig"><img src="assets/case/gameplay-kart.jpg" alt="Gameplay view following the kart through the plaza" loading="lazy"><figcaption>FIG 03 — Gameplay frame: the 266-draw-call view players actually pay for</figcaption></figure>
+    <figure class="fig"><img src="assets/case/gameplay-kart.jpg" alt="Gameplay view following the kart through the plaza" loading="lazy"><figcaption>FIG 03 — Gameplay frame: the July gameplay framing (isolated scene pass)</figcaption></figure>
     <figure class="fig"><img src="assets/case/raohe-gate-night.jpg" alt="Raohe night market gate with hanging lanterns at night" loading="lazy"><figcaption>FIG 04 — Raohe night-market gate: the whole street renders in ~10 draw calls after merging</figcaption></figure>
   </div>
 </section>
@@ -195,7 +196,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
       <tr><td><b>Pedestrians</b> (22 people)</td><td class="num">—</td><td class="num">1</td><td>One instanced mesh, per-instance color, matrices updated in place</td></tr>
     </tbody>
   </table>
-  <p class="tbl-note">"Before" counts come from the engineering log kept during the optimization pass (mesh counts of the naive builders); "after" figures are the current build. Whole scene today: 320 meshes → 405 draws with everything visible, 266 in gameplay framing.</p>
+  <p class="tbl-note">"Before" counts come from the engineering log kept during the optimization pass (mesh counts of the naive builders); "after" figures describe the July build. That scene contained: 320 meshes → 405 draws with everything visible, 266 in gameplay framing.</p>
   <p>
     Just as important: what was <em>not</em> merged. Anything that animates (lantern strings bob per
     string), glows on a day/night schedule (emissive materials are lerped by one system scanning
@@ -206,50 +207,21 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 </section>
 
 <section class="section">
-  <div class="sec-num">§<b>04</b> / Post pipeline &amp; adaptive quality</div>
-  <h2>Paying for pretty, but with a cap.</h2>
-  <p>
-    The high tier renders through an <code>EffectComposer</code> chain: scene → ground-truth ambient
-    occlusion (GTAO) → bloom → color grade + vignette → tone-map. Two decisions keep it honest:
-  </p>
-  <ul>
-    <li><b>The post pipeline is capped at 1.5× device-pixel-ratio</b> (<code>Post.MAX_DPR</code>).
-      GTAO and a bloom mip-chain at native 2× DPR is the single largest GPU cost on a laptop, and
-      through bloom + grade the difference is invisible. ~44% fewer shaded pixels at DPR 2.</li>
-    <li><b>Adaptive quality degrades in the right order and stays degraded.</b> A frame-time EMA
-      first sheds the AO pass (&gt;26 ms), then lowers a <em>persistent</em> DPR ceiling to 1.25
-      (&gt;33 ms). The ceiling matters: a naive <code>setPixelRatio</code> call is silently reverted
-      by the next resize event — which on phones fires on every URL-bar show/hide, exactly on the
-      devices that needed the downgrade.</li>
-  </ul>
-  <div class="callout">
-    <p><b>War story:</b> screen-space AO hated the sky. The sky dome and cloud sprites have no usable
-    depth/normals and produced black smears in the AO pass. Fix: atmosphere lives on layer 1, and the
-    GTAO pass renders through a layer-0-only clone camera that stays in lock-step with the follow
-    camera — the sky is composited but never occluded.</p>
-  </div>
+  <div class="sec-num">§<b>04</b> / Current rendering pipeline</div>
+  <h2>Spend the frame budget on the city.</h2>
+  <p>The first implementation enabled GTAO, bloom, grading and a multisampled float buffer on desktop. A mouse was treated as a proxy for GPU capacity. The current default is one direct scene render; Detail lazy-loads a smaller scene → bloom → output chain.</p>
+  <ul><li><b>Budget total pixels, not just DPR.</b> A 4K window is expensive even at 1×. The renderer caps both pixel ratio and total pixel count, including after resize.</li><li><b>Respond to sustained slow frames.</b> Auto examines untruncated rAF intervals while driving, drops from Balanced to Performance and then Minimal, and avoids oscillating between quality levels.</li><li><b>Pay only for useful updates.</b> Driving targets 60 Hz, ambient animation 30 Hz, shadows 15 Hz in Balanced, and the map 10 Hz. Reading a card or help pauses the city. Hidden tabs stop rendering.</li></ul>
 </section>
-
 <section class="section">
-  <div class="sec-num">§<b>05</b> / Two render tiers</div>
-  <h2>Phones get a different engine, not a smaller one.</h2>
-  <table>
-    <thead><tr><th>Decision</th><th>High tier (desktop)</th><th>Low tier (coarse pointer / ≤3GB RAM)</th></tr></thead>
-    <tbody>
-      <tr><td><b>Pipeline</b></td><td>EffectComposer: GTAO + bloom + grade</td><td>Direct render — no composer, no HalfFloat target</td></tr>
-      <tr><td><b>Anti-aliasing</b></td><td>2× MSAA on the composer target (canvas MSAA would resolve nothing visible)</td><td>Hardware MSAA on the canvas — cheap on mobile tile GPUs</td></tr>
-      <tr><td><b>Shadows</b></td><td>1024px, PCF-soft</td><td>512px, plain PCF — the soft kernel is wasted at that resolution</td></tr>
-      <tr><td><b>DPR ceiling</b></td><td>2.0 (post capped at 1.5)</td><td>1.5</td></tr>
-      <tr><td><b>Shader programs</b></td><td class="num">54</td><td class="num">22</td></tr>
-    </tbody>
-  </table>
-  <p>
-    The hot loop is allocation-free: pedestrian path closures write into a shared scratch object,
-    the ring-road parametric writes into a caller-provided struct, and the HUD caches its DOM
-    measurements so proximity tooltips never force a synchronous reflow. Under
-    <code>prefers-reduced-motion</code> the ambient animation clock freezes and the world update
-    early-returns when its inputs are unchanged — zero recompute, zero instance-buffer uploads.
-  </p>
+  <div class="sec-num">§<b>05</b> / Quality and interaction</div>
+  <h2>A useful default, with an escape hatch.</h2>
+  <table><thead><tr><th>Profile</th><th>Pixel budget / DPR ceiling</th><th>Rendering</th></tr></thead><tbody>
+    <tr><td>Auto starts at Balanced on desktop</td><td>1.5M / 1.25×</td><td>Direct + PCF shadows at 15 Hz</td></tr>
+    <tr><td>Performance</td><td>900K / 1×</td><td>Direct, no shadow map</td></tr>
+    <tr><td>Minimal (automatic fallback)</td><td>500K / 0.75×</td><td>Direct, no shadow map</td></tr>
+    <tr><td>Detail (opt-in)</td><td>2M / 1.5×; post capped at 1.25×</td><td>HDR bloom + shadows at 20 Hz</td></tr>
+  </tbody></table>
+  <p>A wider follow camera, a fixed horizon and an overview help visitors locate projects. A named selector starts autopilot; Reset recovers the vehicle. Project cards dock to the viewport and pause the simulation while the visitor reads.</p>
 </section>
 
 <section class="section">
@@ -274,13 +246,12 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 <section class="section">
   <div class="sec-num">§<b>07</b> / Verify it yourself</div>
   <h2>Numbers you can reproduce in the console.</h2>
-  <p>Open the <a href="city.html" style="color:var(--ink)">live city</a>, then in DevTools:</p>
-  <pre><code>const { engine, camera } = window.__city
-const info = engine.renderer.info
-info.autoReset = false; info.reset()
-engine.render(camera.cam)          // one isolated scene pass
-console.log(info.render.calls, info.render.triangles)
-info.autoReset = true</code></pre>
+  <p>Run the project locally with <code>npm run dev</code>, open <code>city.html</code>, then inspect the development-only diagnostics in DevTools:</p>
+  <pre><code>const { engine, quality, stats } = window.__city
+console.table({ quality: quality.level, dpr: engine.renderer.getPixelRatio(),
+  renderedFrames: stats.frames, calls: stats.draws, triangles: stats.triangles })
+// stats counts the complete most recent rendered frame, including post passes.
+// Frames with a shadow update cost more. Sample across a route, not one frame.</code></pre>
   <p>
     Deterministic camera setups for screenshots and QA are URL-addressable:
     <code>?shot</code> (overview), <code>?shot=night</code>, <code>?shot=play</code> (gameplay

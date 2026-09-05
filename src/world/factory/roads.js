@@ -36,7 +36,7 @@ export function makeIslandRoads({ hx = 22, hz = 22, roadW = 5.0, avenueW = 6.5,
   for (let x = 8.6; x <= hx - 3; x += 2.4) { dash.push(plane(1.0, 0.18, x, 0), plane(1.0, 0.18, -x, 0)) }
 
   // zebra crosswalks: 4 roundabout approaches + before each ring junction
-  const zeb = (x, z, horiz) => { for (let i = -2; i <= 2; i++) dash.push(horiz ? plane(0.4, 2.6, x, z + i * 0.7) : plane(2.6, 0.4, x + i * 0.7, z)) }
+  const zeb = (x, z, horiz) => { for (let i = -2; i <= 2; i++) dash.push(horiz ? plane(0.4, roadW - 0.8, x + i * 0.7, z) : plane(avenueW - 0.8, 0.4, x, z + i * 0.7)) }
   zeb(0, -8.2, false); zeb(0, 8.2, false); zeb(-8.2, 0, true); zeb(8.2, 0, true)
   zeb(0, -(hz - 3.4), false); zeb(0, hz - 3.4, false); zeb(-(hx - 3.4), 0, true); zeb(hx - 3.4, 0, true)
 
@@ -54,6 +54,7 @@ export function makeIslandRoads({ hx = 22, hz = 22, roadW = 5.0, avenueW = 6.5,
   const stoneMesh = new THREE.Mesh(mergeGeometries(stone, false), new THREE.MeshStandardMaterial({ color: palette.plaza, roughness: 0.92 }))
   stoneMesh.receiveShadow = true
   const marks = new THREE.Mesh(mergeGeometries(dash, false), new THREE.MeshStandardMaterial({ color: palette.crosswalk, roughness: 0.85 }))
+  marks.position.y = 0.025 // decals must not share the asphalt's depth (flicker)
   const curbs = new THREE.Mesh(mergeGeometries(curb, false), new THREE.MeshStandardMaterial({ color: palette.curb, roughness: 0.9 }))
   curbs.castShadow = true; curbs.receiveShadow = true
   // plaza rim ring (raised, darker stone so the medallion reads crisply)

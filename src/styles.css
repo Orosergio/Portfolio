@@ -182,3 +182,23 @@
   *{animation-duration:.001ms !important; animation-iteration-count:1 !important;
     transition-duration:.001ms !important}
 }
+
+/* Keep native hidden semantics even when a component uses display:flex. */
+#overlay [hidden]{display:none!important}
+.hud-brand,.hud-btn,.hud-tracker{backdrop-filter:none;background:#fbf1df;box-shadow:0 3px 14px #2a1c1017}
+.intro{backdrop-filter:none;background:#26363788}
+.intro-card{max-height:calc(100dvh - 40px);overflow:auto;touch-action:pan-y}
+.hud-tools{position:fixed;left:16px;top:72px;display:grid;gap:8px;pointer-events:auto;max-width:calc(100vw - 32px)}
+.hud-tool-row{display:flex;gap:6px;align-items:center}
+.hud-field{display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:12px;background:#fbf1df;color:var(--ink-soft);font:500 11px var(--mono);box-shadow:0 3px 14px #2a1c1017}
+.hud-field select{min-width:0;max-width:240px;background:transparent;border:0;color:var(--ink);font:600 12px var(--sans);padding:4px;cursor:pointer}
+.quality-field{padding:6px}
+.hud-tool-row .hud-btn{font-size:11px}
+.hud-auto{top:160px}
+.hud-toast{top:205px}
+.hud-tip{left:0;top:0;border:0;animation:none;will-change:transform}
+.hud-btn:focus-visible,.hud-field select:focus-visible,.hud-tip:focus-visible,.card-close:focus-visible{outline:3px solid var(--accent-deep);outline-offset:3px}
+@media(max-width:700px){.hud-brand i{display:none}.hud-bar{flex-wrap:wrap}.hud-tools{top:68px;left:12px}.hud-field select{max-width:200px}.hud-auto{top:158px;bottom:auto}.hud-toast{top:202px}.minimap{width:104px;height:104px}}
+@media(pointer:coarse){.minimap{top:auto;bottom:max(165px,calc(env(safe-area-inset-bottom) + 165px));left:12px}.hud-brand{font-size:13px;padding:8px}.hud-actions{gap:4px}.hud-btn{padding:8px}.hud-toast{top:200px}}
+
+@media(max-width:700px) and (pointer:fine){.minimap{bottom:70px}}

@@ -6,3 +6,6 @@ dist/
 
 # local design references / mood board — not part of the deployed site
 assets/vibe/
+
+# Local browser verification artifacts
+.qa/

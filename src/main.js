@@ -6,7 +6,7 @@ import { Engine } from './core/Engine.js'
 import { IsoCamera } from './core/Camera.js'
 import { addLighting } from './core/Lighting.js'
 import { DayNight } from './core/DayNight.js'
-import { Post } from './core/Post.js'
+import { AdaptiveQuality } from './core/Quality.js'
 import { buildWorld } from './world/World.js'
 import { makeSky } from './world/factory/sky.js'
 import { Fireworks } from './world/factory/fireworks.js'
@@ -26,7 +26,11 @@ import { Intro } from './ui/Intro.js'
 import { createKeyboard } from './input/Keyboard.js'
 import { createTouchControls } from './input/TouchControls.js'
 
-boot()
+boot().catch((error) => {
+  console.error('City could not start:', error)
+  document.getElementById('loader')?.remove()
+  document.getElementById('nowebgl').hidden = false
+})
 
 async function boot() {
   // QA/screenshot affordance: ?shot pins a static overview cam + hides UI.
@@ -55,14 +59,36 @@ async function boot() {
   engine.scene.add(world.group)
   const lights = addLighting(engine.scene, { shadowSize: engine.shadowSize, half: world.half })
 
-  // 3D sky dome (background) + post-processing pipeline (bloom + AO + grade)
+  // 3D sky dome; direct rendering by default, optional bloom loaded on demand.
   const sky = makeSky()
   engine.scene.add(sky.group)
   camera.cam.layers.enable(1) // the follow camera also sees the layer-1 sky dome
   // High tier gets the full composer (bloom + AO + grade). Low/mobile skips it
   // entirely — no HalfFloat target, no bloom mip chain — and renders direct.
-  const post = engine.tier === 'low' ? null : new Post({ renderer: engine.renderer, scene: engine.scene, camera: camera.cam, tier: engine.tier })
-  engine.onResize = (w, h) => { post?.setSize(w, h); camera.setAspect(w / h) }
+  let post = null
+  let needsRender = true
+  let qualityRequest = 0
+  const quality = new AdaptiveQuality(async (level) => {
+    const request = ++qualityRequest
+    post?.dispose()
+    post = null
+    engine.setQuality(level)
+    needsRender = true
+    if (level !== 'high') return
+    try {
+      // Optional bloom is downloaded only when the visitor asks for Detail.
+      const { Post } = await import('./core/Post.js')
+      if (request !== qualityRequest) return
+      post = new Post({ renderer: engine.renderer, scene: engine.scene, camera: camera.cam })
+      needsRender = true
+    } catch (error) {
+      console.warn('Detail unavailable; using direct rendering.', error)
+      quality.select('auto')
+      hud.setQuality('auto')
+      hud.toast('Using automatic quality for this device.')
+    }
+  }, engine.tier)
+  engine.onResize = (w, h) => { post?.setSize(w, h); camera.setAspect(w / h); needsRender = true }
 
   // vehicles: kart + UBike, same scale so the rider reads identical on both.
   // Only the active one is visible; the controller swaps meshes in place.
@@ -109,7 +135,7 @@ async function boot() {
 
   // ── visit tracking (persisted) + guide target ──
   const visited = new Set((() => {
-    try { return JSON.parse(localStorage.getItem('city.visited') || '[]') } catch { return [] }
+    try { const saved = JSON.parse(localStorage.getItem('city.visited') || '[]'); return Array.isArray(saved) ? saved.filter(id => projects.some(p => p.id === id)) : [] } catch { return [] }
   })())
   let explicitTarget = null // tracker-dot click overrides the auto target
   const nearestUnvisited = () => {
@@ -151,6 +177,10 @@ async function boot() {
     if (announceText) hud.announce(announceText)
   }
   const toggleTarget = (id) => {
+    if (hud.revealed) hud.unreveal()
+    camera.setView('drive', cart.position, reduced)
+    hud.setView('drive')
+    needsRender = true
     // re-engage when tapping a dot whose autopilot already ended (arrived /
     // cancelled) — only a same-dot tap while ACTIVELY driving toggles it off
     const on = explicitTarget !== id || !autopilot.active
@@ -168,6 +198,9 @@ async function boot() {
     onSwitchVehicle: switchVehicle,
     onHelp: () => intro.open(),
     onDayNight: () => { if (dayNight) dayNight.toggle() },
+    onQuality: (mode) => { quality.select(mode); needsRender = true },
+    onView: () => toggleView(),
+    onReset: () => resetRide(),
     onTrackerClick: toggleTarget,
     onTipClick: () => doAction(),
     onAutoCancel: () => stopAuto('Autopilot off — you have the wheel'),
@@ -175,6 +208,23 @@ async function boot() {
   hud.setDriverLabel(driver.label)
   hud.setVehicleLabel(vehicleKind)
   hud.setTracker(projects)
+  const toggleView = () => {
+    const view = camera.view === 'overview' ? 'drive' : 'overview'
+    camera.setView(view, cart.position, reduced)
+    hud.setView(view)
+    needsRender = true
+  }
+  const resetRide = () => {
+    stopAuto()
+    input.throttle = input.steer = 0
+    keyboard.reset()
+    controller.reset(world.spawn)
+    camera.setView('drive', cart.position, true)
+    hud.setView('drive')
+    hud.unreveal()
+    needsRender = true
+    hud.announce('Back at the starting point.')
+  }
   dayNight = new DayNight({
     scene: engine.scene, renderer: engine.renderer, lights,
     body: document.body, onLabel: (m) => hud.setDayNight(m),
@@ -239,10 +289,12 @@ async function boot() {
     // reduced-motion users still get the sound; the ped hop is skipped
     if (!reduced) honkState = { x: cart.position.x, z: cart.position.z, t: engine.clock.elapsedTime }
   }
-  createKeyboard(input, {
+  const keyboard = createKeyboard(input, {
     onAction: doAction,
     onVehicle: () => { if (!intro.visible) switchVehicle() },
     onHorn: doHorn,
+    onReset: () => { if (!intro.visible) resetRide() },
+    onView: () => { if (!intro.visible) toggleView() },
     onDayNight: () => { if (dayNight && !intro.visible) dayNight.toggle() },
     // Escape dismisses one layer per press (topmost first): an open card,
     // then autopilot. The intro closes itself; Keyboard skips Escape when the
@@ -254,23 +306,6 @@ async function boot() {
     createTouchControls(input, { onAction: doAction, onHorn: doHorn, container: overlay })
   }
 
-  // ── adaptive quality: shed the AO pass, then DPR, if frame times sag ──
-  let emaMs = 16.7, qStep = 0, qLast = 6
-  const autoQuality = (dtMs, t) => {
-    emaMs = emaMs * 0.96 + dtMs * 0.04
-    if (t - qLast < 4 || t < 6) return
-    if (qStep === 0 && emaMs > 26) {
-      if (post?.ao) post.ao.enabled = false
-      qStep = 1; qLast = t
-    } else if (qStep === 1 && emaMs > 33) {
-      // lower the DPR *cap* — a plain setPixelRatio was silently reverted by
-      // the next resize (mobile URL-bar, rotation), exactly on the devices
-      // that needed the downgrade
-      engine.setDprCap(1.25)
-      qStep = 2; qLast = t
-    }
-  }
-
   // render loop
   const ndc = new THREE.Vector3()
   const cartXZ = { x: 0, z: 0 } // reused every frame (no per-frame allocation)
@@ -279,26 +314,59 @@ async function boot() {
   let lastBump = -1
   let running = true
   let rafId = 0
+  let lastFrame = 0, lastRender = 0, lastShadow = -Infinity, lastMap = -Infinity, t = 0
+  let wasPaused = false, wasDriving = false, lastScheduled = 0
+  const stats = { frames: 0, frameMs: 0, draws: 0, triangles: 0 }
+  // Pause completely behind cards/help. DOM interactions and resize invalidate.
+  overlay.addEventListener('click', () => { needsRender = true })
+  window.addEventListener('keydown', () => { needsRender = true })
+  engine.renderer.domElement.addEventListener('webglcontextlost', (event) => {
+    event.preventDefault()
+    running = false
+    cancelAnimationFrame(rafId)
+    document.getElementById('nowebgl').hidden = false
+  })
+  engine.renderer.domElement.addEventListener('webglcontextrestored', () => location.reload())
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { running = false; cancelAnimationFrame(rafId) }
-    else if (!running) { running = true; engine.clock.getDelta(); rafId = requestAnimationFrame(loop) }
+    else if (!running && !engine.renderer.getContext().isContextLost()) {
+      running = true; lastFrame = lastRender = 0; needsRender = true
+      quality.reset(); rafId = requestAnimationFrame(loop)
+    }
   })
 
-  function loop() {
+  function loop(now) {
     if (!running) return
     rafId = requestAnimationFrame(loop)
-    const dt = Math.min(engine.clock.getDelta(), 0.05)
-    const t = engine.clock.elapsedTime
+    const frameMs = lastFrame ? now - lastFrame : 16.7
+    lastFrame = now
+    const paused = intro.visible || hud.revealed
+    const driving = !paused && (autopilot.active || Math.abs(controller.speed) > 0.1 || input.throttle || input.steer)
+    const transitioning = dayNight.nightT !== dayNight.target
+    if (driving && wasDriving) quality.sample(frameMs)
+    else quality.reset()
+    if (!!driving !== wasDriving) lastScheduled = 0
+    wasDriving = !!driving
+    if (paused !== wasPaused) { needsRender = true; wasPaused = paused; keyboard.reset() }
+    // 60 Hz when interacting; 30 Hz ambient. Hidden tabs do no work at all.
+    const interval = driving || transitioning ? 1000 / 60 : 1000 / 30
+    if (!needsRender && ((paused && !transitioning) || now - lastScheduled < interval - 1)) return
+    const dt = Math.min(lastRender ? (now - lastRender) / 1000 : 1 / 60, 0.05)
+    lastRender = now
+    lastScheduled = now - ((now - lastScheduled) % interval)
+    needsRender = false
+    if (!paused) t += dt
+    engine.clock.elapsedTime = t
 
     // manual input hands the wheel back instantly (guide target stays set).
     // Gated on the intro: while it's up the input drives nothing (below), so a
     // stray key behind the help overlay must not silently cancel the drive.
-    if (autopilot.active && !intro.visible && (Math.abs(input.throttle) > 0.15 || Math.abs(input.steer) > 0.15)) {
+    if (autopilot.active && !paused && (Math.abs(input.throttle) > 0.15 || Math.abs(input.steer) > 0.15)) {
       stopAuto('Manual control — autopilot off')
     }
-    const auto = autopilot.active && !intro.visible ? autopilot.update(dt, controller) : null
-    const drive = intro.visible ? IDLE_DRIVE : (auto || input)
-    controller.update(dt, drive)
+    const auto = autopilot.active && !paused ? autopilot.update(dt, controller) : null
+    const drive = paused ? IDLE_DRIVE : (auto || input)
+    if (!paused) controller.update(dt, drive)
     if (autopilot.arrived) {
       autopilot.arrived = false
       const arrivedAt = autopilot.project
@@ -312,18 +380,17 @@ async function boot() {
         hud.toast(`Arrived at <b>${arrivedAt.venue}</b> — press T to open the project`, 3400)
       }
     }
-    // collision feedback: audible thunk + camera jolt (debounced; motion-safe)
+    // Collision feedback without shaking the camera.
     if (controller.bumped && Math.abs(controller.speed) > 2.2 && t - lastBump > 0.35) {
       lastBump = t
       sound.thunk()
-      if (!reduced) camera.shake(0.35)
     }
-    if (!shot || shotPlay) camera.update(dt, cart.position, controller.heading, controller.speed, controller.bank)
+    if ((!shot || shotPlay) && !paused) camera.update(dt, cart.position, controller.heading, controller.speed, controller.bank)
     cartXZ.x = cart.position.x; cartXZ.z = cart.position.z
     const tAnim = reduced ? 6.0 : t // frozen ambient phase when reduced-motion
     world.animate(tAnim, dayNight.nightT, cartXZ, honkState)
     dayNight.update(dt)
-    fireworks.update(dt)
+    if (!paused) fireworks.update(dt)
     sky.setNight(dayNight.nightT); sky.animate(tAnim)
     if (post) post.setNight(dayNight.nightT)
 
@@ -345,17 +412,28 @@ async function boot() {
     guide.update(dt, tAnim, cart.position, tgt ? { x: tgt.pos.x, z: tgt.pos.y } : null, intro.visible || shot || !!active)
 
     mmState.x = cart.position.x; mmState.z = cart.position.z; mmState.heading = controller.heading
-    minimap.update(mmState, tAnim)
-    autoQuality(dt * 1000, t)
-    if (post) post.render() // EffectComposer: scene → AO → bloom → grade/vignette → tone-map
+    if (now - lastMap > 100 || paused) { minimap.update(mmState, tAnim); lastMap = now }
+    if (engine.profile.shadows && now - lastShadow >= 1000 / engine.profile.shadowHz) {
+      engine.renderer.shadowMap.needsUpdate = true
+      lastShadow = now
+    }
+    engine.renderer.info.reset()
+    if (post) post.render() // opt-in bloom → tone-map
     else engine.render(camera.cam) // low tier: direct render (renderer tone-maps + sRGB)
+    stats.frames++
+    stats.frameMs = frameMs
+    stats.draws = engine.renderer.info.render.calls
+    stats.triangles = engine.renderer.info.render.triangles
   }
 
-  loop()
+  loader.set('Preparing the first view', 0.98)
+  await frame()
+  await engine.renderer.compileAsync(engine.scene, camera.cam)
+  loop(performance.now())
   await loader.hide()
 
   if (import.meta.env.DEV) {
-    window.__city = { controller, proximity, hud, camera, driver, world, kart, bike, input, dayNight, engine, visited, guide, switchVehicle, fireworks, autopilot, toggleTarget, get cart() { return cart } }
+    window.__city = { controller, proximity, hud, camera, driver, world, kart, bike, input, dayNight, engine, visited, guide, switchVehicle, fireworks, autopilot, toggleTarget, quality, stats, resetRide, get post() { return post }, get cart() { return cart } }
   }
 }
 

@@ -42,10 +42,10 @@ export function makeNameplate(title, accent) {
   tex.colorSpace = THREE.SRGBColorSpace
   tex.anisotropy = 4
   const spr = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: tex, transparent: true, depthWrite: false, sizeAttenuation: true,
+    map: tex, transparent: true, depthWrite: false, depthTest: false, sizeAttenuation: false,
   }))
   // world scale: ~0.0175 u per canvas px keeps plates readable but modest
-  const S = 0.0175
+  const S = 0.00022 // stable screen size: no giant labels at the camera edge
   spr.scale.set(c.width * S, c.height * S, 1)
   spr.center.set(0.5, 0) // anchor at the pointer nib
   spr.layers.set(1)

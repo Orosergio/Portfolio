@@ -6,7 +6,7 @@
 export const palette = {
   // ground / base — one notch toward sand (was #eda04e: 82% sat covering half
   // the frame + warm rig + grade boost read "monochrome-hot" and tired the eye)
-  ground:      '#e3a968',
+  ground:      '#d8c5a4',
   groundEdge:  '#f6e3c2',  // cream bevel
   groundUnder: '#c28a55',
   park:        '#73c06a',  // lush grass
@@ -94,11 +94,11 @@ export const palette = {
   // sky is a value step above the ground (was iso-luminant with it — horizon
   // and diorama merged); zenith slightly desaturated to rest the eye.
   day: {
-    skyTop: '#f2e7d3', skyBottom: '#f4ad6d',
-    hemiSky: '#fff0d8', hemiGround: '#e2a874', hemiI: 0.96,
+    skyTop: '#b9d4e0', skyBottom: '#e7e5d7',
+    hemiSky: '#f1f6f7', hemiGround: '#c4b59e', hemiI: 0.96,
     sun: '#fff4e2', sunI: 1.18,
     ambI: 0.34,
-    fog: '#f7ddb6', fogD: 0.0028,  // light — let building colours breathe (was a sepia veil)
+    fog: '#dce5e5', fogD: 0.0028,
     exposure: 1.12,
   },
 

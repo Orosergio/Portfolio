@@ -14,7 +14,7 @@ export class Intro {
       <div class="intro-card">
         <div class="intro-kicker">Welcome to Portfolio City</div>
         <h2 id="introTitle">8 projects live inside 8 landmarks of Japan&nbsp;&amp;&nbsp;Taiwan</h2>
-        <p>Tokyo Tower, Taipei 101, the Raohe night market… each icon hosts one real project. Follow the <b>glowing arrow</b> to the nearest one — the name floats above it — and pull up close to preview and open it.</p>
+        <p>Tokyo Tower, Taipei 101, the Raohe night market… each landmark hosts a real project. <b>Choose a project to drive there automatically</b>, or explore at your own pace. Use Overview to see the whole island.</p>
         <div class="intro-rows">
           ${coarse
             ? `<div class="intro-row"><span class="ic">🕹️</span><div><b>Joystick</b><small>drive around the island</small></div></div>
@@ -25,7 +25,7 @@ export class Intro {
                <div class="intro-row"><span class="ic key">T</span><div><b>Press T</b><small>open the project at a landmark</small></div></div>
                <div class="intro-row"><span class="ic key">V · B</span><div><b>Kart or UBike</b><small>V swaps your ride · B honks the horn / rings the bell</small></div></div>
                <div class="intro-row"><span class="ic key">N</span><div><b>Try night mode</b><small>lanterns, neon and beacons light up</small></div></div>`}
-          <div class="intro-row"><span class="ic">◎</span><div><b>Autopilot</b><small>tap a project dot (tracker or map) — the vehicle drives you there; grab the controls anytime</small></div></div>
+          <div class="intro-row"><span class="ic">◎</span><div><b>Explore your way</b><small>Overview shows the island · Reset returns to the start · choose Performance for a lighter ride</small></div></div>
         </div>
         <button class="intro-start" id="introStart">Start driving →</button>
         <a class="intro-classic" href="index.html">Prefer a classic page? View the text portfolio →</a>

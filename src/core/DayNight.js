@@ -81,8 +81,9 @@ export class DayNight {
     const botC = this._hex(this.col.skyBottom, t)
     this.renderer.setClearColor(botC) // backstop so the bg matches even where the dome clips
     if (updateBody) {
+      const bottom = botC.getStyle()
       const top = this._hex(this.col.skyTop, t).getStyle()
-      this.body.style.background = `linear-gradient(180deg, ${top} 0%, ${botC.getStyle()} 100%)`
+      this.body.style.background = `linear-gradient(180deg, ${top} 0%, ${bottom} 100%)`
     }
   }
 }

@@ -34,8 +34,10 @@ export function makeSky({ radius = 150 } = {}) {
           vec3 hor = mix(uHorDay, uHorNight, uNight);
           float y = vDir.y;
           vec3 col = mix(hor, top, smoothstep(-0.02, 0.62, y));
-          col = mix(col, hor * 0.8, smoothstep(0.0, -0.45, y));
+          col = mix(col, mix(hor, top, 0.35) * 0.95, 1.0 - smoothstep(-0.45, 0.0, y));
           gl_FragColor = vec4(col, 1.0);
+          #include <tonemapping_fragment>
+          #include <colorspace_fragment>
         }
       `,
     })

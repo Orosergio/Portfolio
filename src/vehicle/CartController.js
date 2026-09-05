@@ -45,6 +45,14 @@ export class CartController {
     Object.assign(this, p)
   }
 
+  reset(spawn) {
+    this.pos.set(spawn.x, spawn.z)
+    this.heading = spawn.heading
+    this.speed = this.steerVis = this.bankVis = this.pitchVis = this.accelEst = this.bank = 0
+    this.bumped = false
+    this._apply(0)
+  }
+
   // Swap the driven mesh (kart ↔ bike) in place: the new vehicle appears at
   // the same spot/heading; momentum is clamped to the new top speed.
   setVehicle(mesh, presetName) {

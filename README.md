@@ -9,26 +9,15 @@ Deep dives: **[A city in 266 draw calls](https://orosergio.github.io/Portfolio/c
 
 ---
 
-## The 3D city, measured
+## The 3D city: September 2026 revision
 
-All numbers below are from `renderer.info` on an isolated scene render (July 2026), reproducible in the live site console (see [§07 of the case study](https://orosergio.github.io/Portfolio/case-portfolio-city.html)).
+The default renderer is direct WebGL2 with hardware antialiasing. Desktop starts at Balanced (1.5 million pixel budget); touch/low-memory devices start at Performance (900,000 pixels). Auto drops quality after sustained slow frames and has a 500,000-pixel fallback. Resize and monitor changes preserve the budget.
 
-| Metric | Value |
-|---|---|
-| Draw calls, gameplay frame | **266** |
-| Draw calls / triangles, whole island visible | **405 / 248,208** |
-| Scene graph | 320 meshes (17 instanced), 223 materials, 22 shader programs (mobile tier) |
-| Source | **4,993 lines** of vanilla ES modules across 38 files + 198 lines CSS |
-| Runtime dependencies | **1** (`three` r169) |
-| 3D model / texture / audio assets | **0** — everything is generated in code |
+Detail is opt-in and lazy-loads bloom + tone mapping. GTAO and the separate grading pass have been removed. Shadows update at 15 Hz in Balanced, the minimap at 10 Hz, and ambient rendering at 30 Hz. Active driving targets 60 Hz. Cards and help pause simulation and rendering until interaction; hidden tabs stop the loop entirely.
 
-How it stays there:
+A short local browser comparison at 1440 × 900 on the same route measured **36.9 → 54.5 rendered FPS**. This compares the old and new default experiences, including their camera framing; it is not a cross-device benchmark. See [the review](./PERFORMANCE-REVIEW.md) for methodology, sources and limitations. The July isolated-scene counts in the case study remain historical measurements.
 
-- **Merge + pool**: procedural builders emit parts; a `mergeStatic()` utility bakes vertex colors and merges geometry per pooled material, skipping anything live (day/night emissives, canvas textures, instanced meshes). Night-market street: ~103 meshes → ~10 draws. Traffic fleet: ~70 → 21. Sixteen filler buildings: ~96 → ~12.
-- **Instancing**: trees (3 draws per forest tint), pedestrians (1 draw for 22 people, matrices updated in place, zero per-frame allocation).
-- **Two render tiers**: desktop gets an EffectComposer chain (GTAO → bloom → grade) capped at **1.5× DPR** (`Post.MAX_DPR`); coarse-pointer / low-memory devices render direct with hardware MSAA and plain 512px PCF shadows.
-- **Adaptive quality that survives resizes**: a frame-time EMA sheds the AO pass first, then lowers a *persistent* DPR ceiling — a naive `setPixelRatio` is silently undone by the next mobile URL-bar resize.
-- **Accessible game UI**: aria-live announcements for game state, keyboard-complete flow (drive → open card → Enter opens the project), WCAG-AA contrast tokens, honored `prefers-reduced-motion`, no-WebGL and no-JS fallbacks.
+Classic keeps content readable without JavaScript, places real imagery and technical case studies above the fold, and exposes the résumé and source directly.
 
 ### Controls
 
@@ -40,6 +29,9 @@ How it stays there:
 | Open the project at a landmark | **T** / E / Enter | Action button |
 | Switch vehicle (kart ↔ UBike) | **V** | Top-bar button |
 | Horn / bike bell | **B** | 🔔 button |
+| Overview ↔ follow camera | **O** / Overview | Overview button |
+| Recover the vehicle | **R** / Reset | Reset button |
+| Graphics quality | Auto / Performance / Detail | Same selector |
 | Day ↔ night | **N** / top-bar ☀🌙 | Top-bar ☀🌙 |
 | Dismiss card / cancel autopilot | **Esc** | — |
 
@@ -48,7 +40,7 @@ Autopilot routes the vehicle over a hand-laid waypoint graph (ring, avenues, rou
 ### Debug & QA affordances
 
 - `?shot` — deterministic overview camera, UI hidden. Variants: `?shot=night`, `?shot=play` (gameplay framing), `?shot=hero`, `?shot=lm:<projectId>[,night]` (frame any landmark). Every screenshot in the case study was captured through these.
-- `window.__city` (dev builds) — live handles to the engine, controller, world and day/night systems for console inspection and `renderer.info` measurements.
+- `window.__city` (dev builds) — live handles to the engine, controller, quality, frame stats, world and day/night systems for console inspection and `renderer.info` measurements.
 
 ### Architecture
 
@@ -83,6 +75,7 @@ Requires Node 22+.
 ```bash
 npm ci
 npm run dev      # http://localhost:5173
+npm test         # regression checks
 npm run build    # → dist/
 npm run preview  # serve the production build
 ```
@@ -98,5 +91,5 @@ One `dist/` serves both hosts (relative `base: './'`):
 
 ---
 
-**Sergio Orozco** — Software Engineer · Taipei, Taiwan · open to SWE roles, Summer '26
+**Sergio Orozco** — Software Engineer · Taipei, Taiwan · open to SWE roles
 [GitHub](https://github.com/Orosergio) · [LinkedIn](https://www.linkedin.com/in/orosergioo) · orosergioo@gmail.com

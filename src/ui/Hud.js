@@ -2,7 +2,7 @@
 // the project preview card (a real clickable link), and the visit tracker
 // ("Projects 3/8" with one clickable dot per project → sets the guide arrow).
 export class Hud {
-  constructor(container, { onSwitchDriver, onSwitchVehicle, onHelp, onDayNight, onTrackerClick, onTipClick, onAutoCancel } = {}) {
+  constructor(container, { onSwitchDriver, onSwitchVehicle, onHelp, onDayNight, onTrackerClick, onTipClick, onAutoCancel, onQuality, onView, onReset } = {}) {
     this.active = null
     this.revealed = false
     this.onTrackerClick = onTrackerClick
@@ -30,6 +30,25 @@ export class Hud {
     this.vehLabel = bar.querySelector('#vehLabel')
     this.dnIcon = bar.querySelector('#dnIcon')
 
+    const tools = document.createElement('div')
+    tools.className = 'hud-tools'
+    tools.innerHTML = `
+      <label class="hud-field">Explore<select id="projectSelect" aria-label="Drive to a project"><option value="">Choose a project…</option></select></label>
+      <div class="hud-tool-row">
+        <button class="hud-btn" id="btnView" aria-label="Show city overview" title="Camera view (O)">Overview ↗</button>
+        <button class="hud-btn" id="btnReset" title="Back to start (R)" aria-label="Back to starting point">Reset ↺</button>
+        <label class="hud-field quality-field"><span class="visually-hidden">Graphics quality</span><select id="qualitySelect" aria-label="Graphics quality"><option value="auto">Auto quality</option><option value="low">Performance</option><option value="high">Detail</option></select></label>
+      </div>`
+    container.appendChild(tools)
+    this.projectSelect = tools.querySelector('#projectSelect')
+    this.qualitySelect = tools.querySelector('#qualitySelect')
+    this.viewButton = tools.querySelector('#btnView')
+    this.projectSelect.addEventListener('change', () => { if (this.projectSelect.value) onTrackerClick?.(this.projectSelect.value) })
+    this.qualitySelect.addEventListener('change', () => onQuality?.(this.qualitySelect.value))
+    this.viewButton.addEventListener('click', () => onView?.())
+    tools.querySelector('#btnReset').addEventListener('click', () => onReset?.())
+    window.addEventListener('resize', () => { this._boxW = 0; this._lastX = null })
+
     // polite screen-reader announcements for game state (visit/vehicle/driver)
     const live = document.createElement('div')
     live.className = 'visually-hidden'
@@ -56,7 +75,8 @@ export class Hud {
     this.autoLabel = auto.querySelector('#autoLabel')
     auto.querySelector('#autoCancel').addEventListener('click', () => onAutoCancel?.())
 
-    const tip = document.createElement('div')
+    const tip = document.createElement('button')
+    tip.type = 'button'
     tip.className = 'hud-tip'
     tip.innerHTML = `<kbd>T</kbd> <span id="tipText">check preview</span>`
     tip.addEventListener('click', () => onTipClick?.()) // mouse users can click it too
@@ -80,6 +100,11 @@ export class Hud {
   }
 
   setDriverLabel(label) { this.driverLabel.textContent = label }
+  setQuality(mode) { this.qualitySelect.value = mode }
+  setView(view) {
+    this.viewButton.textContent = view === 'overview' ? 'Follow car ↙' : 'Overview ↗'
+    this.viewButton.setAttribute('aria-label', view === 'overview' ? 'Follow the vehicle' : 'Show city overview')
+  }
   setVehicleLabel(kind) {
     const bike = kind === 'bike'
     this.vehIcon.textContent = bike ? '🚲' : '🏎'
@@ -99,7 +124,8 @@ export class Hud {
 
   // Autopilot destination pill (null hides it).
   setAuto(project) {
-    if (!project) { this.autoEl.hidden = true; return }
+    if (!project) { this.autoEl.hidden = true; this.projectSelect.value = ''; return }
+    this.projectSelect.value = project.id
     this.autoLabel.innerHTML = `AUTO → <b>${project.title}</b> · ${project.venue} — take the wheel anytime`
     this.autoEl.hidden = false
   }
@@ -126,6 +152,10 @@ export class Hud {
     this.trLabel = this.tracker.querySelector('#trLabel b')
     const dots = this.tracker.querySelector('.tr-dots')
     for (const p of projects) {
+      const option = document.createElement('option')
+      option.value = p.id
+      option.textContent = p.title + ' · ' + p.venue
+      this.projectSelect.appendChild(option)
       const d = document.createElement('button')
       d.className = 'tr-dot'
       d.style.setProperty('--c', p.accent)
@@ -167,6 +197,12 @@ export class Hud {
     this.tip.style.display = 'none'
     const card = buildCard(this.active)
     this.cardAnchor.appendChild(card)
+    const close = document.createElement('button')
+    close.className = 'card-close'
+    close.type = 'button'
+    close.textContent = 'Close preview ×'
+    close.addEventListener('click', () => this.unreveal())
+    this.cardAnchor.appendChild(close)
     // the anchor must be rendered BEFORE focus() — focusing inside a
     // display:none subtree is a silent no-op and Enter would close the card
     this.cardAnchor.style.display = 'block'
@@ -198,6 +234,9 @@ export class Hud {
   // never clips off the viewport edges. Measures once per state change (the
   // old per-frame offsetWidth read forced a layout every frame near a landmark).
   position(x, y, onScreen) {
+    // Reading a project freezes the city and docks the card in the viewport.
+    // It must stay reachable even if its landmark is behind the camera.
+    if (this.revealed) { this.cardAnchor.style.display = 'block'; return }
     const el = this.revealed ? this.cardAnchor : (this.active ? this.tip : null)
     if (!el) return
     if (!onScreen) {
@@ -215,8 +254,7 @@ export class Hud {
     const cy = Math.round(Math.max(y, 14 + this._boxH * factor))
     if (cx === this._lastX && cy === this._lastY) return
     this._lastX = cx; this._lastY = cy
-    el.style.left = cx + 'px'
-    el.style.top = cy + 'px'
+    el.style.transform = `translate3d(${cx}px,${cy}px,0) translate(-50%,-135%)`
   }
 }
 

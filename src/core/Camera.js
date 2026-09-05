@@ -11,7 +11,9 @@ export class IsoCamera {
     // like following it through the streets, not surveying the whole diorama).
     // Slightly higher than the old rig — the island doubled and the landmark
     // towers need headroom in frame. Far plane covers the Fuji backdrop.
-    this.offset = new THREE.Vector3(13.5, 18, 13.5)
+    this.offset = new THREE.Vector3(18, 24, 18)
+    this.view = 'drive'
+    this.overview = new THREE.Vector3(66, 72, 66)
     this.cam.position.copy(this.offset)
     this.cam.lookAt(0, 0, 0)
     this._desired = new THREE.Vector3()
@@ -30,6 +32,16 @@ export class IsoCamera {
     this._portrait = Math.min(Math.max(Math.pow(1 / Math.max(aspect, 0.01), 0.45), 1), 1.5)
   }
 
+  setView(view, target, instant = false) {
+    this.view = view
+    if (!instant) return
+    if (view === 'overview') {
+      this.cam.position.copy(this.overview).multiplyScalar(this._portrait)
+      this._lookSmooth.set(0, 2, 0)
+      this.cam.lookAt(this._lookSmooth)
+    } else this.snapTo(target)
+  }
+
   // One-shot collision jolt: brief decaying positional noise (main gates this
   // behind prefers-reduced-motion).
   shake(amp = 0.4) { this._shake = Math.min(this._shake + amp, 0.6) }
@@ -44,11 +56,19 @@ export class IsoCamera {
   }
 
   update(dt, target, heading, speed, bank = 0) {
+    if (this.view === 'overview') {
+      this._desired.copy(this.overview).multiplyScalar(this._portrait)
+      this._look.set(0, 2, 0)
+      dampVec3(this.cam.position, this._desired, 5, dt)
+      dampVec3(this._lookSmooth, this._look, 5, dt)
+      this.cam.lookAt(this._lookSmooth)
+      return
+    }
     // look slightly ahead along the cart's heading for lead room
     this._look.set(target.x + Math.sin(heading) * 2.2, target.y + 0.6, target.z + Math.cos(heading) * 2.2)
     // dolly back a touch at speed for a sense of velocity
     const sf = Math.min(Math.abs(speed) / 9.5, 1)
-    const k = (1 + sf * 0.09) * this._portrait
+    const k = this._portrait
     this._desired.set(target.x + this.offset.x * k, this.offset.y * k, target.z + this.offset.z * k)
     dampVec3(this.cam.position, this._desired, 4.5, dt)
     dampVec3(this._lookSmooth, this._look, 6, dt)
@@ -61,11 +81,10 @@ export class IsoCamera {
     this.cam.lookAt(this._lookSmooth)
 
     // speed-reactive FOV (subtle sense of velocity)
-    const fovTarget = this.fovBase + sf * 3.0
+    const fovTarget = this.fovBase
     this.cam.fov = damp(this.cam.fov, fovTarget, 4, dt)
     this.cam.updateProjectionMatrix()
     // bank into turns — roll the camera a touch (lookAt above reset orientation, so no accumulation)
-    this.rollVis = damp(this.rollVis, -bank * 0.05, 6, dt)
-    this.cam.rotateZ(this.rollVis)
+    // Keep the horizon and field of view stable while steering/accelerating.
   }
 }

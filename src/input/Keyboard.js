@@ -1,6 +1,6 @@
 // Keyboard → shared input state. Arrows/WASD drive; T/E/Enter/Space fire the
 // action; V swaps kart↔UBike; B honks/rings; N toggles day/night; Esc dismisses.
-export function createKeyboard(state, { onAction, onVehicle, onHorn, onDayNight, onDismiss } = {}) {
+export function createKeyboard(state, { onAction, onVehicle, onHorn, onDayNight, onDismiss, onReset, onView } = {}) {
   const keys = new Set()
   const recompute = () => {
     let t = 0, s = 0
@@ -22,6 +22,8 @@ export function createKeyboard(state, { onAction, onVehicle, onHorn, onDayNight,
       else if (k === 'v') onVehicle?.()
       else if (k === 'b') onHorn?.()
       else if (k === 'n') onDayNight?.()
+      else if (k === 'r') onReset?.()
+      else if (k === 'o') onView?.()
       // the intro dialog registers its keydown first and preventDefaults the
       // Escape that closes it — don't also fire onDismiss (which would cancel
       // an autopilot running behind the help overlay)
@@ -35,5 +37,7 @@ export function createKeyboard(state, { onAction, onVehicle, onHorn, onDayNight,
   window.addEventListener('keydown', down)
   window.addEventListener('keyup', up)
   window.addEventListener('blur', reset)
-  return { dispose() { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); window.removeEventListener('blur', reset) } }
+  const visibility = () => { if (document.hidden) reset() }
+  document.addEventListener('visibilitychange', visibility)
+  return { reset, dispose() { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); window.removeEventListener('blur', reset); document.removeEventListener('visibilitychange', visibility) } }
 }
